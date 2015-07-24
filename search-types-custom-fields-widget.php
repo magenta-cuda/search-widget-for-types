@@ -34,10 +34,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
 		parent::__construct(
             'search_types_custom_fields_widget',
             __( 'Search Types Custom Fields' ),
-            array(
-                'classname' => 'search_types_custom_fields_widget',
-                'description' => __( "Search Types Custom Fields" )
-            )
+            [ 'classname' => 'search_types_custom_fields_widget', 'description' => __( "Search Types Custom Fields" ) ]
         );
 	}
 
@@ -61,8 +58,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
 <option value="no-selection">--select post type--</option>
 <?php
         $results = $wpdb->get_results( <<<EOD
-            SELECT post_type, COUNT(*) count FROM $wpdb->posts WHERE post_status = "publish"
-                GROUP BY post_type ORDER BY count DESC
+SELECT post_type, COUNT(*) count FROM $wpdb->posts WHERE post_status = "publish" GROUP BY post_type ORDER BY count DESC
 EOD
             , OBJECT );
         $select_post_types = array_diff( array_filter( array_keys( $instance ), function( $key ) {
@@ -163,21 +159,18 @@ jQuery(document).ready(function(){
         # use all Types custom post types and the WordPress built in "post" and "page"
         $wpcf_types_keys = '"' . implode( '", "', array_keys( $wpcf_types ) ) . '", "post", "page"';
         $types = $wpdb->get_results( <<<EOD
-            SELECT post_type, COUNT(*) count FROM $wpdb->posts
-                WHERE post_type IN ( $wpcf_types_keys ) AND post_status = "publish" 
-                GROUP BY post_type ORDER BY count DESC
+SELECT post_type, COUNT(*) count FROM $wpdb->posts WHERE post_type IN ( $wpcf_types_keys ) AND post_status = "publish" GROUP BY post_type ORDER BY count DESC
 EOD
         , OBJECT_K );
         # the sql below gives the number of posts tagged, since a single post may be tagged with multiple tags
         # the sql is somewhat complicated
         $db_taxonomies = $wpdb->get_results( <<<EOD
-            SELECT post_type, taxonomy, count(*) count
-                FROM (SELECT p.post_type, tt.taxonomy, r.object_id
-                    FROM wp_term_relationships r, wp_term_taxonomy tt, wp_terms t, wp_posts p
-                    WHERE r.term_taxonomy_id = tt.term_taxonomy_id AND tt.term_id = t.term_id AND r.object_id = p.ID
-                        AND post_type IN ( $wpcf_types_keys )
-                    GROUP BY p.post_type, tt.taxonomy, r.object_id) d 
-                GROUP BY post_type, taxonomy
+SELECT post_type, taxonomy, count(*) count
+    FROM (SELECT p.post_type, tt.taxonomy, r.object_id
+        FROM wp_term_relationships r, wp_term_taxonomy tt, wp_terms t, wp_posts p
+        WHERE r.term_taxonomy_id = tt.term_taxonomy_id AND tt.term_id = t.term_id AND r.object_id = p.ID AND post_type IN ( $wpcf_types_keys )
+        GROUP BY p.post_type, tt.taxonomy, r.object_id) d 
+    GROUP BY post_type, taxonomy
 EOD
         , OBJECT );
         $wp_taxonomies = get_taxonomies( '', 'objects' );
@@ -220,15 +213,15 @@ EOD
             unset( $db_taxonomy );
             # now do types custom fields, post content and author
             # again the sql is complicated since a single post may have multiple values for a custom field
-            $fields = $wpdb->get_results( <<<EOD
-                SELECT field_name, COUNT(*) count
-                    FROM ( SELECT m.meta_key field_name, m.post_id FROM $wpdb->postmeta m, $wpdb->posts p
-                        WHERE m.post_id = p.ID AND p.post_type = '$name' AND m.meta_key LIKE 'wpcf-%'
-                            AND m.meta_value IS NOT NULL AND m.meta_value != '' AND m.meta_value != 'a:0:{}'
-                        GROUP BY m.meta_key, m.post_id ) fields
-                    GROUP BY field_name ORDER BY count DESC
+            $fields = $wpdb->get_results( $wpdb->prepare( <<<EOD
+SELECT field_name, COUNT(*) count
+    FROM ( SELECT m.meta_key field_name, m.post_id FROM $wpdb->postmeta m, $wpdb->posts p
+        WHERE m.post_id = p.ID AND p.post_type = %s AND m.meta_key LIKE 'wpcf-%%' AND m.meta_value IS NOT NULL AND m.meta_value != ''
+            AND m.meta_value != 'a:0:{}'
+        GROUP BY m.meta_key, m.post_id ) fields
+    GROUP BY field_name ORDER BY count DESC
 EOD
-            , OBJECT_K );
+            , $name ), OBJECT_K );
             $fields_for_type = $wpdb->get_col( <<<EOD
                 SELECT gf.meta_value FROM $wpdb->postmeta pt, $wpdb->postmeta gf WHERE pt.post_id = gf.post_id
                     AND pt.meta_key = "_wp_types_group_post_types" AND pt.meta_value LIKE "%,$name,%"
@@ -345,11 +338,9 @@ EOD
     <input type="checkbox"
         id="<?php echo $this->get_field_id( 'scpbcfw-show-' . $name ); ?>"
         name="<?php echo $this->get_field_name( 'scpbcfw-show-' . $name ); ?>[]"
-        <?php if ( !$field->large ) { echo 'class="scpbcfw-select-content-macro-display-field"'; } ?>
+        <?php if ( empty( $field->large ) ) { echo 'class="scpbcfw-select-content-macro-display-field"'; } ?>
         value="<?php echo $meta_key; ?>" <?php if ( $show_selected && in_array( $meta_key, $show_selected ) ) { echo ' checked'; } ?>
-        <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) || $field->large ) {
-            echo 'disabled';
-        } ?>>
+        <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) || !empty( $field->large ) ) { echo 'disabled'; } ?>>
     <?php echo "$field->label ($field->count)"; ?>
 <?php
                 }   # else {
@@ -528,13 +519,12 @@ div.scpbcfw-selectable-field-after.scpbcfw-hover{background-color:black;}
         $SQL_LIMIT = $option[$widget_number]['maximum_number_of_items'];
         # get all terms for all taxonomies for the selected post type
         $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
-            SELECT x.taxonomy, r.term_taxonomy_id, t.name, COUNT(*) count
-                FROM $wpdb->term_relationships r, $wpdb->term_taxonomy x, $wpdb->terms t, $wpdb->posts p
-                WHERE r.term_taxonomy_id = x.term_taxonomy_id AND x.term_id = t.term_id AND r.object_id = p.ID
-                    AND p.post_type = %s
-                GROUP BY x.taxonomy, r.term_taxonomy_id ORDER BY x.taxonomy, r.term_taxonomy_id
+SELECT x.taxonomy, r.term_taxonomy_id, t.name, COUNT(*) count
+    FROM $wpdb->term_relationships r, $wpdb->term_taxonomy x, $wpdb->terms t, $wpdb->posts p
+    WHERE r.term_taxonomy_id = x.term_taxonomy_id AND x.term_id = t.term_id AND r.object_id = p.ID AND p.post_type = %s
+    GROUP BY x.taxonomy, r.term_taxonomy_id ORDER BY x.taxonomy, r.term_taxonomy_id
 EOD
-            , $_REQUEST[post_type] ), OBJECT );
+            , $_REQUEST['post_type'] ), OBJECT );
         $taxonomies = get_taxonomies( '', 'objects' );
         # restructure the results for displaying by taxonomy
         $terms = array();
@@ -549,13 +539,10 @@ EOD
         if ( $selected_imploded = array_filter( $selected, function( $v ) { return strpos( $v, '_wpcf_belongs_' ) !== 0; } ) ) {
             $selected_imploded = '("' . implode( '","', $selected_imploded ) . '")';
             $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
-                SELECT m.meta_key, m.meta_value, COUNT(*) count
-                    FROM $wpdb->postmeta m, $wpdb->posts p
-                    WHERE m.post_id = p.ID
-                        AND meta_key IN $selected_imploded AND p.post_type = %s
-                    GROUP BY m.meta_key, m.meta_value
+SELECT m.meta_key, m.meta_value, COUNT(*) count FROM $wpdb->postmeta m, $wpdb->posts p
+    WHERE m.post_id = p.ID AND meta_key IN $selected_imploded AND p.post_type = %s GROUP BY m.meta_key, m.meta_value
 EOD
-                , $_REQUEST[post_type] ), OBJECT );
+                , $_REQUEST['post_type'] ), OBJECT );
             $wpcf_fields = get_option( 'wpcf-fields', array() );
             # prepare the results for use in checkboxes - need value, count of value and field labels
             foreach ( $results as $result ) {
@@ -602,13 +589,10 @@ EOD
             $selected_imploded = '("' . implode( '","', $selected_child_of ) . '")';
             # do all parent types with one sql query and filter the results later
             $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
-                SELECT m.meta_key, m.meta_value, COUNT(*) count
-                    FROM $wpdb->postmeta m, $wpdb->posts pi, $wpdb->posts pv
-                    WHERE m.post_id = pi.ID AND m.meta_value = pv.ID
-                        AND m.meta_key IN $selected_imploded AND pi.post_type = %s
-                        GROUP BY m.meta_key, m.meta_value
+SELECT m.meta_key, m.meta_value, COUNT(*) count FROM $wpdb->postmeta m, $wpdb->posts pi, $wpdb->posts pv
+    WHERE m.post_id = pi.ID AND m.meta_value = pv.ID AND m.meta_key IN $selected_imploded AND pi.post_type = %s GROUP BY m.meta_key, m.meta_value
 EOD
-            , $_REQUEST[post_type] ) );
+            , $_REQUEST['post_type'] ) );
             foreach ( $selected_child_of as $parent ) {
                 # do each parent type but results need to be filtered to this parent type
                 if ( $selected_results = array_filter( $results, function( $result ) use ( $parent ) { 
@@ -1052,8 +1036,7 @@ EOD
             $sql .= " EXISTS ( SELECT * FROM $wpdb->postmeta w WHERE $sql2 ) ";
         }   # foreach ( $_REQUEST as $key => $values ) {
         if ( $sql ) {
-            $ids0 = $wpdb->get_col( $wpdb->prepare( "SELECT p.ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql )",
-                $_REQUEST[post_type] ) );
+            $ids0 = $wpdb->get_col( $wpdb->prepare( "SELECT p.ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql )", $_REQUEST['post_type'] ) );
             if ( $and_or === 'AND' && !$ids0 ) { return ' AND 1 = 2 '; }
         } else {
             $ids0 = FALSE;
@@ -1082,9 +1065,10 @@ EOD
             $sql .= ') AND object_id = p.ID )';
         }   # foreach ( $_REQUEST as $key => $values ) {
         if ( $sql ) {
-            $ids1 = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql ) ",
-                $_REQUEST[post_type] ) );
-            if ( $and_or === 'AND' && !$ids1 ) { return ' AND 1 = 2 '; }
+            $ids1 = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql ) ", $_REQUEST['post_type'] ) );
+            if ( $and_or === 'AND' && !$ids1 ) {
+                return ' AND 1 = 2 ';
+            }
        } else {
             $ids1 = FALSE;
         }
@@ -1175,7 +1159,9 @@ EOD
                 $fields = $option[$number][$_REQUEST['post_type']];
             }
             if ( $container_width = $option[$number]['search_table_width'] ) {
-                $container_style .= "style=\"width:{$container_width}px\"";
+                $container_style = "style=\"width:{$container_width}px\"";
+            } else {
+                $container_style = '';
             }
             # build the main content from the above parts
             # the macro has parameters: posts - a list of post ids, fields - a list of field names, a_post - any valid post id,
@@ -1429,9 +1415,13 @@ EOD
                                         $current = date( Search_Types_Custom_Fields_Widget::DATE_FORMAT, $value );
                                     } else if ( $wpcf_field['type'] === 'url' ) {
                                         # for URLs chop off http://
-                                        if ( substr_compare( $value, 'http://', 0, 7 ) === 0 ) { $current = substr( $value, 7 ); }
-                                        else if ( substr_compare( $value, 'https://', 0, 8 ) === 0 ) { $current = substr( $value, 8 ); }
-                                        else { $current = $value; }
+                                        if ( substr_compare( $value, 'http://', 0, 7 ) === 0 ) {
+                                            $current = substr( $value, 7 );
+                                        } else if ( substr_compare( $value, 'https://', 0, 8 ) === 0 ) {
+                                            $current = substr( $value, 8 );
+                                        } else {
+                                            $current = $value;
+                                        }
                                         # and provide line break hints
                                         $current = str_replace( '/', '/&#8203;', $current );
                                     } else if ( $wpcf_field['type'] === 'numeric' ) {
@@ -1441,7 +1431,9 @@ EOD
                                         $current = $value;
                                     }
                                     # if it is a link then embed in an <a> html element
-                                    if ( $url ) { $current = "<a href=\"$url\">$current</a>"; }
+                                    if ( !empty( $url ) ) {
+                                        $current = "<a href=\"$url\">$current</a>";
+                                    }
                                     unset( $url, $current );
                                 }
                                 $labels[] = implode( ', ', $label );
