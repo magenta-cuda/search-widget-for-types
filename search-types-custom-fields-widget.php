@@ -117,6 +117,7 @@ Show search results in table format:
     
     public function form( $instance ) {
         global $wpdb;
+        error_log( 'form():$instance=' . print_r( $instance, true ) );
         $wpcf_types  = get_option( 'wpcf-custom-types', [ ] );
         $wpcf_fields = get_option( 'wpcf-fields',       [ ] );
 ?>
@@ -454,10 +455,11 @@ if ( is_admin() ) {
 <br style="clear:both;">
 </div>
 <?php
-        $option        = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] );
         $widget_number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
-        $selected      = $option[ $widget_number ][ $_REQUEST[ 'post_type' ] ];
-        $SQL_LIMIT     = $option[ $widget_number ][ 'maximum_number_of_items' ];
+        $option        = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $widget_number ];
+        error_log( '$option=' . print_r( $option, true ) );
+        $selected      = $option[ $_REQUEST[ 'post_type' ] ];
+        $SQL_LIMIT     = $option[ 'maximum_number_of_items' ];
         # get all terms for all taxonomies for the selected post type
         $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
 SELECT x.taxonomy, r.term_taxonomy_id, t.name, COUNT(*) count
@@ -721,22 +723,39 @@ EOD
                         $label = $posts[$value]->post_title;
                     } else if ( $field['type'] === 'radio' ) {
                         # for radio replace option key with something more user friendly
-                        $label = $wpcf_field['data']['options'][$value]['title']
-                            . ( $wpcf_field['data']['display'] == 'value'
-                                ? ( '(' . $wpcf_field['data']['options'][$value]['display_value'] . ')' )
-                                : ( '(' . $wpcf_field['data']['options'][$value]['value'] . ')' ) );
+                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                            $label = $wpcf_field[ 'data' ][ 'display' ] === 'value' ? $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value' ]
+                                : $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                        } else {
+                            $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ]
+                                . ( $wpcf_field[ 'data' ][ 'display' ] == 'value'
+                                    ? ( '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value' ] . ')' )
+                                    : ( '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'value' ] . ')' ) );
+                        }
                     } else if ( $field['type'] === 'select' ) {
                         # for select replace option key with something more user friendly
-                        $label = $wpcf_field['data']['options'][$value]['value']
-                            . '(' . $wpcf_field['data']['options'][$value]['title'] . ')';
-                    } else if ( $field['type'] === 'checkboxes' ) {
+                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                            $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                        } else {
+                            $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'value' ]
+                                . '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ] . ')';
+                        }
+                    } else if ( $field[ 'type' ] === 'checkboxes' ) {
                         # checkboxes are handled very differently from radio and select 
                         # Why? seems that the radio/select way would work here also and be simpler
-                        $label = $wpcf_field['data']['options'][$value]['title'];
-                         if ( $wpcf_field['data']['options'][$value]['display'] == 'db' ) {
-                            $label .= ' (' . $wpcf_field['data']['options'][$value]['set_value'] . ')';
-                        } else if ( $wpcf_field['data']['options'][$value]['display'] == 'value' ) {
-                            $label .= ' (' . $wpcf_field['data']['options'][$value]['display_value_selected'] . ')';
+                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                            if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] == 'value' ) {
+                                $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value_selected' ];
+                            } else {
+                                $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                            }
+                        } else {
+                            $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                             if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] == 'db' ) {
+                                $label .= ' (' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'set_value' ] . ')';
+                            } else if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] == 'value' ) {
+                                $label .= ' (' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value_selected' ] . ')';
+                            }
                         }
                     } else if ( $field['type'] === 'checkbox' ) {
                         if ( $wpcf_field['data']['display'] == 'db' ) {
@@ -830,9 +849,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
         $and_or = $_REQUEST['search_types_custom_fields_and_or'] == 'and' ? 'AND' : 'OR';
         # first get taxonomy name to term_taxonomy_id transalation table in case we need the translations
         $results = $wpdb->get_results( <<<EOD
-            SELECT x.taxonomy, t.name, x.term_taxonomy_id
-                FROM $wpdb->term_taxonomy x, $wpdb->terms t
-                WHERE x.term_id = t.term_id
+SELECT x.taxonomy, t.name, x.term_taxonomy_id FROM $wpdb->term_taxonomy x, $wpdb->terms t WHERE x.term_id = t.term_id
 EOD
             , OBJECT );
         $term_taxonomy_ids = array();
@@ -880,14 +897,15 @@ EOD
             }
         }
         unset( $request );
-        $wpcf_fields = get_option( 'wpcf-fields', array() );    
-        $non_field_keys = array( 'search_types_custom_fields_form', 'search_types_custom_fields_widget_option',
-            'search_types_custom_fields_widget_number', 'search_types_custom_fields_and_or',
-            'search_types_custom_fields_show_using_macro', 'post_type', 'paged' );
+        $wpcf_fields = get_option( 'wpcf-fields', [ ] );    
+        $non_field_keys = [ 'search_types_custom_fields_form', 'search_types_custom_fields_widget_option', 'search_types_custom_fields_widget_number',
+            'search_types_custom_fields_and_or', 'search_types_custom_fields_show_using_macro', 'post_type', 'paged' ];
         $sql = '';
         foreach ( $_REQUEST as $key => $values ) {
             # here only searches on the table $wpdb->postmeta are processed; everything is done later.
-            if ( in_array( $key, $non_field_keys ) ) { continue; }
+            if ( in_array( $key, $non_field_keys ) ) {
+                continue;
+            }
             $prefix = substr( $key, 0, 8 );
             if ( $prefix === 'tax-cat-' || $prefix === 'tax-tag-' || $prefix === 'pst-std-' ) {
                 continue;
@@ -1099,17 +1117,17 @@ EOD
             # get the list of posts
             $posts = array_map( function( $post ) { return $post->ID; }, $wp_query->posts );
             $posts_imploded = implode( ', ', $posts );
-            $option = get_option( $_REQUEST['search_types_custom_fields_widget_option'] );
             $number = $_REQUEST['search_types_custom_fields_widget_number'];
+            $option = get_option( $_REQUEST['search_types_custom_fields_widget_option'] )[ $number ];
             # get the applicable fields from the options for this widget
-            if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option[ $number ] ) ) {
+            if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
                 # display fields explicitly specified for post type
-                $fields = $option[ $number ][ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
+                $fields = $option[ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
             } else {
                 # display fields not explicitly specified so just use the search fields for post type
-                $fields = $option[ $number ][ $_REQUEST[ 'post_type' ] ];
+                $fields = $option[ $_REQUEST[ 'post_type' ] ];
             }
-            if ( $container_width = $option[$number]['search_table_width'] ) {
+            if ( $container_width = $option[ 'search_table_width' ] ) {
                 $container_style = "style=\"width:{$container_width}px\"";
             } else {
                 $container_style = '';
@@ -1322,24 +1340,34 @@ EOD
                                     }
                                 }
                                 unset( $value );
-                                $label = array();
+                                $label = [ ];
                                 foreach ( $values as $value ) {
                                     if ( strlen( $value ) > 7 && ( substr_compare( $value, 'http://', 0, 7, true ) === 0
                                         || substr_compare( $value, 'https://', 0, 8, true ) === 0 ) ) {
                                         $url = $value;
                                     }
-                                    $current =& $label[];
-                                    if ( $wpcf_field['type'] === 'radio' ) {
+                                    $current =& $label[ ];
+                                    if ( $wpcf_field[ 'type' ] === 'radio' ) {
                                         # for radio replace option key with something more user friendly
-                                        $current = $wpcf_field['data']['options'][$value]['title']
-                                            . ( $wpcf_field['data']['display'] === 'value'
-                                                ? ( '(' . $wpcf_field['data']['options'][$value]['display_value'] . ')' )
-                                                : ( '(' . $wpcf_field['data']['options'][$value]['value'] . ')' ) );
-                                    } else if ( $wpcf_field['type'] === 'select' ) {
+                                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                            $current = $wpcf_field[ 'data' ][ 'display' ] === 'value'
+                                                ? $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value' ]
+                                                : $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                                        } else {
+                                            $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ]
+                                                . ( $wpcf_field[ 'data' ][ 'display' ] === 'value'
+                                                    ? ( '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value' ] . ')' )
+                                                    : ( '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'value' ] . ')' ) );
+                                        }
+                                    } else if ( $wpcf_field[ 'type' ] === 'select' ) {
                                         # for select replace option key with something more user friendly
-                                        $current = $wpcf_field['data']['options'][$value]['value']
-                                            . '(' . $wpcf_field['data']['options'][$value]['title'] . ')';
-                                    } else if ( $wpcf_field['type'] === 'checkboxes' ) {
+                                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                            $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                                        } else {
+                                            $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'value' ]
+                                                . '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ] . ')';
+                                        }
+                                    } else if ( $wpcf_field[ 'type' ] === 'checkboxes' ) {
                                         # checkboxes are handled very differently from radio and select 
                                         # Why? seems that the radio/select way would work here also and be simpler
                                         $current = $wpcf_field['data']['options'][$value]['title'];
