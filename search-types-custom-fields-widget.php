@@ -63,7 +63,7 @@ EOD
             , OBJECT );
         $select_post_types = array_diff( array_filter( array_keys( $instance ), function( $key ) {
             return substr_compare( $key, "scpbcfw-", 0, 8 ) !== 0;
-        } ), [ 'maximum_number_of_items', 'set_is_search', 'enable_table_view_option', 'search_table_width' ] );
+        } ), [ 'maximum_number_of_items', 'set_is_search', 'use_simplified_labels_for_select', 'enable_table_view_option', 'search_table_width' ] );
         foreach ( $results as $result ) {
             $name = $result->post_type;
             # skip unselectd post types
@@ -98,42 +98,12 @@ Show search results in table format:
 ?>
 </div>
 <div class="scpbcfw-search-fields-submit-box">
+<input id="scpbcfw-search-fields-nonce" type="hidden" value="<?php echo wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ); ?>">
 <input id="scpbcfw-search-fields-submit" type="submit" value="Start Search" disabled>
 &nbsp;&nbsp;
 </div>
 </div>
 </form>
-<script type="text/javascript">
-jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?> select.post_type").change(function(){
-    jQuery.post(
-        "<?php echo admin_url( 'admin-ajax.php' ); ?>",{
-            action:"<?php echo Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE; ?>",
-            stcfw_get_form_nonce:'<?php echo wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ); ?>',
-            post_type:jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?>"
-                +" select#post_type option:selected").val(),
-            search_types_custom_fields_widget_option:jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?>"
-                +" input#search_types_custom_fields_widget_option").val(),
-            search_types_custom_fields_widget_number:jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?>"
-                +" input#search_types_custom_fields_widget_number").val()
-        },
-        function(response){
-            jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?>"
-                +" div#search-types-custom-fields-parameters").html(response);
-            jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?>"
-                +" input#scpbcfw-search-fields-submit").prop("disabled",false);
-            jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?>"
-                +" div#scpbcfw-search-fields-submit-container").css("display",response?"block":"none");
-        }
-    );
-});
-jQuery(document).ready(function(){
-    if(jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?> select.post_type option.real_post_type").length===1){
-        jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?> select.post_type option.real_post_type").prop("selected",true);
-        jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?> select.post_type").change();
-        jQuery("form#search-types-custom-fields-widget-<?php echo $this->number; ?> select.post_type").parent("div").css("display","none");
-    }
-});
-</script>
 <?php
 	}   # public function widget( $args, $instance ) {
 
@@ -180,7 +150,7 @@ EOD
             $show_selected = !empty( $instance['scpbcfw-show-' . $name] ) ? $instance['scpbcfw-show-' . $name]
                 : ( !empty( $instance['show-' . $name] ) ? $instance['show-' . $name] : [] );
 ?>
-<div class="scpbcfw-search-fields">
+<div class="scpbcfw-admin-search-fields">
 <span class="scpbcfw-admin-post-type"><?php echo "$name ($type->count)"; ?></span>
 <div class="scpbcfw-admin-display-button">Open</div>
 <div style="clear:both;"></div>
@@ -375,10 +345,18 @@ Maximum number of items to display per custom field:
     name="<?php echo $this->get_field_name( 'set_is_search' ); ?>"
     class="scpbcfw-admin-option-checkbox"
     value="is search" <?php if ( isset( $instance['set_is_search'] ) ) { echo 'checked'; } ?>>
-Display search results using the same template as the default WordPress search:
+Display search results using excerpts (if it is supported by your theme):
 <div style="clear:both;"></div>
 </div>
 <div class="scpbcfw-admin-option-box">
+<input type="checkbox"
+    id="<?php echo $this->get_field_id( 'use_simplified_labels_for_select' ); ?>"
+    name="<?php echo $this->get_field_name( 'use_simplified_labels_for_select' ); ?>"
+    class="scpbcfw-admin-option-checkbox"
+    value="use simplified labels" <?php if ( isset( $instance[ 'use_simplified_labels_for_select' ] ) ) { echo 'checked'; } ?>>
+Use simplified labels for the values of select, checkboxes and radio button fields:
+<div style="clear:both;"></div>
+</div><div class="scpbcfw-admin-option-box">
 <input type="checkbox"
     id="<?php echo $this->get_field_id( 'enable_table_view_option' ); ?>"
     name="<?php echo $this->get_field_name( 'enable_table_view_option' ); ?>"
@@ -401,35 +379,6 @@ Width in pixels of the table of search results:
 <div style="clear:both;"></div>
 </div>
 </div>
-<script type="text/javascript">
-jQuery("div.scpbcfw-admin-display-button").click(function(event){
-    if(jQuery(this).text()=="Open"){
-        jQuery(this).text("Close");
-        jQuery("div.scpbcfw-search-field-values",this.parentNode).css("display","block");
-    }else{
-        jQuery(this).text("Open");
-        jQuery("div.scpbcfw-search-field-values",this.parentNode).css("display","none");
-    }
-    return false;
-});
-jQuery("input[type='checkbox'].scpbcfw-enable-table-view-option").change(function(event){
-    jQuery("input[type='number'].scpbcfw-search-table-width").prop("disabled",!jQuery(this)
-        .prop("checked"));
-    jQuery("input[type='checkbox'].scpbcfw-select-content-macro-display-field").prop("disabled",!jQuery(this).prop("checked"));
-});
-jQuery(document).ready(function(){
-    jQuery("div.scpbcfw-selectable-field").draggable({cursor:"crosshair",revert:true});
-    jQuery("div.scpbcfw-selectable-field-after").droppable({accept:"div.scpbcfw-selectable-field",tolerance:"touch",
-        hoverClass:"scpbcfw-hover",drop:function(e,u){
-            jQuery(this.parentNode).after(u.draggable);
-            var o="";
-            jQuery("input.scpbcfw-selectable-field[type='checkbox']",this.parentNode.parentNode).each(function(i){
-                o+=jQuery(this).val()+";";
-            });
-            jQuery("input.scpbcfw-selectable-field-order[type='hidden']",this.parentNode.parentNode).val(o);
-    }});
-});
-</script>
 <?php
     }   # public function form( $instance ) {
 
@@ -474,17 +423,10 @@ add_action( 'widgets_init', function() {
 
 if ( is_admin() ) {
     add_action( 'admin_enqueue_scripts', function() {
-        wp_enqueue_style( 'admin', plugins_url( 'admin.css', __FILE__ ) );
+        wp_enqueue_style(  'stcfw-admin', plugins_url( 'stcfw-admin.css', __FILE__ ) );
+        wp_enqueue_script( 'stcfw-admin', plugins_url( 'stcfw-admin.js',  __FILE__ ), [ 'jquery' ]  );
         wp_enqueue_script( 'jquery-ui-draggable' );
         wp_enqueue_script( 'jquery-ui-droppable' );
-    } );
-    add_action( 'admin_head', function() {
-?>
-<style>
-div.scpbcfw-selectable-field-after{height:2px;background-color:white;}
-div.scpbcfw-selectable-field-after.scpbcfw-hover{background-color:black;}
-</style>
-<?php
     } );
     add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function() {
         do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE );
@@ -512,10 +454,10 @@ div.scpbcfw-selectable-field-after.scpbcfw-hover{background-color:black;}
 <br style="clear:both;">
 </div>
 <?php
-        $option = get_option( $_REQUEST['search_types_custom_fields_widget_option'] );
-        $widget_number = $_REQUEST['search_types_custom_fields_widget_number'];
-        $selected = $option[$widget_number][$_REQUEST['post_type']];
-        $SQL_LIMIT = $option[$widget_number]['maximum_number_of_items'];
+        $option        = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] );
+        $widget_number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
+        $selected      = $option[ $widget_number ][ $_REQUEST[ 'post_type' ] ];
+        $SQL_LIMIT     = $option[ $widget_number ][ 'maximum_number_of_items' ];
         # get all terms for all taxonomies for the selected post type
         $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
 SELECT x.taxonomy, r.term_taxonomy_id, t.name, COUNT(*) count
@@ -526,11 +468,13 @@ EOD
             , $_REQUEST['post_type'] ), OBJECT );
         $taxonomies = get_taxonomies( '', 'objects' );
         # restructure the results for displaying by taxonomy
-        $terms = array();
+        $terms = [ ];
         foreach ( $results as $result ) {
             $taxonomy = $taxonomies[$result->taxonomy];
             $tax_type = ( $taxonomy->hierarchical ) ? 'tax-cat-' : 'tax-tag-';
-            if ( !in_array( $tax_type . $taxonomy->name, $selected ) ) { continue; }
+            if ( !in_array( $tax_type . $taxonomy->name, $selected ) ) {
+                continue;
+            }
             $terms[$result->taxonomy]['values'][$result->term_taxonomy_id]['name' ] = $result->name;
             $terms[$result->taxonomy]['values'][$result->term_taxonomy_id]['count'] = $result->count;
         }
@@ -549,7 +493,9 @@ EOD
             foreach ( $results as $result ) {
                 $wpcf_field =& $wpcf_fields[substr( $result->meta_key, 5 )];
                 # skip false values except for single checkbox
-                if ( $wpcf_field['type'] !== 'checkbox' && !$result->meta_value ) { continue; }
+                if ( $wpcf_field['type'] !== 'checkbox' && !$result->meta_value ) {
+                    continue;
+                }
                 if ( is_serialized( $result->meta_value ) ) {
                     # serialized meta_value contains multiple values so need to unpack them and process them individually
                     $unserialized = unserialize( $result->meta_value );
@@ -558,11 +504,19 @@ EOD
                             return $sum = $sum && ( is_array( $value ) || is_scalar( $value ) );
                         }, TRUE ) ) {
                             foreach( $unserialized as $key => $value ) {
-                                if ( $wpcf_field['type'] === 'checkboxes' ) {
+                                if ( $wpcf_field[ 'type' ] === 'checkboxes' ) {
                                     # for checkboxes use the unique option key as the value of the checkbox
-                                    if ( $value ) { $fields[$result->meta_key]['values'][$key] += $result->count; }
+                                    if ( $value ) {
+                                        if ( !isset( $fields[ $result->meta_key ][ 'values' ][ $key ] ) ) {
+                                            $fields[ $result->meta_key ][ 'values' ][ $key ] = 0;
+                                        }
+                                        $fields[ $result->meta_key ][ 'values' ][ $key ] += $result->count;
+                                    }
                                 } else {
-                                    $fields[$result->meta_key]['values'][$value] += $result->count;
+                                    if ( !isset( $fields[ $result->meta_key ][ 'values' ][ $value ] ) ) {
+                                        $fields[ $result->meta_key ][ 'values' ][ $value ] = 0;
+                                    }
+                                    $fields[ $result->meta_key ][ 'values' ][ $value ] += $result->count;
                                 }
                             }
                         } else {
@@ -626,11 +580,8 @@ EOD
             $selected_parent_of = substr( $selected_parent_of, strpos( $selected_parent_of, '_wpcf_belongs_' ) );
             # we can use just one sql query to do all the post types together and filter the results later
             $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
-                SELECT pi.post_type, m.post_id, COUNT(*) count
-                    FROM $wpdb->postmeta m, $wpdb->posts pi, $wpdb->posts pv
-                    WHERE m.post_id = pi.ID AND m.meta_value = pv.ID
-                        AND m.meta_key = "$selected_parent_of" AND pv.post_type = %s
-                    GROUP BY pi.post_type, m.post_id
+SELECT pi.post_type, m.post_id, COUNT(*) count FROM $wpdb->postmeta m, $wpdb->posts pi, $wpdb->posts pv
+    WHERE m.post_id = pi.ID AND m.meta_value = pv.ID AND m.meta_key = "$selected_parent_of" AND pv.post_type = %s GROUP BY pi.post_type, m.post_id
 EOD
             , $_REQUEST[post_type] ) );
             foreach ( $post_types as $post_type ) {
@@ -638,27 +589,26 @@ EOD
                 if ( $selected_results = array_filter( $results, function( $result ) use ( $post_type ) { 
                     return $result->post_type == $post_type; 
                 } ) ) {
-                    $fields["inverse_{$post_type}_{$selected_parent_of}"] = array(
+                    $fields["inverse_{$post_type}_{$selected_parent_of}"] = [
                         'type' => 'parent_of',
                         'label' => Search_Types_Custom_Fields_Widget::PARENT_OF
-                            . ( $post_type === 'post' || $post_type === 'page' ? $post_type
-                            : $wpcf_types[$post_type]['labels']['name'] ), 
+                            . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
                         'values' => array_reduce( $selected_results, function( $new_results, $result ) {
                                 $new_results[$result->post_id] = $result->count;
                                 return $new_results;
-                            }, array() )
-                    );
+                            }, [ ] )
+                    ];
                 }
             }
         }   # if ( $selected_parent_of = array_filter( $selected, function( $v ) { return strpos( $v, 'inverse_' ) === 0; } ) ) {
         if ( in_array( 'pst-std-post_content', $selected ) ) {
-            $fields['pst-std-post_content'] = array( 'type' => 'textarea',   'label' => 'Post Content' );
+            $fields['pst-std-post_content'] = [ 'type' => 'textarea',   'label' => 'Post Content' ];
         }
         if ( in_array( 'pst-std-attachment', $selected ) ) {
-            $fields['pst-std-attachment']   = array( 'type' => 'attachment', 'label' => 'Attachment'   );
+            $fields['pst-std-attachment']   = [ 'type' => 'attachment', 'label' => 'Attachment'   ];
         }
         if ( in_array( 'pst-std-post_author', $selected ) ) {
-            $fields['pst-std-post_author']  = array( 'type' => 'author',     'label' => 'Author'   );
+            $fields['pst-std-post_author']  = [ 'type' => 'author',     'label' => 'Author'       ];
         }
         $posts = NULL;
         foreach ( $selected as $selection ) {
@@ -676,7 +626,9 @@ EOD
 <?php
                 $count = -1;
                 foreach ( $values['values'] as $term_id => &$result ) {
-                    if ( ++$count == $SQL_LIMIT ) { break; }
+                    if ( ++$count == $SQL_LIMIT ) {
+                        break;
+                    }
 ?>
 <input type="checkbox" id="<?php echo $tax_type . $taxonomy->name ?>" name="<?php echo $tax_type . $taxonomy->name ?>[]"
     value="<?php echo $term_id; ?>"><?php echo "$result[name]($result[count])"; ?><br>
@@ -695,8 +647,7 @@ EOD
 </div>
 </div>
 <?php
-            }   # if ( substr_compare( $selection, 'tax-cat-', 0, 8 ) === 0 || substr_compare( $selection, 'tax-tag-', 0, 8 ) === 0 ) {
-            else {
+            } else {   # if ( substr_compare( $selection, 'tax-cat-', 0, 8 ) === 0 || substr_compare( $selection, 'tax-tag-', 0, 8 ) === 0 ) {
                 # do a custom field, post_content or author
                 $meta_key = $selection;
                 $field =& $fields[$meta_key];
@@ -850,26 +801,19 @@ EOD
             }
         }   # foreach ( $selected as $selection ) {
         unset( $field, $wpcf_field );
-?>
-<script type="text/javascript">
-jQuery("div.scpbcfw-display-button").click(function(event){
-    if(jQuery(this).text()=="Open"){
-        jQuery(this).text("Close");
-        jQuery("div.scpbcfw-search-field-values",this.parentNode).css("display","block");
-    }else{
-        jQuery(this).text("Open");
-        jQuery("div.scpbcfw-search-field-values",this.parentNode).css("display","none");
-    }
-    return false;
-});
-</script>
-<?php
         die();
     } );   # add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function() {
 } else {   # if ( is_admin() ) {
-    add_action( 'wp_enqueue_scripts', function() {
-        wp_enqueue_style( 'search', plugins_url( 'search.css', __FILE__ ) );
-        wp_enqueue_script( 'jquery' );
+    add_action( 'wp_head', function( ) {
+?>
+<script type="text/javascript">
+var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
+</script>
+<?php
+    } );
+    add_action( 'wp_enqueue_scripts', function( ) {
+        wp_enqueue_style(  'stcfw-search', plugins_url( 'stcfw-search.css', __FILE__ ) );
+        wp_enqueue_script( 'stcfw-search', plugins_url( 'stcfw-search.js',  __FILE__ ), [ 'jquery' ] );
     } );
     add_action( 'parse_query', function( &$query ) {
         if ( !$query->is_main_query() || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) { return; }
