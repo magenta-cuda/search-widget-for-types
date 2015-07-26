@@ -1,5 +1,7 @@
 jQuery(document).ready(function(){
-    jQuery("form[id|='search-types-custom-fields-widget'] select.post_type").change(function(){
+    var select=jQuery("form[id|='search-types-custom-fields-widget'] select.post_type");
+    select.find("option[value='no-selection']").prop("selected",true);
+    select.change(function(){
         var id=jQuery(this).parents("form.scpbcfw-search-fields-form")[0].id.match(/-(\d+)$/)[1];
         var form=jQuery("form#search-types-custom-fields-widget-"+id);
         jQuery.post(
@@ -24,8 +26,26 @@ jQuery(document).ready(function(){
                     }
                     return false;
                 });
+                form.find("div.scpbcfw-search-field-values input[type='checkbox']").change(function(){
+                    var checked=false;
+                    jQuery(this).parents("div.scpbcfw-search-field-values").find("input[type='checkbox']").each(function(){
+                        checked=checked||jQuery(this).prop("checked");
+                    });
+                    var container=jQuery(this).parents("div.scpbcfw-search-fields");
+                    if(checked){
+                        container.removeClass("stcfw-nohighlight").addClass("stcfw-highlight");
+                    }else{
+                        container.removeClass("stcfw-highlight").addClass("stcfw-nohighlight");
+                    }
+                });
             }
         );
+        var container=select.parents("div.scpbcfw-search-post-type");
+        if(form.find("select#post_type option:selected").val()==="no-selection"){
+            container.removeClass("stcfw-highlight").addClass("stcfw-nohighlight");
+        }else{
+            container.removeClass("stcfw-nohighlight").addClass("stcfw-highlight");
+        }
     });
     jQuery("form[id|='search-types-custom-fields-widget']").each(function(){
         if(jQuery(this).find("select.post_type option.real_post_type").length===1){
@@ -34,4 +54,13 @@ jQuery(document).ready(function(){
             postType.change().parent("div").css("display","none");
         }
     });
+    /*
+    jQuery("div.scpbcfw-search-field-values").each(function(){
+        var checked=false;
+        jQuery(this).find("input[type='checkbox']").each(function(){
+            checked=checked||jQuery(this).prop("checked");
+        });
+        jQuery(this).parents("div.scpbcfw-search-fields").css("background-color",checked?"transparent":"lightgray");
+    });
+    */
 });

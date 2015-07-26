@@ -66,10 +66,14 @@ EOD
         } ), [ 'maximum_number_of_items', 'set_is_search', 'use_simplified_labels_for_select', 'enable_table_view_option', 'search_table_width' ] );
         foreach ( $results as $result ) {
             $name = $result->post_type;
-            # skip unselectd post types
-            if ( !in_array( $name, $select_post_types ) ) {  continue; }      
+            # skip unselected post types
+            if ( !in_array( $name, $select_post_types ) ) {
+                continue;
+            }      
+            $labels = get_post_type_object( $name )->labels;
+            $label = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
 ?>      
-<option class="real_post_type" value="<?php echo $name; ?>"><?php echo "$name ($result->count)"; ?></option>
+<option class="real_post_type" value="<?php echo $name; ?>"><?php echo "$label ($result->count)"; ?></option>
 <?php
         }   # foreach ( $results as $result ) {
 ?>
@@ -413,7 +417,8 @@ Width in pixels of the table of search results:
             }
             return $arr;
         }
-        return FALSE;
+        $arr = FALSE;
+        return $arr;
     }
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
@@ -487,7 +492,7 @@ EOD
 SELECT m.meta_key, m.meta_value, COUNT(*) count FROM $wpdb->postmeta m, $wpdb->posts p
     WHERE m.post_id = p.ID AND meta_key IN $selected_imploded AND p.post_type = %s GROUP BY m.meta_key, m.meta_value
 EOD
-                , $_REQUEST['post_type'] ), OBJECT );
+                , $_REQUEST[ 'post_type' ] ), OBJECT );
             $wpcf_fields = get_option( 'wpcf-fields', [ ] );
             error_log( '$wpcf_fields=' . print_r( $wpcf_fields, true ) );
             # prepare the results for use in checkboxes - need value, count of value and field labels
@@ -551,23 +556,22 @@ EOD
 SELECT m.meta_key, m.meta_value, COUNT(*) count FROM $wpdb->postmeta m, $wpdb->posts pi, $wpdb->posts pv
     WHERE m.post_id = pi.ID AND m.meta_value = pv.ID AND m.meta_key IN $selected_imploded AND pi.post_type = %s GROUP BY m.meta_key, m.meta_value
 EOD
-            , $_REQUEST['post_type'] ) );
+            , $_REQUEST[ 'post_type' ] ) );
             foreach ( $selected_child_of as $parent ) {
                 # do each parent type but results need to be filtered to this parent type
                 if ( $selected_results = array_filter( $results, function( $result ) use ( $parent ) { 
                     return $result->meta_key == $parent; 
                 } ) ) {
                     $post_type = substr( $parent, 14, strlen( $parent ) - 17 );
-                    $fields[$parent] = array(
+                    $fields[$parent] = [
                         'type' => 'child_of',
                         'label' => Search_Types_Custom_Fields_Widget::CHILD_OF
-                            . ( $post_type === 'post' || $post_type === 'page' ? $post_type
-                                : $wpcf_types[$post_type]['labels']['name'] ), 
+                            . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
                         'values' => array_reduce( $selected_results, function( $new_results, $result ) {
                                 $new_results[$result->meta_value] = $result->count;
                                 return $new_results;
-                            }, array() )
-                    );
+                            }, [ ] )
+                    ];
                 }
             }
             unset( $selected_imploded );
@@ -585,7 +589,7 @@ EOD
 SELECT pi.post_type, m.post_id, COUNT(*) count FROM $wpdb->postmeta m, $wpdb->posts pi, $wpdb->posts pv
     WHERE m.post_id = pi.ID AND m.meta_value = pv.ID AND m.meta_key = "$selected_parent_of" AND pv.post_type = %s GROUP BY pi.post_type, m.post_id
 EOD
-            , $_REQUEST[post_type] ) );
+            , $_REQUEST[ 'post_type' ] ) );
             foreach ( $post_types as $post_type ) {
                 # do each post type but the results need to be filtered this post type
                 if ( $selected_results = array_filter( $results, function( $result ) use ( $post_type ) { 
@@ -620,7 +624,7 @@ EOD
                 $values =& $terms[$tax_name];
                 $taxonomy = $taxonomies[$tax_name];
 ?>
-<div class="scpbcfw-search-fields">
+<div class="scpbcfw-search-fields stcfw-nohighlight">
 <span class="scpbcfw-search-fields-field-label"><?php echo $taxonomy->label ?>:</span>
 <div class="scpbcfw-display-button">Open</div>
 <div style="clear:both;"></div>
@@ -655,7 +659,7 @@ EOD
                 $field =& $fields[$meta_key];
                 $wpcf_field =& $wpcf_fields[substr( $meta_key, 5 )];
 ?>
-<div class="scpbcfw-search-fields">
+<div class="scpbcfw-search-fields stcfw-nohighlight">
 <span class="scpbcfw-search-fields-field-label"><?php echo $field['label'] ?>:</span>
 <div class="scpbcfw-display-button">Open</div>
 <div style="clear:both;"></div>
@@ -672,12 +676,10 @@ EOD
                 }
                 if ( $meta_key === 'pst-std-attachment' ) {
                     $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
-                        SELECT a.ID, a.post_title FROM $wpdb->posts a, $wpdb->posts p
-                            WHERE a.post_parent = p.ID AND a.post_type = "attachment" AND p.post_type = %s
-                                AND p.post_status = "publish"
-                            LIMIT $SQL_LIMIT
+SELECT a.ID, a.post_title FROM $wpdb->posts a, $wpdb->posts p
+    WHERE a.post_parent = p.ID AND a.post_type = "attachment" AND p.post_type = %s AND p.post_status = "publish" LIMIT $SQL_LIMIT
 EOD
-                        , $_REQUEST[post_type] ), OBJECT );
+                        , $_REQUEST[ 'post_type' ] ), OBJECT );
                     foreach ( $results as $result ) {
 ?>
 <input type="checkbox" id="<?php echo $meta_key ?>" name="<?php echo $meta_key ?>[]"
@@ -693,11 +695,10 @@ EOD
                 if ( $meta_key === 'pst-std-post_author' ) {
                     # use author display name in place of author id
                     $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
-                        SELECT p.post_author, u.display_name, COUNT(*) count FROM $wpdb->posts p, $wpdb->users u
-                            WHERE p.post_author = u.ID AND p.post_type = %s AND p.post_status = "publish"
-                                AND p.post_author IS NOT NULL GROUP BY p.post_author
+SELECT p.post_author, u.display_name, COUNT(*) count FROM $wpdb->posts p, $wpdb->users u
+    WHERE p.post_author = u.ID AND p.post_type = %s AND p.post_status = "publish" AND p.post_author IS NOT NULL GROUP BY p.post_author
 EOD
-                        , $_REQUEST[post_type] ), OBJECT );
+                        , $_REQUEST[ 'post_type' ] ), OBJECT );
                     foreach ( $results as $result ) {
 ?>
 <input type="checkbox" id="<?php echo $meta_key ?>" name="<?php echo $meta_key ?>[]"
@@ -998,34 +999,49 @@ EOD
             } else {
                 $sql2 = "( $sql2 ) AND w.post_id = p.ID";
             }
-            if ( $sql ) { $sql .= " $and_or "; }
+            if ( $sql ) {
+                $sql .= " $and_or ";
+            }
             $sql .= " EXISTS ( SELECT * FROM $wpdb->postmeta w WHERE $sql2 ) ";
         }   # foreach ( $_REQUEST as $key => $values ) {
         if ( $sql ) {
             $ids0 = $wpdb->get_col( $wpdb->prepare( "SELECT p.ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql )", $_REQUEST['post_type'] ) );
-            if ( $and_or === 'AND' && !$ids0 ) { return ' AND 1 = 2 '; }
+            if ( $and_or === 'AND' && !$ids0 ) {
+                return ' AND 1 = 2 ';
+            }
         } else {
             $ids0 = FALSE;
         }
         $sql = '';
         foreach ( $_REQUEST as $key => $values ) {
             # here only taxonomies are processed
-            if ( in_array( $key, $non_field_keys ) ) { continue; }
+            if ( in_array( $key, $non_field_keys ) ) {
+                continue;
+            }
             $prefix = substr( $key, 0, 8 );
             if ( $prefix !== 'tax-cat-' && $prefix !== 'tax-tag-' ) {
                 continue;
             }
             if ( !is_array( $values) ) {
-                if ( $values ) { $values = array( $values ); }
-                else { continue; }
+                if ( $values ) {
+                    $values = array( $values );
+                } else {
+                    continue;
+                }
             }
             $values = array_filter( $values ); 
-            if ( !$values ) { continue; }
+            if ( !$values ) {
+                continue;
+            }
             $taxonomy = substr( $key, 8 );
-            if ( $sql ) { $sql .= " $and_or "; }
+            if ( $sql ) {
+                $sql .= " $and_or ";
+            }
             $sql .= " EXISTS ( SELECT * FROM $wpdb->term_relationships WHERE ( ";
             foreach ( $values as $value ) {
-                if ( $value !== $values[0] ) { $sql .= ' OR '; }
+                if ( $value !== $values[0] ) {
+                    $sql .= ' OR ';
+                }
                 $sql .= $wpdb->prepare( 'term_taxonomy_id = %d', $value ); 
             }
             $sql .= ') AND object_id = p.ID )';
@@ -1052,17 +1068,20 @@ EOD
             $ids2 = FALSE;
         }
         $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids2 );
-        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) { return ' AND 1 = 2 '; }
+        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
+            return ' AND 1 = 2 ';
+        }
         # handle post_content - post_title and post_excerpt are included in the search of post_content
         if ( array_key_exists( 'pst-std-post_content', $_REQUEST ) && $_REQUEST['pst-std-post_content'] ) {
             $sql = $wpdb->prepare( <<<EOD
-                SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = "publish"
-                    AND ( post_content LIKE %s OR post_title LIKE %s OR post_excerpt LIKE %s )
+SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = "publish" AND ( post_content LIKE %s OR post_title LIKE %s OR post_excerpt LIKE %s )
 EOD
-                , $_REQUEST[post_type], "%{$_REQUEST['pst-std-post_content']}%", "%{$_REQUEST['pst-std-post_content']}%",
+                , $_REQUEST[ 'post_type' ], "%{$_REQUEST['pst-std-post_content']}%", "%{$_REQUEST['pst-std-post_content']}%",
                 "%{$_REQUEST['pst-std-post_content']}%" );
             $ids3 = $wpdb->get_col( $sql );
-            if ( $and_or === 'AND' && !$ids3 ) { return ' AND 1 = 2 '; }
+            if ( $and_or === 'AND' && !$ids3 ) {
+                return ' AND 1 = 2 ';
+            }
         } else {
             $ids3 = FALSE;
         }
@@ -1077,13 +1096,17 @@ EOD
             $ids4 = $wpdb->get_col( $wpdb->prepare( <<<EOD
                 SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish' AND post_author IN ( $post_authors )
 EOD
-                , $_REQUEST[post_type] ) );
-            if ( $and_or === 'AND' && !$ids4 ) { return ' AND 1 = 2 '; }
+                , $_REQUEST[ 'post_type' ] ) );
+            if ( $and_or === 'AND' && !$ids4 ) {
+                return ' AND 1 = 2 ';
+            }
         } else {
             $ids4 = FALSE;
         }
         $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids4 );
-        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) { return ' AND 1 = 2 '; }        
+        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
+            return ' AND 1 = 2 ';
+        }        
         if ( $ids ) {
             $ids = implode( ', ', $ids );
             $where = " AND ID IN ( $ids ) ";
@@ -1100,14 +1123,12 @@ EOD
             if ( !$query->is_main_query() ) { return $limit; }
             return ' ';
         }, 10, 2 );
-        add_action( 'wp_enqueue_scripts', function() {
+        add_action( 'wp_enqueue_scripts', function( ) {
             # use post type specific css file if it exists otherwise use the default css file
             if ( file_exists( dirname( __FILE__ ) . "/search-results-table-$_REQUEST[post_type].css") ) {
-                wp_enqueue_style( 'search_results_table', plugins_url( "search-results-table-$_REQUEST[post_type].css",
-                  __FILE__ ) );
+                wp_enqueue_style( 'search_results_table', plugins_url( "search-results-table-$_REQUEST[post_type].css", __FILE__ ) );
             } else {
-                wp_enqueue_style( 'search_results_table', plugins_url( 'search-results-table.css',
-                  __FILE__ ) );
+                wp_enqueue_style( 'search_results_table', plugins_url( 'search-results-table.css', __FILE__ ) );
             }
         } );
         add_action( 'template_redirect', function() {
@@ -1147,14 +1168,16 @@ EOD
 </script>
 <?php
             });
-            get_header();
+            get_header( );
             # then do the body content
-            $wpcf_fields = get_option( 'wpcf-fields', array() );
+            $wpcf_fields = get_option( 'wpcf-fields', [ ] );
+            $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
+            $label = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
             $content = <<<EOD
 <div style="width:99%;overflow:auto;">
     <div class="scpbcfw-result-container"$container_style>
         <table class="scpbcfw-result-table tablesorter">
-            <thead><tr><th class="scpbcfw-result-table-head-post">$_REQUEST[post_type]</th>
+            <thead><tr><th class="scpbcfw-result-table-head-post">$label</th>
 EOD;
             # fix taxonomy names for use as titles
             foreach ( $fields as $field ) {
@@ -1162,17 +1185,21 @@ EOD;
                     || substr_compare( $field, 'tax-tag-', 0, 8, false ) === 0 ) {
                     $field = substr( $field, 8 );
                 } else if ( $field === 'pst-std-attachment' ) {
-                    $field = 'attachment';
+                    $field = 'Attachment';
                 } else if ( $field === 'pst-std-post_author' ) {
-                    $field = 'author';
+                    $field = 'Author';
                 } else if ( $field === 'pst-std-post_content' ) {
-                    $field = 'excerpt';
+                    $field = 'Excerpt';
                 } else if ( substr_compare( $field, 'wpcf-', 0, 5, false ) === 0 ) {
-                    $field = substr( $field, 5 );
+                    $field = $wpcf_fields[ substr( $field, 5 ) ][ 'name' ];
                 } else if ( substr_compare( $field, '_wpcf_belongs_', 0, 14 ) === 0 ) {
                     $field = substr( $field, 14, -3 );
+                    $labels = get_post_type_object( $field )->labels;
+                    $field = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
                 } else if ( substr_compare( $field, 'inverse_', 0, 8 ) === 0 ) {
                     $field = substr( $field, 8, strpos( $field, '__wpcf_belongs_' ) - 8 );
+                    $labels = get_post_type_object( $field )->labels;
+                    $field = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
                 }
                 $content .= "<th class=\"scpbcfw-result-table-head-$field\">$field</th>";
             }
