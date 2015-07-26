@@ -6,7 +6,7 @@ Plugin URI: http://alttypes.wordpress.com/
 Description: Widget for searching Types custom fields and custom taxonomies.
 Version: 0.4.7
 Author: Magenta Cuda
-Author URI: http://magentacuda.wordpress.com
+Author URI: https://alttypes.wordpress.com/
 License: GPL2
 Documentation: http://alttypes.wordpress.com/
  */

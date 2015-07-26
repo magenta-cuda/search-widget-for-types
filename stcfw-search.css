@@ -5,7 +5,7 @@ div.scpbcfw-search-post-type.stcfw-highlight,div.scpbcfw-search-fields.stcfw-hig
 
 div.scpbcfw-search-post-type.stcfw-nohighlight,div.scpbcfw-search-fields.stcfw-nohighlight{
     border-color:red;
-    background-color:gray;
+    background-color:lightgray;
 }
 
 form.scpbcfw-search-fields-form{

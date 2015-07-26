@@ -121,7 +121,6 @@ Show search results in table format:
     
     public function form( $instance ) {
         global $wpdb;
-        error_log( 'form():$instance=' . print_r( $instance, true ) );
         $wpcf_types  = get_option( 'wpcf-custom-types', [ ] );
         $wpcf_fields = get_option( 'wpcf-fields',       [ ] );
 ?>
@@ -201,7 +200,6 @@ SELECT gf.meta_value FROM $wpdb->postmeta pt, $wpdb->postmeta gf
     WHERE pt.post_id = gf.post_id AND pt.meta_key = "_wp_types_group_post_types" AND pt.meta_value LIKE %s AND gf.meta_key = "_wp_types_group_fields"
 EOD
             , "%,$name,%" ) );
-            error_log( '$fields_for_type=' . print_r( $fields_for_type, true ) );
             $fields_for_type = array_reduce( $fields_for_type, function( $result, $item ) {
                 return array_merge( $result, explode( ',', trim( $item, ',' ) ) );
             }, array() );         
@@ -273,7 +271,6 @@ EOD
 <div><div class="scpbcfw-selectable-field-after"></div></div>
 <?php
             foreach ( $current as $field_name ) {
-                error_log( '$field_name=' . $field_name );
 ?>
 <div class="scpbcfw-selectable-field">
 <?php
@@ -462,7 +459,6 @@ if ( is_admin() ) {
 <?php
         $widget_number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
         $option        = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $widget_number ];
-        error_log( '$option=' . print_r( $option, true ) );
         $selected      = $option[ $_REQUEST[ 'post_type' ] ];
         $SQL_LIMIT     = $option[ 'maximum_number_of_items' ];
         # get all terms for all taxonomies for the selected post type
@@ -494,9 +490,7 @@ SELECT m.meta_key, m.meta_value, COUNT(*) count FROM $wpdb->postmeta m, $wpdb->p
 EOD
                 , $_REQUEST[ 'post_type' ] ), OBJECT );
             $wpcf_fields = get_option( 'wpcf-fields', [ ] );
-            error_log( '$wpcf_fields=' . print_r( $wpcf_fields, true ) );
             # prepare the results for use in checkboxes - need value, count of value and field labels
-            error_log( '$results=' . print_r( $results, true ) );
             foreach ( $results as $result ) {
                 $wpcf_field =& $wpcf_fields[substr( $result->meta_key, 5 )];
                 # skip false values except for single checkbox
@@ -546,7 +540,6 @@ EOD
                 $fields[$result->meta_key][ 'label' ] = $wpcf_field[ 'name' ];
             }   # foreach ( $results as $result ) {
             unset( $selected_imploded );
-            error_log( '$fields=' . print_r( $fields, true ) );
         }   # if ( $selected_imploded = array_filter( $selected, function( $v ) { return strpos( $v, '_wpcf_belongs_' ) !== 0; } ) ) {
         # get childs of selected parents
         if ( $selected_child_of = array_filter( $selected, function( $v ) { return strpos( $v, '_wpcf_belongs_' ) === 0; } ) ) {
@@ -713,7 +706,6 @@ EOD
                 }   # if ( $meta_key === 'pst-std-post_author' ) {
                 # now output the checkboxes
                 $number = -1;
-                error_log( '$field=' . print_r( $field, true ) );
                 foreach ( $field['values'] as $value => $count ) {
                     if ( ++$number == $SQL_LIMIT ) { break; }
                     if ( $field['type'] == 'child_of' || $field['type'] == 'parent_of' ) {
