@@ -113,7 +113,7 @@ Show search results in table format:
 
     public function update( $new, $old ) {
         return array_map( function( $values ) {
-            return is_array( $values) ? array_map( strip_tags, $values ) : strip_tags( $values );
+            return is_array( $values) ? array_map( 'strip_tags', $values ) : strip_tags( $values );
         }, $new );
     }
     
