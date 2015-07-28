@@ -1176,6 +1176,8 @@ EOD;
                 if ( substr_compare( $field, 'tax-cat-', 0, 8, false ) === 0
                     || substr_compare( $field, 'tax-tag-', 0, 8, false ) === 0 ) {
                     $field = substr( $field, 8 );
+                    $labels = get_taxonomy( $field )->labels;
+                    $field = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;                    
                 } else if ( $field === 'pst-std-attachment' ) {
                     $field = 'Attachment';
                 } else if ( $field === 'pst-std-post_author' ) {
@@ -1229,7 +1231,7 @@ EOD;
 EOD
                                     , OBJECT_K );
                             }
-                            $value = $child_of_values[$field][$post]->meta_value;
+                            $value = array_key_exists( $post, $child_of_values[ $field ] ) ? $child_of_values[ $field ][ $post ]->meta_value : '';
                         } else if ( $parent_of ) {
                             if ( !isset( $parent_of_values[$field] ) ) {
                                 # Do one query for all posts on first post and save the result for later posts
@@ -1389,11 +1391,19 @@ EOD
                                     } else if ( $wpcf_field[ 'type' ] === 'checkboxes' ) {
                                         # checkboxes are handled very differently from radio and select 
                                         # Why? seems that the radio/select way would work here also and be simpler
-                                        $current = $wpcf_field['data']['options'][$value]['title'];
-                                         if ( $wpcf_field['data']['options'][$value]['display'] === 'db' ) {
-                                            $current .= ' (' . $wpcf_field['data']['options'][$value]['set_value'] . ')';
-                                        } else if ( $wpcf_field['data']['options'][$value]['display'] === 'value' ) {
-                                            $current .= ' (' . $wpcf_field['data']['options'][$value]['display_value_selected'] . ')';
+                                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                            if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] == 'value' ) {
+                                                $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value_selected' ];
+                                            } else {
+                                                $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                                            }
+                                        } else {
+                                            $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                                             if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] === 'db' ) {
+                                                $current .= ' (' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'set_value' ] . ')';
+                                            } else if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] === 'value' ) {
+                                                $current .= ' (' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value_selected' ] . ')';
+                                            }
                                         }
                                     } else if ( $wpcf_field['type'] === 'checkbox' ) {
                                         if ( $wpcf_field['data']['display'] === 'db' ) {
