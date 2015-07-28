@@ -882,7 +882,7 @@ EOD
                 || substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_MAXIMUM_VALUE_SUFFIX, -$suffix_len ) === 0
             ) ) {
                 $index = substr( $index, 0, strlen( $index ) - $suffix_len );
-                if ( is_array( $_REQUEST[$index] ) || !array_key_exists( $index, $_REQUEST ) ) {
+                if ( !array_key_exists( $index, $_REQUEST ) || is_array( $_REQUEST[$index] ) ) {
                     $_REQUEST[$index][] = array( 'operator' => $is_min ? 'minimum' : 'maximum', 'value' => $request );
                 }
                 # kill the original request
@@ -938,9 +938,9 @@ EOD
                             }
                             if ( $sql3 ) { $sql3 .= ' AND '; }
                             if ( $is_min ) {
-                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d )", $key, $value[value] );
+                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d )", $key, $value['value'] );
                             } else if ( $is_max ) {
-                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value <= %d )", $key, $value[value] );
+                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value <= %d )", $key, $value['value'] );
                             }
                         }
                     } else if ( $wpcf_field['type'] !== 'checkbox' && !$value ) {
