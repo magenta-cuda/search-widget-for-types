@@ -1313,6 +1313,19 @@ EOD
                         }
                         if ( array_key_exists( $post, $excerpts ) ) {
                             $label = $excerpts[$post]->post_excerpt;
+                            if ( !$label ) {
+                                # use auto generated excerpt if there is no user supplied excerpt 
+                                if ( $post_for_excerpt = get_post( $post ) ) {
+                                    if ( !post_password_required( $post ) ) {
+                                        # copied and modified from wp_trim_excerpt() of wp-includes/formatting.php
+                                        $label = $post_for_excerpt->post_content;
+                                        $label = strip_shortcodes( $label );
+                                        $label = apply_filters( 'the_content', $label );
+                                        $label = str_replace(']]>', ']]&gt;', $label);
+                                        $label = wp_trim_words( $label, 8, ' ' . '&hellip;' );
+                                    }
+                                }
+                            }
                             $td = "<td class=\"scpbcfw-result-table-detail-$field\">$label</td>";
                         }     
                     } else {

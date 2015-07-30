@@ -36,6 +36,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Changelog ==
 = 0.4.7.1 =
+* use auto generated excerpt if no user supplied excerpt
 * replace taxonomy slug with name
 * use simplified labels for checkbox values in search result table
 = 0.4.7 =
@@ -81,6 +82,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Upgrade Notice ==
 = 0.4.7.1 =
+* use auto generated excerpt if no user supplied excerpt
 * replace taxonomy slug with name
 * use simplified labels for checkbox values in search result table
 = 0.4.7 =

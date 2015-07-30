@@ -55,5 +55,6 @@ jQuery(document).ready(function(){
     stcfwInitialize(jQuery("body"));
     // handle AJAX refresh of the search form
     var observer=new MutationObserver(function(m){m.forEach(function(n){if(jQuery(n.target).hasClass("widget-content")){stcfwInitialize(n.target);}});});
-    observer.observe(jQuery("div.scpbcfw-admin-button").parents("div.widget")[0].parentNode,{childList:true,subtree:true});
+    var searchWidget=jQuery("div.scpbcfw-admin-button");
+    if(searchWidget.size()){observer.observe(searchWidget.parents("div.widget")[0].parentNode,{childList:true,subtree:true});}
 });
