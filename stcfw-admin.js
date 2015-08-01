@@ -45,6 +45,7 @@ function stcfwInitialize(target){
             container.removeClass("stcfw-highlight").addClass("stcfw-nohighlight");
         }
     });
+    // drag and drop handlers
     jQuery(target).find("div.scpbcfw-selectable-field").draggable({cursor:"crosshair",revert:true});
     jQuery(target).find("div.scpbcfw-selectable-field-after").droppable({accept:"div.scpbcfw-selectable-field",tolerance:"touch",
         hoverClass:"scpbcfw-hover",drop:function(e,u){
@@ -57,11 +58,13 @@ function stcfwInitialize(target){
     }});
 }
 jQuery(document).ready(function(){
+    // run only on widgets admin page
+    if(location.pathname.indexOf("/widgets.php")===-1){return;}
     stcfwInitialize(jQuery("body"));
     // handle AJAX refresh of the search form
     var container=jQuery("div.widgets-sortables");
     // What if WordPress changes the classname of the widget container? The plugin will need to be upgraded
-    if(!container.length){window.alert("Search Types Custom Fields Widget:Error widget container not found, please report to developer as plugin needs to be upgraded.");}
+    if(!container.length){window.alert("Search Types Custom Fields Widget:Error - widget container not found, please report this to the developer as this plugin needs to be upgraded.");}
     var observer=new MutationObserver(function(){container.find("div.widget-content").has("div.scpbcfw-admin-button").each(function(){stcfwInitialize(this);})});
     container.each(function(){observer.observe(this,{childList:true,subtree:true});});
 });
