@@ -30,6 +30,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';
     const PARENT_OF = 'For ';                                          # label for parent of relationship
     const CHILD_OF = 'Of ';                                            # label for child of relationship
+    const LANGUAGE_DOMAIN = 'search-types-custom-field-widget';        # for .pot file
 	public function __construct() {
 		parent::__construct(
             'search_types_custom_fields_widget',
@@ -51,11 +52,11 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     value="<?php echo $this->option_name; ?>">
 <input id="search_types_custom_fields_widget_number" name="search_types_custom_fields_widget_number" type="hidden"
     value="<?php echo $this->number; ?>">
-<h2>Search:</h2>
+<h2><?php _e( 'Search:', self::LANGUAGE_DOMAIN ); ?></h2>
 <div class="scpbcfw-search-post-type">
-<h3>post type:</h3>
+<h3><?php _e( 'post type:', self::LANGUAGE_DOMAIN ); ?></h3>
 <select id="post_type" name="post_type" class="post_type scpbcfw-search-select-post-type" required>
-<option value="no-selection">--select post type--</option>
+<option value="no-selection"><?php _e( '--select post type--', self::LANGUAGE_DOMAIN ); ?></option>
 <?php
         $results = $wpdb->get_results( <<<EOD
 SELECT post_type, COUNT(*) count FROM $wpdb->posts WHERE post_status = "publish" GROUP BY post_type ORDER BY count DESC
@@ -83,11 +84,11 @@ EOD
 <div id="scpbcfw-search-fields-submit-container" style="display:none">
 <div class="scpbcfw-search-fields-option-box">
 <div class="scpbcfw-search-fields-and-or-box">
-Results should satisfy<br> 
-<input type="radio" name="search_types_custom_fields_and_or" value="and" checked><strong>All</strong>
+<?php _e( 'Results should satisfy', self::LANGUAGE_DOMAIN ); ?><br> 
+<input type="radio" name="search_types_custom_fields_and_or" value="and" checked><strong><?php _e( 'All', self::LANGUAGE_DOMAIN ); ?></strong>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="radio" name="search_types_custom_fields_and_or" value="or"><strong>Any</strong></br>
-of the search conditions.
+<input type="radio" name="search_types_custom_fields_and_or" value="or"><strong><?php _e( 'Any', self::LANGUAGE_DOMAIN ); ?></strong></br>
+<?php _e( 'of the search conditions.', self::LANGUAGE_DOMAIN ); ?>
 </div>
 <?php
         if ( $instance['enable_table_view_option'] === 'table view option enabled' ) {
@@ -95,7 +96,7 @@ of the search conditions.
 <hr>
 <div class="scpbcfw-search-fields-checkbox-box">
 <input type="checkbox" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use macro">
-Show search results in table format:
+<?php _e( 'Show search results in table format:', self::LANGUAGE_DOMAIN ); ?>
 </div>
 <?php
         }
@@ -103,7 +104,7 @@ Show search results in table format:
 </div>
 <div class="scpbcfw-search-fields-submit-box">
 <input id="scpbcfw-search-fields-nonce" type="hidden" value="<?php echo wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ); ?>">
-<input id="scpbcfw-search-fields-submit" type="submit" value="Start Search" disabled>
+<input id="scpbcfw-search-fields-submit" type="submit" value="<?php _e( 'Start Search', self::LANGUAGE_DOMAIN ); ?>" disabled>
 &nbsp;&nbsp;
 </div>
 </div>
@@ -125,9 +126,9 @@ Show search results in table format:
         $wpcf_fields = get_option( 'wpcf-fields',       [ ] );
 ?>
 <div class="scpbcfw-admin-button">
-<a href="http://alttypes.wordpress.com/#administrator" target="_blank">Help</a>
+<a href="http://alttypes.wordpress.com/#administrator" target="_blank"><?php _e( 'Help', self::LANGUAGE_DOMAIN ); ?></a>
 </div>
-<h4 class="scpbcfw-admin-heading">Select Fields for:</h4>
+<h4 class="scpbcfw-admin-heading"><?php _e( 'Select Fields for:', self::LANGUAGE_DOMAIN ); ?></h4>
 <p style="clear:both;margin:0px;">
 <?php
         # use all Types custom post types and the WordPress built in "post" and "page"
@@ -156,7 +157,7 @@ EOD
 ?>
 <div class="scpbcfw-admin-search-fields">
 <span class="scpbcfw-admin-post-type"><?php echo "$name ($type->count)"; ?></span>
-<div class="scpbcfw-admin-display-button">Open</div>
+<div class="scpbcfw-admin-display-button"><?php _e( 'Open', self::LANGUAGE_DOMAIN ); ?></div>
 <div style="clear:both;"></div>
 <div class="scpbcfw-search-field-values" style="display:none;">
 <?php
@@ -338,7 +339,7 @@ EOD
     class="scpbcfw-admin-option-number"
     value="<?php echo !empty( $instance['maximum_number_of_items'] ) ? $instance['maximum_number_of_items'] : 16; ?>"
     size="4">
-Maximum number of items to display per custom field:
+<?php _e( 'Maximum number of items to display per custom field:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 <div class="scpbcfw-admin-option-box">
@@ -347,7 +348,7 @@ Maximum number of items to display per custom field:
     name="<?php echo $this->get_field_name( 'set_is_search' ); ?>"
     class="scpbcfw-admin-option-checkbox"
     value="is search" <?php if ( isset( $instance['set_is_search'] ) ) { echo 'checked'; } ?>>
-Display search results using excerpts (if it is supported by your theme):
+<?php _e( 'Display search results using excerpts (if it is supported by your theme):', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 <div class="scpbcfw-admin-option-box">
@@ -356,7 +357,7 @@ Display search results using excerpts (if it is supported by your theme):
     name="<?php echo $this->get_field_name( 'use_simplified_labels_for_select' ); ?>"
     class="scpbcfw-admin-option-checkbox"
     value="use simplified labels" <?php if ( isset( $instance[ 'use_simplified_labels_for_select' ] ) ) { echo 'checked'; } ?>>
-Use simplified labels for the values of select, checkboxes and radio button fields:
+<?php _e( 'Use simplified labels for the values of select, checkboxes and radio button fields:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div><div class="scpbcfw-admin-option-box">
 <input type="checkbox"
@@ -365,7 +366,7 @@ Use simplified labels for the values of select, checkboxes and radio button fiel
     class="scpbcfw-admin-option-checkbox scpbcfw-enable-table-view-option"
     value="table view option enabled"
     <?php if ( !$instance || isset( $instance['enable_table_view_option'] ) ) { echo 'checked'; } ?>>
-Enable option to display search results using a table of posts:
+<?php _e( 'Enable option to display search results using a table of posts:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 <div class="scpbcfw-admin-option-box">
@@ -377,7 +378,7 @@ Enable option to display search results using a table of posts:
     <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>
     placeholder="from css"
     size="5">
-Width in pixels of the table of search results:
+<?php _e( 'Width in pixels of the table of search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 </div>
@@ -419,15 +420,23 @@ Width in pixels of the table of search results:
     }
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
+    
+add_action('init', function( ) {
+    load_plugin_textdomain( Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/locale/' );
+} );
 
-add_action( 'widgets_init', function() {
+add_action( 'widgets_init', function( ) {
     register_widget( 'Search_Types_Custom_Fields_Widget' );
 } );
 
-if ( is_admin() ) {
+if ( is_admin( ) ) {
     add_action( 'admin_enqueue_scripts', function() {
         wp_enqueue_style(  'stcfw-admin', plugins_url( 'stcfw-admin.css', __FILE__ ) );
         wp_enqueue_script( 'stcfw-admin', plugins_url( 'stcfw-admin.js',  __FILE__ ), [ 'jquery' ]  );
+        wp_localize_script( 'stcfw-search', 'stcfwAdminTranslations', [
+            'open' => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
+            'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
+        ] );
         wp_enqueue_script( 'jquery-ui-draggable' );
         wp_enqueue_script( 'jquery-ui-droppable' );
     } );
@@ -451,9 +460,9 @@ if ( is_admin() ) {
 <div class="scpbcfw-search-fields-head">
 <div id="scpbcfw-search-fields-help">
 <a href="http://alttypes.wordpress.com/#user"
-    target="_blank">Help</a>
+    target="_blank"><?php _e( 'Help', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?></a>
 </div>
-<h4 class="scpbcfw-search-fields-title">Search Conditions:</h4>
+<h4 class="scpbcfw-search-fields-title"><?php _e( 'Search Conditions:', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?></h4>
 <br style="clear:both;">
 </div>
 <?php
@@ -826,6 +835,10 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
     add_action( 'wp_enqueue_scripts', function( ) {
         wp_enqueue_style(  'stcfw-search', plugins_url( 'stcfw-search.css', __FILE__ ) );
         wp_enqueue_script( 'stcfw-search', plugins_url( 'stcfw-search.js',  __FILE__ ), [ 'jquery' ] );
+        wp_localize_script( 'stcfw-search', 'stcfwSearchTranslations', [
+            'open' => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
+            'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
+        ] );
     } );
     add_action( 'parse_query', function( &$query ) {
         if ( !$query->is_main_query() || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) { return; }

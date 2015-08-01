@@ -1,0 +1,117 @@
+# Copyright (C) 2015 Search Types Custom Fields Widget
+# This file is distributed under the same license as the Search Types Custom Fields Widget package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Search Types Custom Fields Widget 0.4.8\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/search-types-custom-fields-widgetz\n"
+"POT-Creation-Date: 2015-08-01 14:19:22+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2015-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: search-types-custom-fields-widget.php:37
+#: search-types-custom-fields-widget.php:38
+msgid "Search Types Custom Fields"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:55
+msgid "Search:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:57
+msgid "post type:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:59
+msgid "--select post type--"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:87
+msgid "Results should satisfy"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:88
+msgid "All"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:90
+msgid "Any"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:91
+msgid "of the search conditions."
+msgstr ""
+
+#: search-types-custom-fields-widget.php:99
+msgid "Show search results in table format:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:107
+msgid "Start Search"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:129
+#: search-types-custom-fields-widget.php:463
+msgid "Help"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:131
+msgid "Select Fields for:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:160
+#: search-types-custom-fields-widget.php:437
+#: search-types-custom-fields-widget.php:839
+msgid "Open"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:342
+msgid "Maximum number of items to display per custom field:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:351
+msgid "Display search results using excerpts (if it is supported by your theme):"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:360
+msgid "Use simplified labels for the values of select, checkboxes and radio button fields:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:369
+msgid "Enable option to display search results using a table of posts:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:381
+msgid "Width in pixels of the table of search results:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:438
+#: search-types-custom-fields-widget.php:840
+msgid "Close"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:465
+msgid "Search Conditions:"
+msgstr ""
+#. Plugin Name of the plugin/theme
+msgid "Search Types Custom Fields Widget"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://alttypes.wordpress.com/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Widget for searching Types custom fields and custom taxonomies."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Magenta Cuda"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://alttypes.wordpress.com/"
+msgstr ""
