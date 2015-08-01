@@ -36,9 +36,11 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Changelog ==
 = 0.4.7.1 =
+* fix bug where javascript handlers were not always installed when widget was dynamically inserted or replaced in administrator's widget page
 * use auto generated excerpt if no user supplied excerpt
 * replace taxonomy slug with name
 * use simplified labels for checkbox values in search result table
+* tested up to WordPress 4.3 Release Candidate (4.3-RC1-33519)
 = 0.4.7 =
 * code rewritten to fix bugs, enhance security and improve software quality
 * added option to use simplified labels for select, checkboxes and radio button values
@@ -82,9 +84,11 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Upgrade Notice ==
 = 0.4.7.1 =
+* fix bug where javascript handlers were not always installed when widget was dynamically inserted or replaced in administrator's widget page
 * use auto generated excerpt if no user supplied excerpt
 * replace taxonomy slug with name
 * use simplified labels for checkbox values in search result table
+* tested up to WordPress 4.3 Release Candidate (4.3-RC1-33519)
 = 0.4.7 =
 * code rewritten to fix bugs, enhance security and improve software quality
 * added option to use simplified labels for select, checkboxes and radio button values

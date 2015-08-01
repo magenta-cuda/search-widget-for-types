@@ -1,4 +1,9 @@
+var stcfwInitialized=[];
 function stcfwInitialize(target){
+    // make sure we don't initialize a widget more than once
+    var marker=jQuery(target).find("div.scpbcfw-admin-button");
+    if(stcfwInitialized.indexOf(marker[0])!==-1){return;}
+    stcfwInitialized.push(marker[0]);
     jQuery(target).find("div.scpbcfw-admin-display-button").click(function(event){
         if(jQuery(this).text()=="Open"){
             jQuery(this).text("Close");
@@ -54,7 +59,9 @@ function stcfwInitialize(target){
 jQuery(document).ready(function(){
     stcfwInitialize(jQuery("body"));
     // handle AJAX refresh of the search form
-    var observer=new MutationObserver(function(m){m.forEach(function(n){if(jQuery(n.target).hasClass("widget-content")){stcfwInitialize(n.target);}});});
-    var searchWidget=jQuery("div.scpbcfw-admin-button");
-    if(searchWidget.size()){observer.observe(searchWidget.parents("div.widget")[0].parentNode,{childList:true,subtree:true});}
+    var container=jQuery("div.widgets-sortables");
+    // What if WordPress changes the classname of the widget container? The plugin will need to be upgraded
+    if(!container.length){window.alert("Search Types Custom Fields Widget:Error widget container not found, please report to developer as plugin needs to be upgraded.");}
+    var observer=new MutationObserver(function(){container.find("div.widget-content").has("div.scpbcfw-admin-button").each(function(){stcfwInitialize(this);})});
+    container.each(function(){observer.observe(this,{childList:true,subtree:true});});
 });
