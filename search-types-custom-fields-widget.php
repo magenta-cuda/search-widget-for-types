@@ -425,7 +425,7 @@ EOD
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
-add_action('init', function( ) {
+add_action( 'init', function( ) {
     load_plugin_textdomain( Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/locale/' );
 } );
 
@@ -434,7 +434,7 @@ add_action( 'widgets_init', function( ) {
 } );
 
 if ( is_admin( ) ) {
-    add_action( 'admin_enqueue_scripts', function() {
+    add_action( 'admin_enqueue_scripts', function( ) {
         wp_enqueue_style(  'stcfw-admin', plugins_url( 'stcfw-admin.css', __FILE__ ) );
         wp_enqueue_script( 'stcfw-admin', plugins_url( 'stcfw-admin.js',  __FILE__ ), [ 'jquery' ]  );
         wp_localize_script( 'stcfw-admin', 'stcfwAdminTranslations', [
@@ -450,7 +450,7 @@ if ( is_admin( ) ) {
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function( ) {
         # build the search form for the post type in the AJAX request
         global $wpdb;
-        if ( !isset( $_POST['stcfw_get_form_nonce'] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
+        if ( !isset( $_POST[ 'stcfw_get_form_nonce' ] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
             Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
             error_log( '##### action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
             die;
@@ -662,16 +662,19 @@ EOD
             } else {   # if ( substr_compare( $selection, 'tax-cat-', 0, 8 ) === 0 || substr_compare( $selection, 'tax-tag-', 0, 8 ) === 0 ) {
                 # do a custom field, post_content or author
                 $meta_key = $selection;
-                $field =& $fields[$meta_key];
-                $wpcf_field =& $wpcf_fields[substr( $meta_key, 5 )];
+                $field = $fields[ $meta_key ];
+                $field_type = $field[ 'type' ];
+                $wpcf_field = substr_compare( $meta_key, 'wpcf-', 0, 5 ) === 0 ? $wpcf_fields[ substr( $meta_key, 5 ) ] : NULL;
+                $wpcf_field_data = $wpcf_field && array_key_exists( 'data', $wpcf_field ) ? $wpcf_field[ 'data' ] : NULL;
+                $wpcf_field_data_options = $wpcf_field_data && array_key_exists( 'options', $wpcf_field_data ) ? $wpcf_field_data[ 'options' ] : NULL;
 ?>
 <div class="scpbcfw-search-fields stcfw-nohighlight">
-<span class="scpbcfw-search-fields-field-label"><?php echo $field['label'] ?>:</span>
+<span class="scpbcfw-search-fields-field-label"><?php echo $field[ 'label' ] ?>:</span>
 <div class="scpbcfw-display-button"><?php _e( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?></div>
 <div style="clear:both;"></div>
 <div class="scpbcfw-search-field-values" style="display:none;">
 <?php
-                if ( $field['type'] == 'textarea' || $field['type'] == 'wysiwyg' ) {
+                if ( $field_type === 'textarea' || $field_type === 'wysiwyg' ) {
 ?>
 <input id="<?php echo $meta_key ?>" name="<?php echo $meta_key ?>" class="scpbcfw-search-fields-for-input" type="text"
     placeholder="<?php _e( '--Enter Search Value--', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?>">
@@ -719,67 +722,69 @@ EOD
                 }   # if ( $meta_key === 'pst-std-post_author' ) {
                 # now output the checkboxes
                 $number = -1;
-                foreach ( $field['values'] as $value => $count ) {
-                    if ( ++$number == $SQL_LIMIT ) { break; }
-                    if ( $field['type'] == 'child_of' || $field['type'] == 'parent_of' ) {
+                foreach ( $field[ 'values' ] as $value => $count ) {
+                    if ( ++$number == $SQL_LIMIT ) {
+                        break;
+                    }
+                    if ( $field_type === 'child_of' || $field_type === 'parent_of' ) {
                         # for child of and parent of use post title instead of post id for label
                         if ( $posts === NULL ) {
                             $posts = $wpdb->get_results( "SELECT ID, post_type, post_title FROM $wpdb->posts ORDER BY ID", OBJECT_K );
                         }    
-                        $label = $posts[$value]->post_title;
-                    } else if ( $field['type'] === 'radio' ) {
+                        $label = $posts[ $value ]->post_title;
+                    } else if ( $field_type === 'radio' ) {
                         # for radio replace option key with something more user friendly
+                        $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
                         if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
-                            $label = $wpcf_field[ 'data' ][ 'display' ] === 'value' ? $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value' ]
-                                : $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                            $label = $wpcf_field_data[ 'display' ] === 'value' ? $wpcf_field_data_options_value[ 'display_value' ]
+                                : $wpcf_field_data_options_value[ 'title' ];
                         } else {
-                            $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ]
-                                . ( $wpcf_field[ 'data' ][ 'display' ] == 'value'
-                                    ? ( '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value' ] . ')' )
-                                    : ( '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'value' ] . ')' ) );
+                            $label = $wpcf_field_data_options_value[ 'title' ] . ( $wpcf_field_data[ 'display' ] == 'value'
+                                ? ( '(' . $wpcf_field_data_options_value[ 'display_value' ] . ')' )
+                                : ( '(' . $wpcf_field_data_options_value[ 'value' ] . ')' ) );
                         }
-                    } else if ( $field['type'] === 'select' ) {
+                    } else if ( $field_type === 'select' ) {
                         # for select replace option key with something more user friendly
+                        $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ]; 
                         if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
-                            $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                            $label = $wpcf_field_data_options_value[ 'title' ];
                         } else {
-                            $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'value' ]
-                                . '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ] . ')';
+                            $label = $wpcf_field_data_options_value[ 'value' ] . '(' . $wpcf_field_data_options_value[ 'title' ] . ')';
                         }
-                    } else if ( $field[ 'type' ] === 'checkboxes' ) {
+                    } else if ( $field_type === 'checkboxes' ) {
                         # checkboxes are handled very differently from radio and select 
                         # Why? seems that the radio/select way would work here also and be simpler
+                        $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
                         if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
-                            if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] == 'value' ) {
-                                $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value_selected' ];
+                            if ( $wpcf_field_data_options_value[ 'display' ] == 'value' ) {
+                                $label = $wpcf_field_data_options_value[ 'display_value_selected' ];
                             } else {
-                                $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                                $label = $wpcf_field_data_options_value[ 'title' ];
                             }
                         } else {
-                            $label = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
-                             if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] == 'db' ) {
-                                $label .= ' (' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'set_value' ] . ')';
-                            } else if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] == 'value' ) {
-                                $label .= ' (' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value_selected' ] . ')';
+                            $label = $wpcf_field_data_options_value[ 'title' ];
+                             if ( $wpcf_field_data_options_value[ 'display' ] == 'db' ) {
+                                $label .= ' (' . $wpcf_field_data_options_value[ 'set_value' ] . ')';
+                            } else if ( $wpcf_field_data_options_value[ 'display' ] == 'value' ) {
+                                $label .= ' (' . $wpcf_field_data_options_value[ 'display_value_selected' ] . ')';
                             }
                         }
-                    } else if ( $field['type'] === 'checkbox' ) {
-                        if ( $wpcf_field['data']['display'] == 'db' ) {
+                    } else if ( $field_type === 'checkbox' ) {
+                        if ( $wpcf_field_data[ 'display' ] === 'db' ) {
                             $label = $value;
                         } else {
                             if ( $value ) {
-                                $label = $wpcf_field['data']['display_value_selected'];
+                                $label = $wpcf_field_data[ 'display_value_selected' ];
                             } else {
-                                $label = $wpcf_field['data']['display_value_not_selected'];
+                                $label = $wpcf_field_data[ 'display_value_not_selected' ];
                             }
                         }
-                    } else if ( $field['type'] === 'image' || $field['type'] === 'file' || $field['type'] === 'audio'
-                        || $field['type'] === 'video' ) {
+                    } else if ( $field_type === 'image' || $field_type === 'file' || $field_type === 'audio' || $field_type === 'video' ) {
                         # use only filename for images and files
                         $label = ( $i = strrpos( $value, '/' ) ) !== FALSE ? substr( $value, $i + 1 ) : $value;
-                    } else if ( $field['type'] === 'date' ) {
+                    } else if ( $field_type === 'date' ) {
                         $label = date( Search_Types_Custom_Fields_Widget::DATE_FORMAT, $value );
-                    } else if ( $field['type'] === 'url' ) {
+                    } else if ( $field_type === 'url' ) {
                         # for URLs chop off http://
                         if ( substr_compare( $value, 'http://', 0, 7 ) === 0 ) { $label = substr( $value, 7 ); }
                         else if ( substr_compare( $value, 'https://', 0, 8 ) === 0 ) { $label = substr( $value, 8 ); }
@@ -797,9 +802,8 @@ EOD
     <?php echo "$label ($count)"; ?><br>
 <?php
                 }   # foreach ( $field['values'] as $value => $count ) {
-                if ( $number == $SQL_LIMIT && ( $field['type'] != 'child_of'
-                    && $field['type'] != 'parent_of' && $field['type'] != 'checkboxes' && $field['type'] != 'radio'
-                    && $field['type'] != 'select' ) ) {
+                if ( $number == $SQL_LIMIT && ( $field_type !== 'child_of' && $field_type !== 'parent_of' && $field_type !== 'checkboxes'
+                    && $field_type !== 'radio' && $field_type !== 'select' ) ) {
                     # only show optional input textbox if there are more than SQL_LIMIT items for fields with user specified values
 ?>
 <input id="<?php echo $meta_key . Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX; ?>"
@@ -808,7 +812,7 @@ EOD
     placeholder="<?php _e( '--Enter Search Value--', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?>">
 <?php
                 }
-                if ( $field['type'] === 'numeric' || $field['type'] === 'date' ) {
+                if ( $field_type === 'numeric' || $field_type === 'date' ) {
                     # only show minimum/maximum input textbox for numeric and date custom fields
 ?>
 <h4>Range Search</h4>
@@ -828,7 +832,6 @@ EOD
 <?php
             }
         }   # foreach ( $selected as $selection ) {
-        unset( $field, $wpcf_field );
         die();
     } );   # add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function() {
 } else {   # if ( is_admin() ) {
@@ -1369,23 +1372,27 @@ EOD
                                 , OBJECT );
                             $values = array();
                             foreach( $results as $result ) {
-                                $values[$result->post_id][] = $result->meta_value;
+                                $values[ $result->post_id ][ ] = $result->meta_value;
                             }
-                            $field_values[$field] = $values;
+                            $field_values[ $field ] = $values;
                             unset( $values );
                         }
-                        if ( array_key_exists( $post, $field_values[$field] )
-                            && ( $field_values = $field_values[$field][$post] ) ) {
-                            $wpcf_field =& $wpcf_fields[substr( $field, 5 )];
+                        if ( array_key_exists( $post, $field_values[ $field ] ) && ( $field_values = $field_values[ $field ][ $post ] ) ) {
+                            $wpcf_field = $wpcf_fields[ substr( $field, 5 ) ];
+                            $wpcf_field_type = $wpcf_field[ 'type' ];
+                            $wpcf_field_data = array_key_exists( 'data', $wpcf_field ) ? $wpcf_field['data'] : NULL;
+                            $wpcf_field_data_options = array_key_exists( 'options', $wpcf_field_data ) ? $wpcf_field_data[ 'options' ] : NULL;
                             $class = '';
-                            $labels = array();
+                            $labels = [ ];
                             foreach ( $field_values as $value ) {
-                                if ( !$value && $wpcf_field['type'] !== 'checkbox' ) { continue; }
+                                if ( !$value && $wpcf_field_type !== 'checkbox' ) {
+                                    continue;
+                                }
                                 if ( is_serialized( $value ) ) {
                                     # serialized meta_value contains multiple values so need to unpack them and process them individually
                                     $unserialized = unserialize( $value );
                                      if ( is_array( $unserialized ) ) {
-                                        if ( $wpcf_field['type'] === 'checkboxes' ) {
+                                        if ( $wpcf_field_type === 'checkboxes' ) {
                                             # for checkboxes use the unique option key as the value of the checkbox
                                             $values = array_keys( $unserialized );
                                         } else {
@@ -1394,13 +1401,13 @@ EOD
                                     } else {
                                         error_log( '##### action:template_redirect()[UNEXPECTED!]:$unserialized='
                                             . print_r( $unserialized, true ) );
-                                        $values = array( $unserialized );
+                                        $values = [ $unserialized ];
                                     }
                                 } else {
-                                    if ( $wpcf_field['type'] === 'radio' || $wpcf_field['type'] === 'select' ) {
+                                    if ( $wpcf_field_type === 'radio' || $wpcf_field_type === 'select' ) {
                                         # for radio and select use the unique option key as the value of the radio or select
                                         $values = array( Search_Types_Custom_Fields_Widget::search_wpcf_field_options(
-                                            $wpcf_field['data']['options'], 'value', $value ) );
+                                            $wpcf_field_data['options'], 'value', $value ) );
                                     } else {
                                         $values = array( $value );
                                     }
@@ -1413,60 +1420,61 @@ EOD
                                         $url = $value;
                                     }
                                     $current =& $label[ ];
-                                    if ( $wpcf_field[ 'type' ] === 'radio' ) {
+                                    if ( $wpcf_field_type === 'radio' ) {
                                         # for radio replace option key with something more user friendly
+                                        $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
                                         if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
-                                            $current = $wpcf_field[ 'data' ][ 'display' ] === 'value'
-                                                ? $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value' ]
-                                                : $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                                            $current = $wpcf_field_data[ 'display' ] === 'value' ? $wpcf_field_data_options_value[ 'display_value' ]
+                                                : $wpcf_field_data_options_value[ 'title' ];
                                         } else {
-                                            $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ]
-                                                . ( $wpcf_field[ 'data' ][ 'display' ] === 'value'
-                                                    ? ( '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value' ] . ')' )
-                                                    : ( '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'value' ] . ')' ) );
+                                            $current = $wpcf_field_data_options_value[ 'title' ]
+                                                . ( $wpcf_field_data[ 'display' ] === 'value' ? ( '(' . $wpcf_field_data_options_value[ 'display_value' ] . ')' )
+                                                    : ( '(' . $wpcf_field_data_options_value[ 'value' ] . ')' ) );
                                         }
-                                    } else if ( $wpcf_field[ 'type' ] === 'select' ) {
+                                    } else if ( $wpcf_field_type === 'select' ) {
+                                        $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
                                         # for select replace option key with something more user friendly
                                         if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
-                                            $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                                            $current = $wpcf_field_data_options_value[ 'title' ];
                                         } else {
-                                            $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'value' ]
-                                                . '(' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ] . ')';
+                                            $current = $wpcf_field_data_options_value[ 'value' ]
+                                                . '(' . $wpcf_field_data_options_value[ 'title' ] . ')';
                                         }
-                                    } else if ( $wpcf_field[ 'type' ] === 'checkboxes' ) {
+                                    } else if ( $wpcf_field_type === 'checkboxes' ) {
                                         # checkboxes are handled very differently from radio and select 
                                         # Why? seems that the radio/select way would work here also and be simpler
+                                        $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
                                         if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
-                                            if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] == 'value' ) {
-                                                $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value_selected' ];
+                                            if ( $wpcf_field_data_options_value[ 'display' ] === 'value' ) {
+                                                $current = $wpcf_field_data_options_value[ 'display_value_selected' ];
                                             } else {
-                                                $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
+                                                $current = $wpcf_field_data_options_value[ 'title' ];
                                             }
                                         } else {
-                                            $current = $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'title' ];
-                                             if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] === 'db' ) {
-                                                $current .= ' (' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'set_value' ] . ')';
-                                            } else if ( $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display' ] === 'value' ) {
-                                                $current .= ' (' . $wpcf_field[ 'data' ][ 'options' ][ $value ][ 'display_value_selected' ] . ')';
+                                            $current = $wpcf_field_data_options_value[ 'title' ];
+                                             if ( $wpcf_field_data_options_value[ 'display' ] === 'db' ) {
+                                                $current .= ' (' . $wpcf_field_data_options_value[ 'set_value' ] . ')';
+                                            } else if ( $wpcf_field_data_options_value[ 'display' ] === 'value' ) {
+                                                $current .= ' (' . $wpcf_field_data_options_value[ 'display_value_selected' ] . ')';
                                             }
                                         }
-                                    } else if ( $wpcf_field['type'] === 'checkbox' ) {
-                                        if ( $wpcf_field['data']['display'] === 'db' ) {
+                                    } else if ( $wpcf_field_type === 'checkbox' ) {
+                                        if ( $wpcf_field_data['display'] === 'db' ) {
                                             $current = $value;
                                         } else {
                                             if ( $value ) {
-                                                $current = $wpcf_field['data']['display_value_selected'];
+                                                $current = $wpcf_field_data['display_value_selected'];
                                             } else {
-                                                $current = $wpcf_field['data']['display_value_not_selected'];
+                                                $current = $wpcf_field_data['display_value_not_selected'];
                                             }
                                         }
-                                    } else if ( $wpcf_field['type'] === 'image' || $wpcf_field['type'] === 'file'
-                                        || $wpcf_field['type'] === 'audio' || $wpcf_field['type'] === 'video' ) {
+                                    } else if ( $wpcf_field_type === 'image' || $wpcf_field_type === 'file' || $wpcf_field_type === 'audio'
+                                        || $wpcf_field_type === 'video' ) {
                                         # use only filename for images and files
                                         $current = ( $i = strrpos( $value, '/' ) ) !== FALSE ? substr( $value, $i + 1 ) : $value;
-                                    } else if ( $wpcf_field['type'] === 'date' ) {
+                                    } else if ( $wpcf_field_type === 'date' ) {
                                         $current = date( Search_Types_Custom_Fields_Widget::DATE_FORMAT, $value );
-                                    } else if ( $wpcf_field['type'] === 'url' ) {
+                                    } else if ( $wpcf_field_type === 'url' ) {
                                         # for URLs chop off http://
                                         if ( substr_compare( $value, 'http://', 0, 7 ) === 0 ) {
                                             $current = substr( $value, 7 );
@@ -1477,7 +1485,7 @@ EOD
                                         }
                                         # and provide line break hints
                                         $current = str_replace( '/', '/&#8203;', $current );
-                                    } else if ( $wpcf_field['type'] === 'numeric' ) {
+                                    } else if ( $wpcf_field_type === 'numeric' ) {
                                         $class = ' scpbcfw-result-table-detail-numeric';
                                         $current = $value;
                                     } else {
@@ -1492,10 +1500,9 @@ EOD
                                 $labels[] = implode( ', ', $label );
                                 unset( $value, $values, $label );
                             }
-                            unset( $wpcf_field );
                             $labels = implode( ', ', $labels );
                             $td = "<td class=\"scpbcfw-result-table-detail-{$field}{$class}\">$labels</td>";
-                        }
+                        }   # if ( array_key_exists( $post, $field_values[$field] ) && ( $field_values = $field_values[$field][$post] ) ) {
                     }
                     $content .= $td;
                 }
