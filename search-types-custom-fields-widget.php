@@ -28,15 +28,19 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     const OPTIONAL_MINIMUM_VALUE_SUFFIX = '-stcfw-minimum-value';      # suffix to append to optional minimum/maximum value text 
     const OPTIONAL_MAXIMUM_VALUE_SUFFIX = '-stcfw-maximum-value';      #     inputs for a numeric search field
     const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';
-    const PARENT_OF = 'For ';                                          # label for parent of relationship
-    const CHILD_OF = 'Of ';                                            # label for child of relationship
     const LANGUAGE_DOMAIN = 'search-types-custom-field-widget';        # for .pot file
-	public function __construct() {
+    
+    public static $PARENT_OF = 'For ';                                 # label for parent of relationship
+    public static $CHILD_OF = 'Of ';                                   # label for child of relationship
+    
+	public function __construct( ) {
 		parent::__construct(
             'search_types_custom_fields_widget',
-            __( 'Search Types Custom Fields' ),
-            [ 'classname' => 'search_types_custom_fields_widget', 'description' => __( "Search Types Custom Fields" ) ]
+            __( 'Search Types Custom Fields', self::LANGUAGE_DOMAIN ),
+            [ 'classname' => 'search_types_custom_fields_widget', 'description' => __( "Search Types Custom Fields", self::LANGUAGE_DOMAIN ) ]
         );
+        self::$PARENT_OF = __( 'For ', self::LANGUAGE_DOMAIN );
+        self::$CHILD_OF  = __( 'Of ',  self::LANGUAGE_DOMAIN );
 	}
 
     # widget() emits a form to select a post type which sends an AJAX request for the search form for the selected post type
@@ -226,7 +230,7 @@ EOD
             foreach ( $results as $result ) {
                 $post_type = substr( $result->meta_key, 14, strlen( $result->meta_key ) - 17 );
                 $fields[$result->meta_key] = (object) array(
-                    'label' => self::CHILD_OF . ( $post_type === 'post' || $post_type === 'page' ? $post_type
+                    'label' => self::$CHILD_OF . ( $post_type === 'post' || $post_type === 'page' ? $post_type
                         : $wpcf_types[$post_type]['labels']['name'] ), 
                     'count' => $result->count
                 );
@@ -242,25 +246,25 @@ EOD
 EOD
             , OBJECT );
             foreach ( $results as $result ) {
-                $fields["inverse_{$result->post_type}_{$result->meta_key}"] = (object) array(
-                    'label' => self::PARENT_OF . ( $result->post_type === 'post' || $result->post_type === 'page'
-                        ? $result->post_type : $wpcf_types[$result->post_type]['labels']['name'] ), 
+                $fields["inverse_{$result->post_type}_{$result->meta_key}"] = (object) [
+                    'label' => self::$PARENT_OF . ( $result->post_type === 'post' || $result->post_type === 'page'
+                        ? $result->post_type : $wpcf_types[ $result->post_type ][ 'labels' ][ 'name' ] ), 
                     'count' => $result->count
-                );
+                ];
             }
             # setup post content entry
-            $fields['pst-std-post_content'] = (object) array( 'label' => 'Post Content', 'count' => $type->count );
-            $fields['pst-std-attachment'] = (object) array( 'label' => 'Attachment', 'count' => $wpdb->get_var( <<<EOD
+            $fields[ 'pst-std-post_content' ] = (object) [ 'label' => 'Post Content', 'count' => $type->count ];
+            $fields[ 'pst-std-attachment' ] = (object) [ 'label' => 'Attachment', 'count' => $wpdb->get_var( <<<EOD
                 SELECT COUNT( DISTINCT a.post_parent ) FROM $wpdb->posts a, $wpdb->posts p
                     WHERE a.post_type = "attachment" AND a.post_parent = p.ID AND p.post_type = "$name" AND p.post_status = "publish"
 EOD
-            ) );
+            ) ];
             #setup post author entry
-            $fields['pst-std-post_author']  = (object) array( 'label' => 'Author', 'count' => $wpdb->get_var( <<<EOD
+            $fields['pst-std-post_author']  = (object) [ 'label' => 'Author', 'count' => $wpdb->get_var( <<<EOD
                 SELECT COUNT(*) FROM $wpdb->posts p
                     WHERE p.post_type = "$name" AND p.post_status = "publish" AND p.post_author IS NOT NULL
 EOD
-            ) );
+            ) ];
             # remove all invalid custom fields.
             $fields = array_filter( $fields );
             $current = array_merge( array_keys( $the_taxonomies ), array_keys( $fields ) );
@@ -376,7 +380,7 @@ EOD
     class="scpbcfw-admin-option-number scpbcfw-search-table-width"
     <?php if ( !empty( $instance['search_table_width'] ) ) { echo "value=\"$instance[search_table_width]\""; } ?>
     <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>
-    placeholder="from css"
+    placeholder="<?php _e( 'from css', self::LANGUAGE_DOMAIN ); ?>"
     size="5">
 <?php _e( 'Width in pixels of the table of search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
@@ -433,25 +437,25 @@ if ( is_admin( ) ) {
     add_action( 'admin_enqueue_scripts', function() {
         wp_enqueue_style(  'stcfw-admin', plugins_url( 'stcfw-admin.css', __FILE__ ) );
         wp_enqueue_script( 'stcfw-admin', plugins_url( 'stcfw-admin.js',  __FILE__ ), [ 'jquery' ]  );
-        wp_localize_script( 'stcfw-search', 'stcfwAdminTranslations', [
+        wp_localize_script( 'stcfw-admin', 'stcfwAdminTranslations', [
             'open' => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
             'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
         ] );
         wp_enqueue_script( 'jquery-ui-draggable' );
         wp_enqueue_script( 'jquery-ui-droppable' );
     } );
-    add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function() {
+    add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function( ) {
         do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE );
     } );
-    add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function() {
+    add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function( ) {
         # build the search form for the post type in the AJAX request
         global $wpdb;
-        if ( !isset( $_POST['stcfw_get_form_nonce'] ) || !wp_verify_nonce( $_POST['stcfw_get_form_nonce'],
+        if ( !isset( $_POST['stcfw_get_form_nonce'] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
             Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
             error_log( '##### action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
             die;
         }
-        if ( $_REQUEST['post_type'] === 'no-selection' ) {
+        if ( $_REQUEST[ 'post_type' ] === 'no-selection' ) {
             # this is the no selection place holder so do nothing
             die;
         }
@@ -477,18 +481,18 @@ SELECT x.taxonomy, r.term_taxonomy_id, t.name, COUNT(*) count
     WHERE r.term_taxonomy_id = x.term_taxonomy_id AND x.term_id = t.term_id AND r.object_id = p.ID AND p.post_type = %s
     GROUP BY x.taxonomy, r.term_taxonomy_id ORDER BY x.taxonomy, r.term_taxonomy_id
 EOD
-            , $_REQUEST['post_type'] ), OBJECT );
+            , $_REQUEST[ 'post_type' ] ), OBJECT );
         $taxonomies = get_taxonomies( '', 'objects' );
         # restructure the results for displaying by taxonomy
         $terms = [ ];
         foreach ( $results as $result ) {
-            $taxonomy = $taxonomies[$result->taxonomy];
+            $taxonomy = $taxonomies[ $result->taxonomy ];
             $tax_type = ( $taxonomy->hierarchical ) ? 'tax-cat-' : 'tax-tag-';
             if ( !in_array( $tax_type . $taxonomy->name, $selected ) ) {
                 continue;
             }
-            $terms[$result->taxonomy]['values'][$result->term_taxonomy_id]['name' ] = $result->name;
-            $terms[$result->taxonomy]['values'][$result->term_taxonomy_id]['count'] = $result->count;
+            $terms[ $result->taxonomy ][ 'values' ][ $result->term_taxonomy_id ][ 'name' ]  = $result->name;
+            $terms[ $result->taxonomy ][ 'values' ][ $result->term_taxonomy_id ][ 'count' ] = $result->count;
         }
         # get all meta_values for the selected custom fields in the selected post type
         if ( $selected_imploded = array_filter( $selected, function( $v ) { return strpos( $v, '_wpcf_belongs_' ) !== 0; } ) ) {
@@ -501,7 +505,7 @@ EOD
             $wpcf_fields = get_option( 'wpcf-fields', [ ] );
             # prepare the results for use in checkboxes - need value, count of value and field labels
             foreach ( $results as $result ) {
-                $wpcf_field =& $wpcf_fields[substr( $result->meta_key, 5 )];
+                $wpcf_field =& $wpcf_fields[ substr( $result->meta_key, 5 ) ];
                 # skip false values except for single checkbox
                 if ( $wpcf_field['type'] !== 'checkbox' && !$result->meta_value ) {
                     continue;
@@ -567,7 +571,7 @@ EOD
                     $post_type = substr( $parent, 14, strlen( $parent ) - 17 );
                     $fields[$parent] = [
                         'type' => 'child_of',
-                        'label' => Search_Types_Custom_Fields_Widget::CHILD_OF
+                        'label' => Search_Types_Custom_Fields_Widget::$CHILD_OF
                             . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
                         'values' => array_reduce( $selected_results, function( $new_results, $result ) {
                                 $new_results[$result->meta_value] = $result->count;
@@ -597,9 +601,9 @@ EOD
                 if ( $selected_results = array_filter( $results, function( $result ) use ( $post_type ) { 
                     return $result->post_type == $post_type; 
                 } ) ) {
-                    $fields["inverse_{$post_type}_{$selected_parent_of}"] = [
+                    $fields[ "inverse_{$post_type}_{$selected_parent_of}" ] = [
                         'type' => 'parent_of',
-                        'label' => Search_Types_Custom_Fields_Widget::PARENT_OF
+                        'label' => Search_Types_Custom_Fields_Widget::$PARENT_OF
                             . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
                         'values' => array_reduce( $selected_results, function( $new_results, $result ) {
                                 $new_results[$result->post_id] = $result->count;
@@ -610,25 +614,25 @@ EOD
             }
         }   # if ( $selected_parent_of = array_filter( $selected, function( $v ) { return strpos( $v, 'inverse_' ) === 0; } ) ) {
         if ( in_array( 'pst-std-post_content', $selected ) ) {
-            $fields['pst-std-post_content'] = [ 'type' => 'textarea',   'label' => 'Post Content' ];
+            $fields[ 'pst-std-post_content' ] = [ 'type' => 'textarea',   'label' => 'Post Content' ];
         }
         if ( in_array( 'pst-std-attachment', $selected ) ) {
-            $fields['pst-std-attachment']   = [ 'type' => 'attachment', 'label' => 'Attachment'   ];
+            $fields[ 'pst-std-attachment' ]   = [ 'type' => 'attachment', 'label' => 'Attachment'   ];
         }
         if ( in_array( 'pst-std-post_author', $selected ) ) {
-            $fields['pst-std-post_author']  = [ 'type' => 'author',     'label' => 'Author'       ];
+            $fields[ 'pst-std-post_author' ]  = [ 'type' => 'author',     'label' => 'Author'       ];
         }
         $posts = NULL;
         foreach ( $selected as $selection ) {
             if ( substr_compare( $selection, 'tax-cat-', 0, 8 ) === 0 || substr_compare( $selection, 'tax-tag-', 0, 8 ) === 0 ) {
                 # do a taxonomy
                 $tax_name = substr( $selection, 8 );
-                $values =& $terms[$tax_name];
-                $taxonomy = $taxonomies[$tax_name];
+                $values =& $terms[ $tax_name ];
+                $taxonomy = $taxonomies[ $tax_name ];
 ?>
 <div class="scpbcfw-search-fields stcfw-nohighlight">
 <span class="scpbcfw-search-fields-field-label"><?php echo $taxonomy->label ?>:</span>
-<div class="scpbcfw-display-button">Open</div>
+<div class="scpbcfw-display-button"><?php _e( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?></div>
 <div style="clear:both;"></div>
 <div class="scpbcfw-search-field-values" style="display:none;">
 <?php
@@ -648,7 +652,7 @@ EOD
 <input type="text"
     id="<?php echo $tax_type . $taxonomy->name . Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX; ?>"
     name="<?php echo $tax_type . $taxonomy->name . Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX; ?>"
-    class="scpbcfw-search-fields-for-input" placeholder="--Enter New Search Value--">
+    class="scpbcfw-search-fields-for-input" placeholder="<?php _e( '--Enter New Search Value--', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?>">
 <?php
                 }
 ?>
@@ -663,14 +667,14 @@ EOD
 ?>
 <div class="scpbcfw-search-fields stcfw-nohighlight">
 <span class="scpbcfw-search-fields-field-label"><?php echo $field['label'] ?>:</span>
-<div class="scpbcfw-display-button">Open</div>
+<div class="scpbcfw-display-button"><?php _e( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?></div>
 <div style="clear:both;"></div>
 <div class="scpbcfw-search-field-values" style="display:none;">
 <?php
                 if ( $field['type'] == 'textarea' || $field['type'] == 'wysiwyg' ) {
 ?>
 <input id="<?php echo $meta_key ?>" name="<?php echo $meta_key ?>" class="scpbcfw-search-fields-for-input" type="text"
-    placeholder="--Enter Search Value--">
+    placeholder="<?php _e( '--Enter Search Value--', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?>">
 </div>
 </div>
 <?php
@@ -800,7 +804,8 @@ EOD
 ?>
 <input id="<?php echo $meta_key . Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX; ?>"
     name="<?php echo $meta_key . Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX; ?>"
-    class="scpbcfw-search-fields-for-input" type="text" placeholder="--Enter Search Value--">
+    class="scpbcfw-search-fields-for-input" type="text"
+    placeholder="<?php _e( '--Enter Search Value--', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?>">
 <?php
                 }
                 if ( $field['type'] === 'numeric' || $field['type'] === 'date' ) {
@@ -809,10 +814,12 @@ EOD
 <h4>Range Search</h4>
 <input id="<?php echo $meta_key . Search_Types_Custom_Fields_Widget::OPTIONAL_MINIMUM_VALUE_SUFFIX; ?>"
     name="<?php echo $meta_key . Search_Types_Custom_Fields_Widget::OPTIONAL_MINIMUM_VALUE_SUFFIX; ?>"
-    class="scpbcfw-search-fields-for-input" type="text" placeholder="--Enter Minimum Value--">
+    class="scpbcfw-search-fields-for-input" type="text"
+    placeholder="<?php _e( '--Enter Minimum Value--', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?>">
 <input id="<?php echo $meta_key . Search_Types_Custom_Fields_Widget::OPTIONAL_MAXIMUM_VALUE_SUFFIX; ?>"
     name="<?php echo $meta_key . Search_Types_Custom_Fields_Widget::OPTIONAL_MAXIMUM_VALUE_SUFFIX; ?>"
-    class="scpbcfw-search-fields-for-input" type="text" placeholder="--Enter Maximum Value--">
+    class="scpbcfw-search-fields-for-input" type="text"
+    placeholder="<?php _e( '--Enter Maximum Value--', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?>">
 <?php
                 }
 ?>
@@ -825,6 +832,7 @@ EOD
         die();
     } );   # add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function() {
 } else {   # if ( is_admin() ) {
+    
     add_action( 'wp_head', function( ) {
 ?>
 <script type="text/javascript">
@@ -832,6 +840,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
 </script>
 <?php
     } );
+    
     add_action( 'wp_enqueue_scripts', function( ) {
         wp_enqueue_style(  'stcfw-search', plugins_url( 'stcfw-search.css', __FILE__ ) );
         wp_enqueue_script( 'stcfw-search', plugins_url( 'stcfw-search.js',  __FILE__ ), [ 'jquery' ] );
@@ -840,12 +849,19 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
             'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
         ] );
     } );
+    
     add_action( 'parse_query', function( &$query ) {
-        if ( !$query->is_main_query() || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) { return; }
-        $option = get_option( $_REQUEST['search_types_custom_fields_widget_option'] );
-        $number = $_REQUEST['search_types_custom_fields_widget_number'];
-        if ( isset( $option[$number]['set_is_search'] ) ) { $query->is_search = true; }
+        if ( !$query->is_main_query() || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
+            return;
+        }
+        $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] );
+        $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
+        if ( isset( $option[ $number ][ 'set_is_search' ] ) ) {
+            # depending on the theme this may display excerpts instead of the full post
+            $query->is_search = true;
+        }
     } );
+    
     add_filter( 'posts_where', function( $where, $query ) {
         global $wpdb;
         if ( !$query->is_main_query() || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
@@ -1120,12 +1136,15 @@ EOD
             $where = ' AND 1 = 2 ';
         }
         return $where;
-    }, 10, 2 );
-    if ( isset( $_REQUEST['search_types_custom_fields_show_using_macro'] )
-        && $_REQUEST['search_types_custom_fields_show_using_macro'] === 'use macro' ) {
+    }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
+
+    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
+        && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use macro' ) {
         # for alternate output format do not page output
         add_filter( 'post_limits', function( $limit, &$query ) {
-            if ( !$query->is_main_query() ) { return $limit; }
+            if ( !$query->is_main_query() ) {
+                return $limit;
+            }
             return ' ';
         }, 10, 2 );
         add_action( 'wp_enqueue_scripts', function( ) {
@@ -1136,15 +1155,15 @@ EOD
                 wp_enqueue_style( 'search_results_table', plugins_url( 'search-results-table.css', __FILE__ ) );
             }
         } );
-        add_action( 'template_redirect', function() {
+        add_action( 'template_redirect', function( ) {
             global $wp_query;
             global $wpdb;
             # in this case a template is dynamically constructed and returned
             # get the list of posts
             $posts = array_map( function( $post ) { return $post->ID; }, $wp_query->posts );
             $posts_imploded = implode( ', ', $posts );
-            $number = $_REQUEST['search_types_custom_fields_widget_number'];
-            $option = get_option( $_REQUEST['search_types_custom_fields_widget_option'] )[ $number ];
+            $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
+            $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
             # get the applicable fields from the options for this widget
             if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
                 # display fields explicitly specified for post type
@@ -1166,13 +1185,13 @@ EOD
             wp_enqueue_script( 'jquery' );
             wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'jquery.tablesorter.min.js', __FILE__ ),
                 array( 'jquery' ) );
-            add_action( 'wp_head', function () {
+            add_action( 'wp_head', function( ) {
 ?>
 <script type="text/javascript">
     jQuery(document).ready(function(){jQuery("table.tablesorter").tablesorter();}); 
 </script>
 <?php
-            });
+            } );
             get_header( );
             # then do the body content
             $wpcf_fields = get_option( 'wpcf-fields', [ ] );
