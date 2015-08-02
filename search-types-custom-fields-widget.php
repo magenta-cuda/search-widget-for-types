@@ -936,48 +936,60 @@ EOD
                 continue;
             }
             if ( !is_array( $values) ) {
-                if ( $values ) { $values = array( $values ); }
-                else { continue; }
+                if ( $values ) {
+                    $values = [ $values ];
+                } else {
+                    continue;
+                }
             }
             $sql2 = '';   # holds meta_value = sql
             $sql3 = '';   # holds meta_value min/max sql
             foreach ( $values as $value ) {
-                if ( $sql2 ) { $sql2 .= ' OR '; }
+                if ( $sql2 ) {
+                    $sql2 .= ' OR ';
+                }
                 if ( strpos( $key, 'inverse_' ) === 0 ) {
                     # parent of is the inverse of child of so ...
-                    if ( !$value ) { continue; }
+                    if ( !$value ) {
+                        continue;
+                    }
                     $sql2 .= '( w.meta_key = "' . substr( $key, strpos( $key, '_wpcf_belongs_' ) ) . "\" AND w.post_id = $value )";
                 } else if ( strpos( $key, '_wpcf_belongs_' ) === 0 ) {
                     # child of is like a custom field except the name is special so ...
-                    if ( !$value ) { continue; }
+                    if ( !$value ) {
+                        continue;
+                    }
                     $sql2 .= "( w.meta_key = '$key' AND w.meta_value = $value )";
                 } else {
-                    $wpcf_field =& $wpcf_fields[substr( $key, 5 )];
+                    $wpcf_field = $wpcf_fields[ substr( $key, 5 ) ];
+                    $wpcf_field_type = $wpcf_field[ 'type' ];
                     if ( is_array( $value ) ) {
                         if ( $sql2 ) { $sql2 = substr( $sql2, 0, -4 ); }
                         # check for minimum/maximum operation
-                        if ( ( $is_min = $value['operator'] === 'minimum' ) || ( $is_max = $value['operator'] === 'maximum' ) ) {
-                            if ( $wpcf_field['type'] === 'date' ) {
+                        if ( ( $is_min = $value[ 'operator' ] === 'minimum' ) || ( $is_max = $value[ 'operator' ] === 'maximum' ) ) {
+                            if ( $wpcf_field_type === 'date' ) {
                                 # for dates convert to timestamp range
-                                list( $t0, $t1 ) = Search_Types_Custom_Fields_Widget::get_timestamp_from_string( $value['value'] );
+                                list( $t0, $t1 ) = Search_Types_Custom_Fields_Widget::get_timestamp_from_string( $value[ 'value' ] );
                                 if ( $is_min ) {
                                     # for minimum use start of range
-                                    $value['value'] = $t0;
+                                    $value[ 'value' ] = $t0;
                                 } else {
                                     # for maximum use end of range
-                                    $value['value'] = $t1;
+                                    $value[ 'value' ] = $t1;
                                 }
                             }
-                            if ( $sql3 ) { $sql3 .= ' AND '; }
+                            if ( $sql3 ) {
+                                $sql3 .= ' AND ';
+                            }
                             if ( $is_min ) {
-                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d )", $key, $value['value'] );
+                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d )", $key, $value[ 'value' ] );
                             } else if ( $is_max ) {
-                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value <= %d )", $key, $value['value'] );
+                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value <= %d )", $key, $value[ 'value' ] );
                             }
                         }
-                    } else if ( $wpcf_field['type'] !== 'checkbox' && !$value ) {
+                    } else if ( $wpcf_field_type !== 'checkbox' && !$value ) {
                         # skip false values except for single checkbox
-                    } else if ( $wpcf_field['type'] === 'date' ) {
+                    } else if ( $wpcf_field_type === 'date' ) {
                         # date can be tricky if user did not enter a complete - to the second - timestamp
                         # need to search on range in that case
                         if ( is_numeric( $value ) ) {
@@ -992,17 +1004,20 @@ EOD
                             }
                         }
                     } else {
-                        if ( $wpcf_field['type'] === 'radio' || $wpcf_field['type'] === 'select' ) {
+                        $wpcf_field_data = $wpcf_field[ 'data' ];
+                        if ( $wpcf_field_type === 'radio' || $wpcf_field_type === 'select' ) {
                             # for radio and select change value from option key to its value
-                            $value = $wpcf_field['data']['options'][$value]['value'];
-                        } else if ( $wpcf_field['type'] === 'checkboxes' ) {
+                            $value = $wpcf_field_data[ 'options' ][ $value ][ 'value' ];
+                        } else if ( $wpcf_field_type === 'checkboxes' ) {
                             # checkboxes are tricky since the value bound to 0 means unchecked so must also check the bound value
-                            $options =& $wpcf_field['data']['options'];
-                            $value = 's:' . strlen($value) .':"' .$value . '";a:1:{i:0;s:' . strlen( $options[$value]['set_value'] ) . ':"'
-                                . $options[$value]['set_value'] . '";}';
-                        } else if ( $wpcf_field['type'] === 'checkbox' ) {
+                            $options_value_set_value = $wpcf_field_data[ 'options' ][ $value ][ 'set_value' ];
+                            $value = 's:' . strlen( $value ) .':"' .$value . '";a:1:{i:0;s:' . strlen( $options_value_set_value ) . ':"'
+                                . $options_value_set_value . '";}';
+                        } else if ( $wpcf_field_type === 'checkbox' ) {
                             # checkbox is tricky since the value bound to 0 means unchecked so must also check the bound value
-                            if ( $value ) { $value = $wpcf_field['data']['set_value']; }
+                            if ( $value ) {
+                                $value = $wpcf_field_data[ 'set_value' ];
+                            }
                         }
                         # TODO: LIKE may match more than we want on serialized array of numeric values - false match on numeric indices
                         $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value LIKE %s )", $key, "%%$value%%" );
@@ -1079,7 +1094,9 @@ EOD
             $ids1 = FALSE;
         }
         $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids0, $ids1 );
-        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) { return ' AND 1 = 2 '; }
+        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
+            return ' AND 1 = 2 ';
+        }
         # do post attachments
         if ( array_key_exists( 'pst-std-attachment', $_REQUEST ) && $_REQUEST['pst-std-attachment'] ) {
             $post_attachments = implode( ',', array_map( function( $attachment ) {
@@ -1145,7 +1162,7 @@ EOD
         && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use macro' ) {
         # for alternate output format do not page output
         add_filter( 'post_limits', function( $limit, &$query ) {
-            if ( !$query->is_main_query() ) {
+            if ( !$query->is_main_query( ) ) {
                 return $limit;
             }
             return ' ';
@@ -1208,8 +1225,7 @@ EOD
 EOD;
             # fix taxonomy names for use as titles
             foreach ( $fields as $field ) {
-                if ( substr_compare( $field, 'tax-cat-', 0, 8, false ) === 0
-                    || substr_compare( $field, 'tax-tag-', 0, 8, false ) === 0 ) {
+                if ( substr_compare( $field, 'tax-cat-', 0, 8, FALSE ) === 0 || substr_compare( $field, 'tax-tag-', 0, 8, FALSE ) === 0 ) {
                     $field = substr( $field, 8 );
                     $labels = get_taxonomy( $field )->labels;
                     $field = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;                    
@@ -1219,7 +1235,7 @@ EOD;
                     $field = 'Author';
                 } else if ( $field === 'pst-std-post_content' ) {
                     $field = 'Excerpt';
-                } else if ( substr_compare( $field, 'wpcf-', 0, 5, false ) === 0 ) {
+                } else if ( substr_compare( $field, 'wpcf-', 0, 5, FALSE ) === 0 ) {
                     $field = $wpcf_fields[ substr( $field, 5 ) ][ 'name' ];
                 } else if ( substr_compare( $field, '_wpcf_belongs_', 0, 14 ) === 0 ) {
                     $field = substr( $field, 14, -3 );
@@ -1246,8 +1262,7 @@ EOD
 EOD;
                 foreach ( $fields as $field ) {
                     $td = '<td></td>';
-                    if ( substr_compare( $field, 'tax-cat-', 0, 8, false ) === 0
-                        || substr_compare( $field, 'tax-tag-', 0, 8, false ) === 0 ) {
+                    if ( substr_compare( $field, 'tax-cat-', 0, 8, FALSE ) === 0 || substr_compare( $field, 'tax-tag-', 0, 8, FALSE ) === 0 ) {
                         $taxonomy = substr( $field, 8 );
                         # TODO: may be more efficient to get the terms for all the posts in one query
                         if ( is_array( $terms = get_the_terms( $post, $taxonomy ) ) ) {
@@ -1279,14 +1294,14 @@ EOD
                                             AND m.meta_key = '$meta_key' AND m.meta_value IN ( $posts_imploded )
 EOD
                                     , OBJECT );
-                                $values = array();
+                                $values = [ ];
                                 foreach ( $results as $result ) {
-                                    $values[$result->meta_value][] = $result->post_id;
+                                    $values[ $result->meta_value ][ ] = $result->post_id;
                                 }
-                                $parent_of_values[$field] = $values;
+                                $parent_of_values[ $field ] = $values;
                                 unset( $values );
                             }
-                            $value = array_key_exists( $post, $parent_of_values[$field] ) ? $parent_of_values[$field][$post] : null;
+                            $value = array_key_exists( $post, $parent_of_values[$field] ) ? $parent_of_values[$field][$post] : NULL;
                         }
                         # for child of and parent of use post title instead of post id for label and embed in an <a> html element
                         if ( $value ) {
@@ -1310,13 +1325,13 @@ EOD
                                 , OBJECT );
                             $attachments = array();
                             foreach ( $results as $result ) {
-                                $attachments[$result->post_parent][] = $result->ID;
+                                $attachments[ $result->post_parent ][ ] = $result->ID;
                             }
                         }
                         if ( array_key_exists( $post, $attachments ) ) {
                             $label = implode( ', ', array_map( function( $v ) use ( &$post_titles ) {
                                 return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
-                            }, $attachments[$post] ) );
+                            }, $attachments[ $post ] ) );
                             $td = "<td class=\"scpbcfw-result-table-detail-$field\">$label</td>";
                         }
                     } else if ( $field === 'pst-std-post_author' ) {
@@ -1330,7 +1345,7 @@ EOD
                                 , OBJECT_K );
                         }
                         if ( array_key_exists( $post, $authors ) ) {
-                            $author = $authors[$post];
+                            $author = $authors[ $post ];
                             # if author has a url then display author name as a link to his url
                             if ( $author->user_url ) {
                                 $label = "<a href=\"$author->user_url\">$author->display_name</a>";
@@ -1406,10 +1421,10 @@ EOD
                                 } else {
                                     if ( $wpcf_field_type === 'radio' || $wpcf_field_type === 'select' ) {
                                         # for radio and select use the unique option key as the value of the radio or select
-                                        $values = array( Search_Types_Custom_Fields_Widget::search_wpcf_field_options(
-                                            $wpcf_field_data['options'], 'value', $value ) );
+                                        $values = [ Search_Types_Custom_Fields_Widget::search_wpcf_field_options(
+                                            $wpcf_field_data_options, 'value', $value ) ];
                                     } else {
-                                        $values = array( $value );
+                                        $values = [ $value ];
                                     }
                                 }
                                 unset( $value );
@@ -1459,13 +1474,13 @@ EOD
                                             }
                                         }
                                     } else if ( $wpcf_field_type === 'checkbox' ) {
-                                        if ( $wpcf_field_data['display'] === 'db' ) {
+                                        if ( $wpcf_field_data[ 'display' ] === 'db' ) {
                                             $current = $value;
                                         } else {
                                             if ( $value ) {
-                                                $current = $wpcf_field_data['display_value_selected'];
+                                                $current = $wpcf_field_data[ 'display_value_selected' ];
                                             } else {
-                                                $current = $wpcf_field_data['display_value_not_selected'];
+                                                $current = $wpcf_field_data[ 'display_value_not_selected' ];
                                             }
                                         }
                                     } else if ( $wpcf_field_type === 'image' || $wpcf_field_type === 'file' || $wpcf_field_type === 'audio'
@@ -1497,7 +1512,7 @@ EOD
                                     }
                                     unset( $url, $current );
                                 }
-                                $labels[] = implode( ', ', $label );
+                                $labels[ ] = implode( ', ', $label );
                                 unset( $value, $values, $label );
                             }
                             $labels = implode( ', ', $labels );
@@ -1510,8 +1525,8 @@ EOD
             }
             $content .= '</tbody></table></div></div>';
             echo $content;
-            get_footer();
-            exit();
+            get_footer( );
+            exit( );
         } );
     }   # if ( isset( $_REQUEST['search_types_custom_fields_show_using_macro'] )
 }   # } else {   # if ( is_admin() ) {

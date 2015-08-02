@@ -36,7 +36,9 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Changelog ==
 = 0.4.8 =
-* Added localization - use _e() and __(), provide .pot file
+* Added localization - use _e() and __(), provide .pot file.
+* Code rewritten to improve software quality.
+* Tested up to WordPress 4.3 Release Candidate (4.3-RC1-33526).
 = 0.4.7.1.1 =
 * fix javascript bug
 = 0.4.7.1 =
@@ -88,7 +90,9 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Upgrade Notice ==
 = 0.4.8 =
-* Added localization - use _e() and __(), provide .pot file
+* Added localization - use _e() and __(), provide .pot file.
+* Code rewritten to improve software quality.
+* Tested up to WordPress 4.3 Release Candidate (4.3-RC1-33526).
 = 0.4.7.1.1 =
 * fix javascript bug
 = 0.4.7.1 =
