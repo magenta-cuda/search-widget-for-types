@@ -185,8 +185,8 @@ EOD
             $the_taxonomies = [ ];
             foreach ( $db_taxonomies as &$db_taxonomy ) {
                 if ( $db_taxonomy->post_type != $name ) { continue; }
-                $wp_taxonomy = $wp_taxonomies[$db_taxonomy->taxonomy];
-                $the_taxonomies[( $wp_taxonomy->hierarchical ? 'tax-cat-' : 'tax-tag-' ) . $wp_taxonomy->name] =& $db_taxonomy;
+                $wp_taxonomy = $wp_taxonomies[ $db_taxonomy->taxonomy ];
+                $the_taxonomies[ ( $wp_taxonomy->hierarchical ? 'tax-cat-' : 'tax-tag-' ) . $wp_taxonomy->name ] = $db_taxonomy;
             }
             unset( $db_taxonomy );
             # now do types custom fields, post content and author
@@ -211,10 +211,9 @@ EOD
             foreach ( $fields as $meta_key => &$field ) {
                 $field_name = substr( $meta_key, 5 );
                 if ( array_key_exists( $field_name, $wpcf_fields ) && in_array( $field_name, $fields_for_type ) ) {
-                    $wpcf_field =& $wpcf_fields[$field_name];
-                    $field->label = $wpcf_field['name'];
-                    $field->large = in_array( $wpcf_field['type'], array( 'textarea', 'wysiwyg' ) );
-                    unset( $wpcf_field );
+                    $wpcf_field = $wpcf_fields[ $field_name ];
+                    $field->label = $wpcf_field[ 'name' ];
+                    $field->large = in_array( $wpcf_field[ 'type' ], [ 'textarea', 'wysiwyg' ] );
                 } else {
                     $field = NULL;   # not a valid Types custom field so tag it for skipping.
                 }
@@ -281,8 +280,8 @@ EOD
 <?php
                 if ( substr_compare( $field_name, 'tax-tag-', 0, 8 ) ==0 || substr_compare( $field_name, 'tax-cat-', 0, 8 ) == 0 ) {
                     $tax_name = $field_name;
-                    $db_taxonomy =& $the_taxonomies[$tax_name];
-                    $wp_taxonomy = $wp_taxonomies[$db_taxonomy->taxonomy];
+                    $db_taxonomy = $the_taxonomies[ $tax_name ];
+                    $wp_taxonomy = $wp_taxonomies[ $db_taxonomy->taxonomy ];
                     $tax_label = ( $wp_taxonomy->hierarchical ) ? ' (category)' : ' (tag)';
 ?>
     <input type="checkbox"
@@ -303,7 +302,7 @@ EOD
                 } else {   # if ( substr_compare( $field_name, 'tax-tag-', 0, 8 ) ==0 || substr_compare( $field_name, 'tax-cat-', 0, 8 ) == 0 ) {
                     # display a field with checkboxes
                     $meta_key = $field_name;
-                    $field =& $fields[$meta_key];
+                    $field = $fields[ $meta_key ];
 ?>
     <input type="checkbox"
         class="scpbcfw-selectable-field"
@@ -505,7 +504,7 @@ EOD
             $wpcf_fields = get_option( 'wpcf-fields', [ ] );
             # prepare the results for use in checkboxes - need value, count of value and field labels
             foreach ( $results as $result ) {
-                $wpcf_field =& $wpcf_fields[ substr( $result->meta_key, 5 ) ];
+                $wpcf_field = $wpcf_fields[ substr( $result->meta_key, 5 ) ];
                 # skip false values except for single checkbox
                 if ( $wpcf_field['type'] !== 'checkbox' && !$result->meta_value ) {
                     continue;
@@ -627,7 +626,7 @@ EOD
             if ( substr_compare( $selection, 'tax-cat-', 0, 8 ) === 0 || substr_compare( $selection, 'tax-tag-', 0, 8 ) === 0 ) {
                 # do a taxonomy
                 $tax_name = substr( $selection, 8 );
-                $values =& $terms[ $tax_name ];
+                $values = $terms[ $tax_name ];
                 $taxonomy = $taxonomies[ $tax_name ];
 ?>
 <div class="scpbcfw-search-fields stcfw-nohighlight">
