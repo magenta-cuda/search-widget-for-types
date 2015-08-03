@@ -28,7 +28,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     const OPTIONAL_MINIMUM_VALUE_SUFFIX = '-stcfw-minimum-value';      # suffix to append to optional minimum/maximum value text 
     const OPTIONAL_MAXIMUM_VALUE_SUFFIX = '-stcfw-maximum-value';      #     inputs for a numeric search field
     const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';
-    const LANGUAGE_DOMAIN = 'search-types-custom-field-widget';        # for .pot file
+    const LANGUAGE_DOMAIN = 'search-types-custom-fields-widget';       # for .pot file
     
     public static $PARENT_OF = 'For ';                                 # label for parent of relationship
     public static $CHILD_OF = 'Of ';                                   # label for child of relationship
@@ -425,8 +425,8 @@ EOD
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
-add_action( 'init', function( ) {
-    load_plugin_textdomain( Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/locale/' );
+add_action( 'plugins_loaded', function( ) {
+    load_plugin_textdomain( Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 } );
 
 add_action( 'widgets_init', function( ) {
