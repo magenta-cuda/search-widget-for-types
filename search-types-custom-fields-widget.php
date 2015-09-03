@@ -422,6 +422,13 @@ EOD
         return $arr;
     }
     
+    public static function value_filter( $value, $field = NULL, $post_type = NULL ) {
+        error_log( 'value_filter():$post_type=' . $post_type );
+        error_log( 'value_filter():$field=' . $field );
+        error_log( 'value_filter():$value=' . $value );
+        return $value;
+    }
+    
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
 add_action( 'plugins_loaded', function( ) {
@@ -641,8 +648,8 @@ EOD
                         break;
                     }
 ?>
-<input type="checkbox" id="<?php echo $tax_type . $taxonomy->name ?>" name="<?php echo $tax_type . $taxonomy->name ?>[]"
-    value="<?php echo $term_id; ?>"><?php echo "$result[name]($result[count])"; ?><br>
+<input type="checkbox" id="<?php echo $tax_type . $taxonomy->name ?>" name="<?php echo $tax_type . $taxonomy->name ?>[]" value="<?php echo $term_id; ?>">
+    <?php echo Search_Types_Custom_Fields_Widget::value_filter( $result['name'], $taxonomy->name, $_REQUEST[ 'post_type' ] ) . "($result[count])"; ?><br>
 <?php
                 }   # foreach ( $values['values'] as $term_id => $result ) {
                 unset( $result );
@@ -709,8 +716,8 @@ EOD
                         , $_REQUEST[ 'post_type' ] ), OBJECT );
                     foreach ( $results as $result ) {
 ?>
-<input type="checkbox" id="<?php echo $meta_key ?>" name="<?php echo $meta_key ?>[]"
-    value="<?php echo $result->post_author; ?>"> <?php echo $result->display_name . " ($result->count)"; ?><br>
+<input type="checkbox" id="<?php echo $meta_key ?>" name="<?php echo $meta_key ?>[]" value="<?php echo $result->post_author; ?>">
+    <?php echo $result->display_name . " ($result->count)"; ?><br>
 <?php
                     }
 ?>
@@ -794,11 +801,8 @@ EOD
                         $label = $value;
                     }
 ?>
-<input type="checkbox"
-    id="<?php echo $meta_key; ?>"
-    name="<?php echo $meta_key; ?>[]"
-    value="<?php echo $value; ?>">
-    <?php echo "$label ($count)"; ?><br>
+<input type="checkbox" id="<?php echo $meta_key; ?>" name="<?php echo $meta_key; ?>[]" value="<?php echo $value; ?>">
+    <?php echo Search_Types_Custom_Fields_Widget::value_filter( $label, $meta_key, $_REQUEST[ 'post_type' ] ) . " ($count)"; ?><br>
 <?php
                 }   # foreach ( $field['values'] as $value => $count ) {
                 if ( $number == $SQL_LIMIT && ( $field_type !== 'child_of' && $field_type !== 'parent_of' && $field_type !== 'checkboxes'
@@ -1265,8 +1269,10 @@ EOD;
                         $taxonomy = substr( $field, 8 );
                         # TODO: may be more efficient to get the terms for all the posts in one query
                         if ( is_array( $terms = get_the_terms( $post, $taxonomy ) ) ) {
-                            $terms = array_map( function( $term ) { return $term->name; }, $terms );
-                            $td = "<td class=\"scpbcfw-result-table-detail-$taxonomy\">" . implode( ', ', $terms ) . '</td>';
+                            $terms = implode( ', ', array_map( function( $term ) use ( $field ) {
+                                return Search_Types_Custom_Fields_Widget::value_filter( $term->name, $field, $_REQUEST[ 'post_type' ] );
+                            }, $terms ) );
+                            $td = "<td class=\"scpbcfw-result-table-detail-$taxonomy\">" . $terms . '</td>';
                         }
                     } else if ( ( $child_of = strpos( $field, '_wpcf_belongs_' ) === 0 )
                         || ( $parent_of = strpos( $field, 'inverse_' ) === 0 ) ) {
@@ -1514,7 +1520,9 @@ EOD
                                 $labels[ ] = implode( ', ', $label );
                                 unset( $value, $values, $label );
                             }
-                            $labels = implode( ', ', $labels );
+                            $labels = implode( ', ', array_map( function( $label ) use ( $field ) {
+                                return Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $_REQUEST[ 'post_type' ] );
+                            }, $labels ) );
                             $td = "<td class=\"scpbcfw-result-table-detail-{$field}{$class}\">$labels</td>";
                         }   # if ( array_key_exists( $post, $field_values[$field] ) && ( $field_values = $field_values[$field][$post] ) ) {
                     }
