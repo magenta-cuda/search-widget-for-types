@@ -29,6 +29,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     const OPTIONAL_MAXIMUM_VALUE_SUFFIX = '-stcfw-maximum-value';      #     inputs for a numeric search field
     const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';
     const LANGUAGE_DOMAIN = 'search-types-custom-fields-widget';       # for .pot file
+    const VALUE_FILTER_NAME = 'stcfw_display_value';                   # filter to apply to field values before they are displayed
     
     public static $PARENT_OF = 'For ';                                 # label for parent of relationship
     public static $CHILD_OF = 'Of ';                                   # label for child of relationship
@@ -423,10 +424,13 @@ EOD
     }
     
     public static function value_filter( $value, $field = NULL, $post_type = NULL ) {
-        error_log( 'value_filter():$post_type=' . $post_type );
-        error_log( 'value_filter():$field=' . $field );
-        error_log( 'value_filter():$value=' . $value );
-        return $value;
+        $value = preg_replace_callback( '#(<a\s.*?>)(.*?)</a>#', function( $matches ) use ( $field, $post_type ) { 
+            return $matches[1] . apply_filters( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME, $matches[2], $field, $post_type ) . '</a>';
+        }, $value, -1, $count );
+        if ( $count ) {
+            return $value;
+        }
+        return apply_filters( self::VALUE_FILTER_NAME, $value, $field, $post_type );
     }
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
@@ -1537,5 +1541,14 @@ EOD
         } );
     }   # if ( isset( $_REQUEST['search_types_custom_fields_show_using_macro'] )
 }   # } else {   # if ( is_admin() ) {
+
+# example of a custom field display value filter - the filter is applied to the custom field value before it is displayed
+
+add_filter( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME, function( $value, $context, $post_type ) {
+    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ':$value=     ' . $value     );
+    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ':$context=   ' . $context   );
+    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ':$post_type= ' . $post_type );
+    return "[{$value}]";
+}, 10, 3 );
 
 ?>

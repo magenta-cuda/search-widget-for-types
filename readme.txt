@@ -35,7 +35,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Changelog ==
 = 0.4.9 =
-* added filters for field values; the filter allows you to translate the raw field value before it is displayed
+* added a filter &quot;stcfw_display_value&quot; for field values; the filter allows you to translate the raw field value before it is displayed
 = 0.4.8 =
 * Added localization - use _e() and __(), provide .pot file.
 * Code rewritten to improve software quality.
@@ -91,7 +91,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Upgrade Notice ==
 = 0.4.9 =
-* added filters for field values; the filter allows you to translate the raw field value before it is displayed
+* added a filter &quot;stcfw_display_value&quot; for field values; the filter allows you to translate the raw field value before it is displayed
 = 0.4.8 =
 * Added localization - use _e() and __(), provide .pot file.
 * Code rewritten to improve software quality.
