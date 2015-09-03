@@ -77,7 +77,8 @@ EOD
                 continue;
             }      
             $labels = get_post_type_object( $name )->labels;
-            $label = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
+            $label  = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
+            $label  = self::value_filter( $label, 'post_type', $name );            
 ?>      
 <option class="real_post_type" value="<?php echo $name; ?>"><?php echo "$label ($result->count)"; ?></option>
 <?php
@@ -1257,16 +1258,13 @@ EOD;
             }
             unset( $field );
             $content .= '</tr></thead><tbody>';
-            $post_titles = $wpdb->get_results( <<<EOD
-                SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID
-EOD
-                , OBJECT_K );
-            $child_of_values = array();
-            $parent_of_values = array();
+            $post_titles = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
+            $child_of_values  = [ ];
+            $parent_of_values = [ ];
             foreach ( $posts as $post ) {
-                $content .= <<<EOD
-<tr><td class="scpbcfw-result-table-detail-post"><a href="{$post_titles[$post]->guid}">{$post_titles[$post]->post_title}</a></td>
-EOD;
+                $title    = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_titles[$post]->guid}\">{$post_titles[$post]->post_title}</a>",
+                                'post_title', $_REQUEST[ 'post_type' ] );
+                $content .= "<tr><td class=\"scpbcfw-result-table-detail-post\">$title</td>";
                 foreach ( $fields as $field ) {
                     $td = '<td></td>';
                     if ( substr_compare( $field, 'tax-cat-', 0, 8, FALSE ) === 0 || substr_compare( $field, 'tax-tag-', 0, 8, FALSE ) === 0 ) {
@@ -1321,6 +1319,7 @@ EOD
                             } else {
                                 $label = "<a href=\"{$post_titles[$value]->guid}\">{$post_titles[$value]->post_title}</a>";
                             }
+                            $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $_REQUEST[ 'post_type' ] );
                             $td = "<td class=\"scpbcfw-result-table-detail-$field\">$label</td>";
                         }
                         unset( $value );
@@ -1341,6 +1340,7 @@ EOD
                             $label = implode( ', ', array_map( function( $v ) use ( &$post_titles ) {
                                 return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
                             }, $attachments[ $post ] ) );
+                            $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $_REQUEST[ 'post_type' ] );
                             $td = "<td class=\"scpbcfw-result-table-detail-$field\">$label</td>";
                         }
                     } else if ( $field === 'pst-std-post_author' ) {
