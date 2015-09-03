@@ -80,7 +80,7 @@ EOD
             $label  = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
             $label  = self::value_filter( $label, 'post_type', $name );            
 ?>      
-<option class="real_post_type" value="<?php echo $name; ?>"><?php echo "$label ($result->count)"; ?></option>
+<option class="real_post_type" value="<?php echo $name; ?>"><?php echo "$label($result->count)"; ?></option>
 <?php
         }   # foreach ( $results as $result ) {
 ?>
@@ -470,7 +470,7 @@ if ( is_admin( ) ) {
             # this is the no selection place holder so do nothing
             die;
         }
-        $wpcf_types  = get_option( 'wpcf-custom-types', array() );
+        $wpcf_types  = get_option( 'wpcf-custom-types', [ ] );
 ?>
 <div class="scpbcfw-search-fields-head">
 <div id="scpbcfw-search-fields-help">
@@ -642,7 +642,8 @@ EOD
                 $taxonomy = $taxonomies[ $tax_name ];
 ?>
 <div class="scpbcfw-search-fields stcfw-nohighlight">
-<span class="scpbcfw-search-fields-field-label"><?php echo $taxonomy->label ?>:</span>
+<span class="scpbcfw-search-fields-field-label">
+    <?php echo Search_Types_Custom_Fields_Widget::value_filter( $taxonomy->label, 'taxonomy_name', $_REQUEST[ 'post_type' ] ); ?>:</span>
 <div class="scpbcfw-display-button"><?php _e( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?></div>
 <div style="clear:both;"></div>
 <div class="scpbcfw-search-field-values" style="display:none;">
@@ -680,7 +681,8 @@ EOD
                 $wpcf_field_data_options = $wpcf_field_data && array_key_exists( 'options', $wpcf_field_data ) ? $wpcf_field_data[ 'options' ] : NULL;
 ?>
 <div class="scpbcfw-search-fields stcfw-nohighlight">
-<span class="scpbcfw-search-fields-field-label"><?php echo $field[ 'label' ] ?>:</span>
+<span class="scpbcfw-search-fields-field-label">
+    <?php echo Search_Types_Custom_Fields_Widget::value_filter( $field[ 'label' ], 'field_name', $_REQUEST[ 'post_type' ] ); ?>:</span>
 <div class="scpbcfw-display-button"><?php _e( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?></div>
 <div style="clear:both;"></div>
 <div class="scpbcfw-search-field-values" style="display:none;">
@@ -1166,8 +1168,7 @@ EOD
         return $where;
     }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 
-    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
-        && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use macro' ) {
+    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] ) && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use macro' ) {
         # for alternate output format do not page output
         add_filter( 'post_limits', function( $limit, &$query ) {
             if ( !$query->is_main_query( ) ) {
@@ -1225,6 +1226,7 @@ EOD
             $wpcf_fields = get_option( 'wpcf-fields', [ ] );
             $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
             $label = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
+            $label = Search_Types_Custom_Fields_Widget::value_filter( $label, 'post_type', $_REQUEST[ 'post_type' ] );
             $content = <<<EOD
 <div style="width:99%;overflow:auto;">
     <div class="scpbcfw-result-container"$container_style>
@@ -1232,11 +1234,13 @@ EOD
             <thead><tr><th class="scpbcfw-result-table-head-post">$label</th>
 EOD;
             # fix taxonomy names for use as titles
+            $field_name_type = 'field_name';
             foreach ( $fields as $field ) {
                 if ( substr_compare( $field, 'tax-cat-', 0, 8, FALSE ) === 0 || substr_compare( $field, 'tax-tag-', 0, 8, FALSE ) === 0 ) {
                     $field = substr( $field, 8 );
                     $labels = get_taxonomy( $field )->labels;
-                    $field = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;                    
+                    $field = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
+                    $field_name_type = 'taxonomy_name';
                 } else if ( $field === 'pst-std-attachment' ) {
                     $field = 'Attachment';
                 } else if ( $field === 'pst-std-post_author' ) {
@@ -1254,6 +1258,7 @@ EOD;
                     $labels = get_post_type_object( $field )->labels;
                     $field = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
                 }
+                $field = Search_Types_Custom_Fields_Widget::value_filter( $field, $field_name_type, $_REQUEST[ 'post_type' ] );
                 $content .= "<th class=\"scpbcfw-result-table-head-$field\">$field</th>";
             }
             unset( $field );
@@ -1296,9 +1301,8 @@ EOD
                                 $post_type = substr( $field, 8, strpos( $field, '_wpcf_belongs_' ) - 9 );
                                 $meta_key = substr( $field, strpos( $field, '_wpcf_belongs_' ) );
                                 $results = $wpdb->get_results( <<<EOD
-                                    SELECT m.meta_value, m.post_id FROM $wpdb->postmeta m, $wpdb->posts p
-                                        WHERE m.post_id = p.ID AND p.post_status = 'publish' AND p.post_type = '$post_type'
-                                            AND m.meta_key = '$meta_key' AND m.meta_value IN ( $posts_imploded )
+SELECT m.meta_value, m.post_id FROM $wpdb->postmeta m, $wpdb->posts p
+    WHERE m.post_id = p.ID AND p.post_status = 'publish' AND p.post_type = '$post_type' AND m.meta_key = '$meta_key' AND m.meta_value IN ( $posts_imploded )
 EOD
                                     , OBJECT );
                                 $values = [ ];
@@ -1327,11 +1331,10 @@ EOD
                         # for efficiency on first iteration get all relevant attachments for all posts for use by later iterations
                         if ( !isset( $attachments ) ) {
                             $results = $wpdb->get_results( <<<EOD
-                                SELECT ID, post_parent FROM $wpdb->posts
-                                    WHERE post_type = 'attachment' AND post_parent IN ( $posts_imploded )
+SELECT ID, post_parent FROM $wpdb->posts WHERE post_type = 'attachment' AND post_parent IN ( $posts_imploded )
 EOD
                                 , OBJECT );
-                            $attachments = array();
+                            $attachments = [ ];
                             foreach ( $results as $result ) {
                                 $attachments[ $result->post_parent ][ ] = $result->ID;
                             }
@@ -1367,8 +1370,7 @@ EOD
                         # use post excerpt in place of post content
                         # for efficiency on first iteration get all relevant post excerpts for all posts for use by later iterations
                         if ( !isset( $excerpts ) ) {
-                            $excerpts = $wpdb->get_results(
-                                "SELECT ID, post_excerpt FROM $wpdb->posts WHERE ID IN ( $posts_imploded )", OBJECT_K );
+                            $excerpts = $wpdb->get_results( "SELECT ID, post_excerpt FROM $wpdb->posts WHERE ID IN ( $posts_imploded )", OBJECT_K );
                         }
                         if ( array_key_exists( $post, $excerpts ) ) {
                             $label = $excerpts[$post]->post_excerpt;
@@ -1390,11 +1392,10 @@ EOD
                     } else {
                         if ( !isset( $field_values[$field] ) ) {
                             $results = $wpdb->get_results( <<<EOD
-                                SELECT post_id, meta_value FROM $wpdb->postmeta
-                                    WHERE meta_key = '$field' AND post_id IN ( $posts_imploded )
+SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = '$field' AND post_id IN ( $posts_imploded )
 EOD
                                 , OBJECT );
-                            $values = array();
+                            $values = [ ];
                             foreach( $results as $result ) {
                                 $values[ $result->post_id ][ ] = $result->meta_value;
                             }
@@ -1545,10 +1546,12 @@ EOD
 # example of a custom field display value filter - the filter is applied to the custom field value before it is displayed
 
 add_filter( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME, function( $value, $context, $post_type ) {
-    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ':$value=     ' . $value     );
-    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ':$context=   ' . $context   );
-    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ':$post_type= ' . $post_type );
-    return "[{$value}]";
+    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ': $value     = "' . $value . '"' );
+    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ': $context   = '  . $context     );
+    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ': $post_type = '  . $post_type   );
+    error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ': ------------------------------------------------------------------------' );
+    # return __( $value, Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN );
+    return "#{$value}#";
 }, 10, 3 );
 
 ?>
