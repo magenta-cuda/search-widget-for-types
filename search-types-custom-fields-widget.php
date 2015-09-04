@@ -97,7 +97,7 @@ EOD
 <?php _e( 'of the search conditions.', self::LANGUAGE_DOMAIN ); ?>
 </div>
 <?php
-        if ( $instance['enable_table_view_option'] === 'table view option enabled' ) {
+        if ( array_key_exists( 'enable_table_view_option', $instance ) && $instance[ 'enable_table_view_option' ] === 'table view option enabled' ) {
 ?>
 <hr>
 <div class="scpbcfw-search-fields-checkbox-box">
@@ -1549,6 +1549,7 @@ EOD
 
 # example of a custom field display value filter - the filter is applied to the custom field value before it is displayed
 
+/*
 add_filter( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME, function( $value, $context, $post_type ) {
     error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ': $value     = "' . $value . '"' );
     error_log( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME . ': $context   = '  . $context     );
@@ -1557,5 +1558,6 @@ add_filter( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME, function( $val
     # return __( $value, Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN );
     return "#{$value}#";
 }, 10, 3 );
+*/
 
 ?>

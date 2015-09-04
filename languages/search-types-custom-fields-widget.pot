@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Search Types Custom Fields Widget package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Search Types Custom Fields Widget 0.4.8\n"
+"Project-Id-Version: Search Types Custom Fields Widget 0.4.9\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/search-types-custom-fields-widgetz\n"
-"POT-Creation-Date: 2015-08-03 06:03:56+00:00\n"
+"POT-Creation-Date: 2015-09-04 01:15:00+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,119 +12,154 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: search-types-custom-fields-widget.php:39
+#: search-types-custom-fields-widget-00.php:39
+#: search-types-custom-fields-widget-00.php:40
 #: search-types-custom-fields-widget.php:40
+#: search-types-custom-fields-widget.php:41
 msgid "Search Types Custom Fields"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:42
+#: search-types-custom-fields-widget-00.php:42
+#: search-types-custom-fields-widget.php:43
 msgid "For "
 msgstr ""
 
-#: search-types-custom-fields-widget.php:43
+#: search-types-custom-fields-widget-00.php:43
+#: search-types-custom-fields-widget.php:44
 msgid "Of "
 msgstr ""
 
-#: search-types-custom-fields-widget.php:59
+#: search-types-custom-fields-widget-00.php:59
+#: search-types-custom-fields-widget.php:60
 msgid "Search:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:61
+#: search-types-custom-fields-widget-00.php:61
+#: search-types-custom-fields-widget.php:62
 msgid "post type:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:63
+#: search-types-custom-fields-widget-00.php:63
+#: search-types-custom-fields-widget.php:64
 msgid "--select post type--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:91
+#: search-types-custom-fields-widget-00.php:91
+#: search-types-custom-fields-widget.php:93
 msgid "Results should satisfy"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:92
+#: search-types-custom-fields-widget-00.php:92
+#: search-types-custom-fields-widget.php:94
 msgid "All"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:94
+#: search-types-custom-fields-widget-00.php:94
+#: search-types-custom-fields-widget.php:96
 msgid "Any"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:95
+#: search-types-custom-fields-widget-00.php:95
+#: search-types-custom-fields-widget.php:97
 msgid "of the search conditions."
 msgstr ""
 
-#: search-types-custom-fields-widget.php:103
+#: search-types-custom-fields-widget-00.php:103
+#: search-types-custom-fields-widget.php:105
 msgid "Show search results in table format:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:111
+#: search-types-custom-fields-widget-00.php:111
+#: search-types-custom-fields-widget.php:113
 msgid "Start Search"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:133
-#: search-types-custom-fields-widget.php:466
+#: search-types-custom-fields-widget-00.php:133
+#: search-types-custom-fields-widget-00.php:466
+#: search-types-custom-fields-widget.php:135
+#: search-types-custom-fields-widget.php:481
 msgid "Help"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:135
+#: search-types-custom-fields-widget-00.php:135
+#: search-types-custom-fields-widget.php:137
 msgid "Select Fields for:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:164
-#: search-types-custom-fields-widget.php:440
-#: search-types-custom-fields-widget.php:634
-#: search-types-custom-fields-widget.php:672
-#: search-types-custom-fields-widget.php:850
+#: search-types-custom-fields-widget-00.php:164
+#: search-types-custom-fields-widget-00.php:440
+#: search-types-custom-fields-widget-00.php:634
+#: search-types-custom-fields-widget-00.php:672
+#: search-types-custom-fields-widget-00.php:850
+#: search-types-custom-fields-widget.php:166
+#: search-types-custom-fields-widget.php:455
+#: search-types-custom-fields-widget.php:650
+#: search-types-custom-fields-widget.php:689
+#: search-types-custom-fields-widget.php:864
 msgid "Open"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:345
+#: search-types-custom-fields-widget-00.php:345
+#: search-types-custom-fields-widget.php:347
 msgid "Maximum number of items to display per custom field:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:354
+#: search-types-custom-fields-widget-00.php:354
+#: search-types-custom-fields-widget.php:356
 msgid "Display search results using excerpts (if it is supported by your theme):"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:363
+#: search-types-custom-fields-widget-00.php:363
+#: search-types-custom-fields-widget.php:365
 msgid "Use simplified labels for the values of select, checkboxes and radio button fields:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:372
+#: search-types-custom-fields-widget-00.php:372
+#: search-types-custom-fields-widget.php:374
 msgid "Enable option to display search results using a table of posts:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:382
+#: search-types-custom-fields-widget-00.php:382
+#: search-types-custom-fields-widget.php:384
 msgid "from css"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:384
+#: search-types-custom-fields-widget-00.php:384
+#: search-types-custom-fields-widget.php:386
 msgid "Width in pixels of the table of search results:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:441
-#: search-types-custom-fields-widget.php:851
+#: search-types-custom-fields-widget-00.php:441
+#: search-types-custom-fields-widget-00.php:851
+#: search-types-custom-fields-widget.php:456
+#: search-types-custom-fields-widget.php:865
 msgid "Close"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:468
+#: search-types-custom-fields-widget-00.php:468
+#: search-types-custom-fields-widget.php:483
 msgid "Search Conditions:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:654
+#: search-types-custom-fields-widget-00.php:654
+#: search-types-custom-fields-widget.php:670
 msgid "--Enter New Search Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:679
-#: search-types-custom-fields-widget.php:811
+#: search-types-custom-fields-widget-00.php:679
+#: search-types-custom-fields-widget-00.php:811
+#: search-types-custom-fields-widget.php:696
+#: search-types-custom-fields-widget.php:825
 msgid "--Enter Search Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:821
+#: search-types-custom-fields-widget-00.php:821
+#: search-types-custom-fields-widget.php:835
 msgid "--Enter Minimum Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:825
+#: search-types-custom-fields-widget-00.php:825
+#: search-types-custom-fields-widget.php:839
 msgid "--Enter Maximum Value--"
 msgstr ""
 #. Plugin Name of the plugin/theme
