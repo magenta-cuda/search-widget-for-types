@@ -1244,7 +1244,7 @@ EOD
                 }
                 $attr = [
                     'ids'     => implode( ',', $thumbnails ),
-                    'columns' => array_key_exists( 'search_gallery_columns', $option ) ? $option[ 'search_gallery_columns' ] : 5
+                    'columns' => !empty( $option[ 'search_gallery_columns' ] ) ? $option[ 'search_gallery_columns' ] : 5
                 ];
                 $html  = gallery_shortcode( $attr );
                 $i     = 0;
