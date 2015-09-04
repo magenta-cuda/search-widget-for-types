@@ -100,9 +100,14 @@ EOD
         if ( array_key_exists( 'enable_table_view_option', $instance ) && $instance[ 'enable_table_view_option' ] === 'table view option enabled' ) {
 ?>
 <hr>
-<div class="scpbcfw-search-fields-checkbox-box">
-<input type="checkbox" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use macro">
-<?php _e( 'Show search results in table format:', self::LANGUAGE_DOMAIN ); ?>
+<div class="scpbcfw-search-fields-checkbox-box" style="clear:both;">
+<?php _e( 'Show search results in ', self::LANGUAGE_DOMAIN ); ?><br>
+<input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use wordpress" checked>
+    <?php _e( 'WordPress format:', self::LANGUAGE_DOMAIN ); ?><br>
+<input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use table">
+    <?php _e( 'table format:', self::LANGUAGE_DOMAIN ); ?><br>
+<input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use gallery">
+    <?php _e( 'gallery format:', self::LANGUAGE_DOMAIN ); ?><br>
 </div>
 <?php
         }
@@ -222,30 +227,25 @@ EOD
             }
             unset( $field );
             # add fields for parent of, child of, post_content and attachment
-            $results = $wpdb->get_results( <<<EOD
-                SELECT m.meta_key, COUNT( DISTINCT m.post_id ) count FROM $wpdb->postmeta m, $wpdb->posts p
-                    WHERE m.post_id = p.ID AND p.post_type = "$name" AND m.meta_key LIKE '_wpcf_belongs_%'
-                    GROUP BY m.meta_key
+            $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
+SELECT m.meta_key, COUNT( DISTINCT m.post_id ) count FROM $wpdb->postmeta m, $wpdb->posts p
+    WHERE m.post_id = p.ID AND p.post_type = %s AND m.meta_key LIKE '_wpcf_belongs_%%' GROUP BY m.meta_key
 EOD
-            , OBJECT );
+                           , $name ), OBJECT );
             foreach ( $results as $result ) {
                 $post_type = substr( $result->meta_key, 14, strlen( $result->meta_key ) - 17 );
-                $fields[$result->meta_key] = (object) array(
-                    'label' => self::$CHILD_OF . ( $post_type === 'post' || $post_type === 'page' ? $post_type
-                        : $wpcf_types[$post_type]['labels']['name'] ), 
+                $fields[$result->meta_key] = (object) [
+                    'label' => self::$CHILD_OF . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
                     'count' => $result->count
-                );
+                ];
             }
             unset( $results, $result );
-            $results = $wpdb->get_results( <<<EOD
-                SELECT pi.post_type, m.meta_key, COUNT( DISTINCT m.meta_value ) count
-                    FROM $wpdb->postmeta m, $wpdb->posts pv, $wpdb->posts pi
-                    WHERE m.meta_value = pv.ID AND pv.post_type = "$name" AND pv.post_status = "publish"
-                        AND m.post_id = pi.ID AND pi.post_status = "publish"
-                        AND m.meta_key LIKE '_wpcf_belongs_%'
-                    GROUP BY pi.post_type
+            $results = $wpdb->get_results( $wpdb->prepare( <<<EOD
+SELECT pi.post_type, m.meta_key, COUNT( DISTINCT m.meta_value ) count FROM $wpdb->postmeta m, $wpdb->posts pv, $wpdb->posts pi
+    WHERE m.meta_value = pv.ID AND pv.post_type = %s AND pv.post_status = "publish" AND m.post_id = pi.ID AND pi.post_status = "publish"
+        AND m.meta_key LIKE '_wpcf_belongs_%%' GROUP BY pi.post_type
 EOD
-            , OBJECT );
+            , $name ), OBJECT );
             foreach ( $results as $result ) {
                 $fields["inverse_{$result->post_type}_{$result->meta_key}"] = (object) [
                     'label' => self::$PARENT_OF . ( $result->post_type === 'post' || $result->post_type === 'page'
@@ -255,23 +255,22 @@ EOD
             }
             # setup post content entry
             $fields[ 'pst-std-post_content' ] = (object) [ 'label' => 'Post Content', 'count' => $type->count ];
-            $fields[ 'pst-std-attachment' ] = (object) [ 'label' => 'Attachment', 'count' => $wpdb->get_var( <<<EOD
-                SELECT COUNT( DISTINCT a.post_parent ) FROM $wpdb->posts a, $wpdb->posts p
-                    WHERE a.post_type = "attachment" AND a.post_parent = p.ID AND p.post_type = "$name" AND p.post_status = "publish"
+            $fields[ 'pst-std-attachment' ] = (object) [ 'label' => 'Attachment', 'count' => $wpdb->get_var( $wpdb->prepare( <<<EOD
+SELECT COUNT( DISTINCT a.post_parent ) FROM $wpdb->posts a, $wpdb->posts p
+    WHERE a.post_type = "attachment" AND a.post_parent = p.ID AND p.post_type = %s AND p.post_status = "publish"
 EOD
-            ) ];
+                , $name ) ) ];
             #setup post author entry
-            $fields['pst-std-post_author']  = (object) [ 'label' => 'Author', 'count' => $wpdb->get_var( <<<EOD
-                SELECT COUNT(*) FROM $wpdb->posts p
-                    WHERE p.post_type = "$name" AND p.post_status = "publish" AND p.post_author IS NOT NULL
+            $fields['pst-std-post_author']  = (object) [ 'label' => 'Author', 'count' => $wpdb->get_var( $wpdb->prepare( <<<EOD
+SELECT COUNT(*) FROM $wpdb->posts p WHERE p.post_type = %s AND p.post_status = "publish" AND p.post_author IS NOT NULL
 EOD
-            ) ];
+                , $name ) ) ];
             # remove all invalid custom fields.
-            $fields = array_filter( $fields );
-            $current = array_merge( array_keys( $the_taxonomies ), array_keys( $fields ) );
+            $fields   = array_filter( $fields );
+            $current  = array_merge( array_keys( $the_taxonomies ), array_keys( $fields ) );
             $previous = array_intersect( $previous, $current );
-            $new = array_diff( $current, $previous );
-            $current = array_merge( $previous, $new ); 
+            $new      = array_diff( $current, $previous );
+            $current  = array_merge( $previous, $new ); 
 ?>
 <!-- before drop point -->
 <div><div class="scpbcfw-selectable-field-after"></div></div>
@@ -281,10 +280,10 @@ EOD
 <div class="scpbcfw-selectable-field">
 <?php
                 if ( substr_compare( $field_name, 'tax-tag-', 0, 8 ) ==0 || substr_compare( $field_name, 'tax-cat-', 0, 8 ) == 0 ) {
-                    $tax_name = $field_name;
+                    $tax_name    = $field_name;
                     $db_taxonomy = $the_taxonomies[ $tax_name ];
                     $wp_taxonomy = $wp_taxonomies[ $db_taxonomy->taxonomy ];
-                    $tax_label = ( $wp_taxonomy->hierarchical ) ? ' (category)' : ' (tag)';
+                    $tax_label   = ( $wp_taxonomy->hierarchical ) ? ' (category)' : ' (tag)';
 ?>
     <input type="checkbox"
         class="scpbcfw-selectable-field" 
@@ -402,9 +401,13 @@ EOD
     public static function get_timestamp_from_string( $value ) {
         $t0 = strtotime( $value );
         $t1 = getdate( $t0 );
-        if ( $t1['seconds'] ) { return array( $t0, $t0 ); }
-        if ( !$t1['minutes'] && !$t1['hours'] ) { return array( $t0, $t0 + 86399 ); }
-        return array( $t0, $t0 + 59 );
+        if ( $t1[ 'seconds' ] ) {
+            return [ $t0, $t0 ];
+        }
+        if ( !$t1[ 'minutes' ] && !$t1[ 'hours' ] ) {
+            return [ $t0, $t0 + 86399 ];
+        }
+        return [ $t0, $t0 + 59 ];
     }
     
     public static function &join_arrays( $op, &$arr0, &$arr1 ) {
@@ -412,11 +415,19 @@ EOD
         $is_arr1 = is_array( $arr1 );
         if ( $is_arr0 || $is_arr1 ) {
             if ( $op == 'AND' ) {
-                if ( $is_arr0 && $is_arr1 ) { $arr = array_intersect( $arr0, $arr1 ); }
-                else if ( $is_arr0 ) { $arr = $arr0; } else { $arr = $arr1; }
+                if ( $is_arr0 && $is_arr1 ) {
+                    $arr = array_intersect( $arr0, $arr1 );
+                } else if ( $is_arr0 ) {
+                    $arr = $arr0;
+                } else {
+                    $arr = $arr1;
+                }
             } else {
-                if ( $is_arr0 && $is_arr1 ) { $arr = array_unique( array_merge( $arr0, $arr1 ) ); }
-                else if ( $is_arr0 ) { $arr = $arr0; } else { $arr = $arr1; }
+                if ( $is_arr0 && $is_arr1 ) {
+                    $arr = array_unique( array_merge( $arr0, $arr1 ) );
+                } else if ( $is_arr0 ) {
+                    $arr = $arr0; } else { $arr = $arr1;
+                }
             }
             return $arr;
         }
@@ -452,7 +463,7 @@ if ( is_admin( ) ) {
         wp_enqueue_style(  'stcfw-admin', plugins_url( 'stcfw-admin.css', __FILE__ ) );
         wp_enqueue_script( 'stcfw-admin', plugins_url( 'stcfw-admin.js',  __FILE__ ), [ 'jquery' ]  );
         wp_localize_script( 'stcfw-admin', 'stcfwAdminTranslations', [
-            'open' => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
+            'open'  => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
             'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
         ] );
         wp_enqueue_script( 'jquery-ui-draggable' );
@@ -584,13 +595,13 @@ EOD
                 } ) ) {
                     $post_type = substr( $parent, 14, strlen( $parent ) - 17 );
                     $fields[$parent] = [
-                        'type' => 'child_of',
-                        'label' => Search_Types_Custom_Fields_Widget::$CHILD_OF
-                            . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
+                        'type'   => 'child_of',
+                        'label'  => Search_Types_Custom_Fields_Widget::$CHILD_OF
+                                        . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
                         'values' => array_reduce( $selected_results, function( $new_results, $result ) {
-                                $new_results[$result->meta_value] = $result->count;
-                                return $new_results;
-                            }, [ ] )
+                                        $new_results[$result->meta_value] = $result->count;
+                                        return $new_results;
+                                    }, [ ] )
                     ];
                 }
             }
@@ -599,8 +610,9 @@ EOD
         # get parents of selected childs
         if ( $selected_parent_of = array_filter( $selected, function( $v ) { return strpos( $v, 'inverse_' ) === 0; } ) ) {
             # get all the child post types
-            $post_types = array_map( function( $v ) { return substr( $v, 8, strpos( $v, '__wpcf_belongs_' ) - 8 ); },
-                $selected_parent_of );
+            $post_types = array_map( function( $v ) {
+                return substr( $v, 8, strpos( $v, '__wpcf_belongs_' ) - 8 );
+            }, $selected_parent_of );
             # get the '_wpcf_belongs_' meta_key - they are all identical so just use the first one
             $selected_parent_of = array_pop( $selected_parent_of );
             $selected_parent_of = substr( $selected_parent_of, strpos( $selected_parent_of, '_wpcf_belongs_' ) );
@@ -609,20 +621,20 @@ EOD
 SELECT pi.post_type, m.post_id, COUNT(*) count FROM $wpdb->postmeta m, $wpdb->posts pi, $wpdb->posts pv
     WHERE m.post_id = pi.ID AND m.meta_value = pv.ID AND m.meta_key = "$selected_parent_of" AND pv.post_type = %s GROUP BY pi.post_type, m.post_id
 EOD
-            , $_REQUEST[ 'post_type' ] ) );
+                , $_REQUEST[ 'post_type' ] ) );
             foreach ( $post_types as $post_type ) {
                 # do each post type but the results need to be filtered this post type
                 if ( $selected_results = array_filter( $results, function( $result ) use ( $post_type ) { 
                     return $result->post_type == $post_type; 
                 } ) ) {
                     $fields[ "inverse_{$post_type}_{$selected_parent_of}" ] = [
-                        'type' => 'parent_of',
-                        'label' => Search_Types_Custom_Fields_Widget::$PARENT_OF
-                            . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
+                        'type'   => 'parent_of',
+                        'label'  => Search_Types_Custom_Fields_Widget::$PARENT_OF
+                                        . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
                         'values' => array_reduce( $selected_results, function( $new_results, $result ) {
-                                $new_results[$result->post_id] = $result->count;
-                                return $new_results;
-                            }, [ ] )
+                                        $new_results[$result->post_id] = $result->count;
+                                        return $new_results;
+                                    }, [ ] )
                     ];
                 }
             }
@@ -641,7 +653,7 @@ EOD
             if ( substr_compare( $selection, 'tax-cat-', 0, 8 ) === 0 || substr_compare( $selection, 'tax-tag-', 0, 8 ) === 0 ) {
                 # do a taxonomy
                 $tax_name = substr( $selection, 8 );
-                $values = $terms[ $tax_name ];
+                $values   = $terms[ $tax_name ];
                 $taxonomy = $taxonomies[ $tax_name ];
 ?>
 <div class="scpbcfw-search-fields stcfw-nohighlight">
@@ -676,11 +688,11 @@ EOD
 <?php
             } else {   # if ( substr_compare( $selection, 'tax-cat-', 0, 8 ) === 0 || substr_compare( $selection, 'tax-tag-', 0, 8 ) === 0 ) {
                 # do a custom field, post_content or author
-                $meta_key = $selection;
-                $field = $fields[ $meta_key ];
-                $field_type = $field[ 'type' ];
-                $wpcf_field = substr_compare( $meta_key, 'wpcf-', 0, 5 ) === 0 ? $wpcf_fields[ substr( $meta_key, 5 ) ] : NULL;
-                $wpcf_field_data = $wpcf_field && array_key_exists( 'data', $wpcf_field ) ? $wpcf_field[ 'data' ] : NULL;
+                $meta_key                = $selection;
+                $field                   = $fields[ $meta_key ];
+                $field_type              = $field[ 'type' ];
+                $wpcf_field              = substr_compare( $meta_key, 'wpcf-', 0, 5 ) === 0 ? $wpcf_fields[ substr( $meta_key, 5 ) ] : NULL;
+                $wpcf_field_data         = $wpcf_field && array_key_exists( 'data', $wpcf_field ) ? $wpcf_field[ 'data' ] : NULL;
                 $wpcf_field_data_options = $wpcf_field_data && array_key_exists( 'options', $wpcf_field_data ) ? $wpcf_field_data[ 'options' ] : NULL;
 ?>
 <div class="scpbcfw-search-fields stcfw-nohighlight">
@@ -861,7 +873,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
         wp_enqueue_style(  'stcfw-search', plugins_url( 'stcfw-search.css', __FILE__ ) );
         wp_enqueue_script( 'stcfw-search', plugins_url( 'stcfw-search.js',  __FILE__ ), [ 'jquery' ] );
         wp_localize_script( 'stcfw-search', 'stcfwSearchTranslations', [
-            'open' => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
+            'open'  => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
             'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
         ] );
     } );
@@ -890,15 +902,14 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
 SELECT x.taxonomy, t.name, x.term_taxonomy_id FROM $wpdb->term_taxonomy x, $wpdb->terms t WHERE x.term_id = t.term_id
 EOD
             , OBJECT );
-        $term_taxonomy_ids = array();
+        $term_taxonomy_ids = [ ];
         foreach ( $results as $result ) {
-            $term_taxonomy_ids[$result->taxonomy][strtolower( $result->name)] = $result->term_taxonomy_id;
+            $term_taxonomy_ids[ $result->taxonomy ][ strtolower( $result->name) ] = $result->term_taxonomy_id;
         }
         # merge optional text values into the checkboxes array
         $suffix_len = strlen( Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX );
         foreach ( $_REQUEST as $index => &$request ) {
-            if ( $request && substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX,
-                -$suffix_len ) === 0 ) {
+            if ( $request && substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX, -$suffix_len ) === 0 ) {
                 $index = substr( $index, 0, strlen( $index ) - $suffix_len );
                 if ( is_array( $_REQUEST[$index] ) || !array_key_exists( $index, $_REQUEST ) ) {
                     if ( substr_compare( $index, 'tax-', 0, 4 ) === 0 ) {
@@ -910,9 +921,9 @@ EOD
                             $request = NULL;
                             continue;
                         }
-                        $request = $term_taxonomy_ids[$tax_name][strtolower( $request )];
+                        $request = $term_taxonomy_ids[ $tax_name ][ strtolower( $request ) ];
                     }
-                    $_REQUEST[$index][] = $request;
+                    $_REQUEST[ $index ][ ] = $request;
                 }
                 # kill the original request
                 $request = NULL;
@@ -937,7 +948,7 @@ EOD
         unset( $request );
         $wpcf_fields = get_option( 'wpcf-fields', [ ] );    
         $non_field_keys = [ 'search_types_custom_fields_form', 'search_types_custom_fields_widget_option', 'search_types_custom_fields_widget_number',
-            'search_types_custom_fields_and_or', 'search_types_custom_fields_show_using_macro', 'post_type', 'paged' ];
+                              'search_types_custom_fields_and_or', 'search_types_custom_fields_show_using_macro', 'post_type', 'paged' ];
         $sql = '';
         foreach ( $_REQUEST as $key => $values ) {
             # here only searches on the table $wpdb->postmeta are processed; everything is done later.
@@ -977,7 +988,9 @@ EOD
                     $wpcf_field = $wpcf_fields[ substr( $key, 5 ) ];
                     $wpcf_field_type = $wpcf_field[ 'type' ];
                     if ( is_array( $value ) ) {
-                        if ( $sql2 ) { $sql2 = substr( $sql2, 0, -4 ); }
+                        if ( $sql2 ) {
+                            $sql2 = substr( $sql2, 0, -4 );
+                        }
                         # check for minimum/maximum operation
                         if ( ( $is_min = $value[ 'operator' ] === 'minimum' ) || ( $is_max = $value[ 'operator' ] === 'maximum' ) ) {
                             if ( $wpcf_field_type === 'date' ) {
@@ -1076,7 +1089,7 @@ EOD
             }
             if ( !is_array( $values) ) {
                 if ( $values ) {
-                    $values = array( $values );
+                    $values = [ $values ];
                 } else {
                     continue;
                 }
@@ -1117,7 +1130,9 @@ EOD
                 return $wpdb->prepare( '%d', $attachment );
             }, $_REQUEST['pst-std-attachment'] ) );
             $ids2 = $wpdb->get_col( "SELECT post_parent FROM $wpdb->posts WHERE ID IN ( $post_attachments )" );
-            if ( $and_or === 'AND' && !$ids2 ) { return ' AND 1 = 2 '; }
+            if ( $and_or === 'AND' && !$ids2 ) {
+                return ' AND 1 = 2 ';
+            }
         } else {
             $ids2 = FALSE;
         }
@@ -1140,7 +1155,9 @@ EOD
             $ids3 = FALSE;
         }
         $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids3 );
-        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) { return ' AND 1 = 2 '; }
+        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
+            return ' AND 1 = 2 ';
+        }
         # filter on post_author
         if ( array_key_exists( 'pst-std-post_author', $_REQUEST ) && $_REQUEST['pst-std-post_author'] ) {
             $post_authors = implode( ',', array_map( function( $author ) {
@@ -1148,7 +1165,7 @@ EOD
                 return $wpdb->prepare( "%d", $author );
             }, $_REQUEST['pst-std-post_author'] ) );
             $ids4 = $wpdb->get_col( $wpdb->prepare( <<<EOD
-                SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish' AND post_author IN ( $post_authors )
+SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish' AND post_author IN ( $post_authors )
 EOD
                 , $_REQUEST[ 'post_type' ] ) );
             if ( $and_or === 'AND' && !$ids4 ) {
@@ -1171,7 +1188,7 @@ EOD
         return $where;
     }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 
-    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] ) && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use macro' ) {
+    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] ) && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] !== 'wordpress' ) {
         # for alternate output format do not page output
         add_filter( 'post_limits', function( $limit, &$query ) {
             if ( !$query->is_main_query( ) ) {
@@ -1192,10 +1209,49 @@ EOD
             global $wpdb;
             # in this case a template is dynamically constructed and returned
             # get the list of posts
-            $posts = array_map( function( $post ) { return $post->ID; }, $wp_query->posts );
+            $posts = array_map( function( $post ) {
+                return $post->ID;
+            }, $wp_query->posts );
             $posts_imploded = implode( ', ', $posts );
             $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
             $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
+            if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
+                get_header( );
+                $thumbnails = [ ];
+                $permalinks = [ ];
+                foreach ( $posts as $post ) {
+                    if ( $thumbnail = get_post_thumbnail_id( $post ) ) {
+                        $thumbnails[ ] = $thumbnail;
+                        $permalinks[ ] = [ get_permalink( $thumbnail ), get_permalink( $post ) ];
+                    }
+                }
+                error_log( '$permalinks=' . print_r( $permalinks, true ) );
+                $attr = [
+                    'ids'     => implode( ',', $thumbnails ),
+                    'columns' => 6
+                ];
+                $html  = gallery_shortcode( $attr );
+                $i     = 0;
+                $error = FALSE;
+                $html = preg_replace_callback( '#\shref=("|\')(.*?)\1#', function( $matches ) use ( $permalinks, &$i, &$error ) {
+                    error_log( '$matches=' . print_r( $matches, true ) );
+                    if ( $matches[2] === $permalinks[$i][0] ) {
+                        return " href={$matches[1]}" . $permalinks[$i++][1] . $matches[1];
+                    } else {
+                        $error = 1;
+                    }
+                    return $matches[0];
+                }, $html, -1, $count );
+                if ( $count !== count( $thumbnails ) ) {
+                    $error = 2;
+                }
+                if ( $error ) {
+                    error_log( 'search types custom fields widget error: gallery format failed to relink error code = ' . $error );
+                }
+                echo $html;
+                get_footer( );
+                die;
+            }
             # get the applicable fields from the options for this widget
             if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
                 # display fields explicitly specified for post type
@@ -1542,7 +1598,7 @@ EOD
             $content .= '</tbody></table></div></div>';
             echo $content;
             get_footer( );
-            exit( );
+            die;
         } );
     }   # if ( isset( $_REQUEST['search_types_custom_fields_show_using_macro'] )
 }   # } else {   # if ( is_admin() ) {

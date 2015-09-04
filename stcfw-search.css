@@ -101,10 +101,9 @@ div.scpbcfw-search-fields-checkbox-box{
     margin:10px;
 }
 
-input.scpbcfw-search-fields-checkbox{
-    float:right;
-    margin-top:5px;
-    margin-left:5px;
+input[type="radio"].scpbcfw-search-fields-checkbox{
+    float:left;
+    margin:5px 8px 0px 25px;
 }
 
 div.scpbcfw-search-fields-submit-box{
