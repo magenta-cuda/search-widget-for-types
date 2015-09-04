@@ -423,7 +423,10 @@ EOD
         $arr = FALSE;
         return $arr;
     }
-    
+
+    # The value_filter() is applied to field values, field names, taxonomy values, taxonomy names and post types before they are displayed.
+    # You should use "add_filter( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME, 'your_value_filter' );" See example at the end.
+
     public static function value_filter( $value, $field = NULL, $post_type = NULL ) {
         $value = preg_replace_callback( '#(<a\s.*?>)(.*?)</a>#', function( $matches ) use ( $field, $post_type ) { 
             return $matches[1] . apply_filters( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME, $matches[2], $field, $post_type ) . '</a>';
@@ -1387,6 +1390,7 @@ EOD
                                     }
                                 }
                             }
+                            $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $_REQUEST[ 'post_type' ] );
                             $td = "<td class=\"scpbcfw-result-table-detail-$field\">$label</td>";
                         }     
                     } else {
