@@ -92,9 +92,9 @@ EOD
 <div class="scpbcfw-search-fields-option-box">
 <div class="scpbcfw-search-fields-and-or-box">
 <?php _e( 'Results should satisfy', self::LANGUAGE_DOMAIN ); ?><br> 
-<input type="radio" name="search_types_custom_fields_and_or" value="and" checked><strong><?php _e( 'All', self::LANGUAGE_DOMAIN ); ?></strong>
+<input type="radio" name="search_types_custom_fields_and_or" class="scpbcfw-search-fields-checkbox" value="and" checked><strong><?php _e( 'All', self::LANGUAGE_DOMAIN ); ?></strong>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="radio" name="search_types_custom_fields_and_or" value="or"><strong><?php _e( 'Any', self::LANGUAGE_DOMAIN ); ?></strong></br>
+<input type="radio" name="search_types_custom_fields_and_or" class="scpbcfw-search-fields-checkbox" value="or"><strong><?php _e( 'Any', self::LANGUAGE_DOMAIN ); ?></strong></br>
 <?php _e( 'of the search conditions.', self::LANGUAGE_DOMAIN ); ?>
 </div>
 <?php
@@ -371,7 +371,7 @@ EOD
     class="scpbcfw-admin-option-checkbox scpbcfw-enable-table-view-option"
     value="table view option enabled"
     <?php if ( !$instance || isset( $instance['enable_table_view_option'] ) ) { echo 'checked'; } ?>>
-<?php _e( 'Enable option to display search results using a table of posts or gallery:', self::LANGUAGE_DOMAIN ); ?>
+<?php _e( 'Enable option to display search results using a table of posts or gallery of featured images:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 <div class="scpbcfw-admin-option-box">
