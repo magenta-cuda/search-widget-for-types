@@ -69,7 +69,8 @@ EOD
             , OBJECT );
         $select_post_types = array_diff( array_filter( array_keys( $instance ), function( $key ) {
             return substr_compare( $key, "scpbcfw-", 0, 8 ) !== 0;
-        } ), [ 'maximum_number_of_items', 'set_is_search', 'use_simplified_labels_for_select', 'enable_table_view_option', 'search_table_width' ] );
+        } ), [ 'maximum_number_of_items', 'set_is_search', 'use_simplified_labels_for_select', 'enable_table_view_option', 'search_table_width',
+            'search_gallery_columns' ] );
         foreach ( $results as $result ) {
             $name = $result->post_type;
             # skip unselected post types
@@ -370,7 +371,7 @@ EOD
     class="scpbcfw-admin-option-checkbox scpbcfw-enable-table-view-option"
     value="table view option enabled"
     <?php if ( !$instance || isset( $instance['enable_table_view_option'] ) ) { echo 'checked'; } ?>>
-<?php _e( 'Enable option to display search results using a table of posts:', self::LANGUAGE_DOMAIN ); ?>
+<?php _e( 'Enable option to display search results using a table of posts or gallery:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 <div class="scpbcfw-admin-option-box">
@@ -385,6 +386,18 @@ EOD
 <?php _e( 'Width in pixels of the table of search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
+<div class="scpbcfw-admin-option-box">
+<input type="number" min="1" max="16" 
+    id="<?php echo $this->get_field_id( 'search_gallery_columns' ); ?>"
+    name="<?php echo $this->get_field_name( 'search_gallery_columns' ); ?>"
+    class="scpbcfw-admin-option-number scpbcfw-search-table-width"
+    <?php if ( !empty( $instance['search_gallery_columns'] ) ) { echo "value=\"$instance[search_gallery_columns]\""; } ?>
+    <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>
+    placeholder="<?php _e( '5', self::LANGUAGE_DOMAIN ); ?>"
+    size="5">
+<?php _e( 'Number of columns for the gallery of search results:', self::LANGUAGE_DOMAIN ); ?>
+<div style="clear:both;"></div>
+</div>
 </div>
 <?php
     }   # public function form( $instance ) {
@@ -393,7 +406,9 @@ EOD
     
     public static function search_wpcf_field_options( &$options, $option, $value ) {
         foreach ( $options as $k => $v ) {
-            if ( !empty( $v[$option]) && $v[$option] == $value ) { return $k; }
+            if ( !empty( $v[$option]) && $v[$option] == $value ) {
+                return $k;
+            }
         }
         return NULL;
     }
@@ -426,7 +441,9 @@ EOD
                 if ( $is_arr0 && $is_arr1 ) {
                     $arr = array_unique( array_merge( $arr0, $arr1 ) );
                 } else if ( $is_arr0 ) {
-                    $arr = $arr0; } else { $arr = $arr1;
+                    $arr = $arr0;
+                } else {
+                    $arr = $arr1;
                 }
             }
             return $arr;
@@ -1022,7 +1039,7 @@ EOD
                             $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value = %d )", $key, $value );
                         } else {
                             list( $t0, $t1 ) = Search_Types_Custom_Fields_Widget::get_timestamp_from_string( $value );    
-                           if ( $t1 != $t0 ) {
+                            if ( $t1 != $t0 ) {
                                 $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d AND w.meta_value <= %d )",
                                     $key, $t0, $t1 );
                             } else {
@@ -1225,19 +1242,19 @@ EOD
                         $permalinks[ ] = [ get_permalink( $thumbnail ), get_permalink( $post ) ];
                     }
                 }
-                error_log( '$permalinks=' . print_r( $permalinks, true ) );
                 $attr = [
                     'ids'     => implode( ',', $thumbnails ),
-                    'columns' => 6
+                    'columns' => array_key_exists( 'search_gallery_columns', $option ) ? $option[ 'search_gallery_columns' ] : 5
                 ];
                 $html  = gallery_shortcode( $attr );
                 $i     = 0;
                 $error = FALSE;
                 $html = preg_replace_callback( '#\shref=("|\')(.*?)\1#', function( $matches ) use ( $permalinks, &$i, &$error ) {
-                    error_log( '$matches=' . print_r( $matches, true ) );
                     if ( $matches[2] === $permalinks[$i][0] ) {
                         return " href={$matches[1]}" . $permalinks[$i++][1] . $matches[1];
                     } else {
+                        # the href was not identical to the image permalink but this image should link to the ith posts
+                        return " href={$matches[1]}" . $permalinks[$i++][1] . $matches[1];
                         $error = 1;
                     }
                     return $matches[0];
