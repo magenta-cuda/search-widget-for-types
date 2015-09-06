@@ -1208,7 +1208,8 @@ EOD
         return $where;
     }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 
-    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] ) && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] !== 'wordpress' ) {
+    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
+        && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] !== 'use wordpress' ) {
         # for alternate output format do not page output
         add_filter( 'post_limits', function( $limit, &$query ) {
             if ( !$query->is_main_query( ) ) {
