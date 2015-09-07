@@ -1286,7 +1286,6 @@ EOD
                     ++$i;
                     return $matches[0];
                 }, $html );
-                error_log( '$html=' . $html ) ;
                 if ( $error ) {
                     error_log( 'search types custom fields widget error: gallery format failed to relink, error code = ' . $error );
                 }
