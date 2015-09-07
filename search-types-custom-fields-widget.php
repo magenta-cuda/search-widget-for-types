@@ -1274,7 +1274,7 @@ EOD
                         $result = preg_replace_callback( '#(<(figcaption|dd)\s.*?class=("|\').*?gallery-caption.*?\3.*?>)(.*?)(</\2>)#s',
                             function( $matches ) use ( $permalinks, $i ) {
                             # replace image caption with post title
-                            return $matches[1] . $permalinks[$i][2] . $matches[4];
+                            return $matches[1] . $permalinks[$i][2] . $matches[5];
                         }, $matches[0], -1, $count );
                         if ( $count === 1 ) {
                             ++$i;
