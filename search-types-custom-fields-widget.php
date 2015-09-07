@@ -1243,7 +1243,7 @@ EOD
                 foreach ( $posts as $post ) {
                     if ( $thumbnail = get_post_thumbnail_id( $post ) ) {
                         $thumbnails[ ] = $thumbnail;
-                        $permalinks[ ] = [ get_permalink( $thumbnail ), get_permalink( $post ) ];
+                        $permalinks[ ] = [ get_permalink( $thumbnail ), get_permalink( $post ), get_the_title( $post ) ];
                     }
                 }
                 $attr = [
@@ -1257,7 +1257,7 @@ EOD
                     if ( $matches[2] === $permalinks[$i][0] ) {
                         return " href={$matches[1]}" . $permalinks[$i++][1] . $matches[1];
                     } else {
-                        # the href was not identical to the image permalink but this image should link to the ith posts
+                        # the href was not identical to the image permalink but the ith image should link to the ith posts so ...
                         return " href={$matches[1]}" . $permalinks[$i++][1] . $matches[1];
                         $error = 1;
                     }
@@ -1266,8 +1266,29 @@ EOD
                 if ( $count !== count( $thumbnails ) ) {
                     $error = 2;
                 }
+                $i    = 0;
+                $html = preg_replace_callback( '#<(figure|dl)\s.*?class=("|\').*?gallery-item.*?\2.*?>.*?<a\s.*?href=("|\')(.*?)\3.*?</\1>#s',
+                    function( $matches ) use ( $permalinks, &$i, &$error ) {
+                    # the ith href found should match the ith post permalink in $permalinks
+                    if ( $matches[4] === $permalinks[$i][1] ) {
+                        $result = preg_replace_callback( '#(<(figcaption|dd)\s.*?class=("|\').*?gallery-caption.*?\3.*?>)(.*?)(</\2>)#s',
+                            function( $matches ) use ( $permalinks, $i ) {
+                            # replace image caption with post title
+                            return $matches[1] . $permalinks[$i][2] . $matches[4];
+                        }, $matches[0], -1, $count );
+                        if ( $count === 1 ) {
+                            ++$i;
+                            return $result;
+                        }
+                    } else {
+                        $error = 3;
+                    }
+                    ++$i;
+                    return $matches[0];
+                }, $html );
+                error_log( '$html=' . $html ) ;
                 if ( $error ) {
-                    error_log( 'search types custom fields widget error: gallery format failed to relink error code = ' . $error );
+                    error_log( 'search types custom fields widget error: gallery format failed to relink, error code = ' . $error );
                 }
                 echo $html;
                 get_footer( );
