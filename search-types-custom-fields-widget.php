@@ -1637,6 +1637,14 @@ EOD
             die;
         } );
     }   # if ( isset( $_REQUEST['search_types_custom_fields_show_using_macro'] )
+    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
+        && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use wordpress' ) {
+        add_filter( 'get_search_query', function( $query ) {
+            $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
+            $label  = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
+            return $label;
+        } );
+    }
 }   # } else {   # if ( is_admin() ) {
 
 # example of a custom field display value filter - the filter is applied to the custom field value before it is displayed
