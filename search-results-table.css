@@ -6,6 +6,7 @@ table.scpbcfw-result-table {
     border-collapse:collapse;
     width:99%;
     margin:0px auto;
+    table-layout:auto;
 }
 
 table.scpbcfw-result-table tr:nth-child(even) {
