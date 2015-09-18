@@ -477,8 +477,9 @@ EOD
             $post = $post_obj->ID;
             $model =& $models[ ];
             $model = [ ];
-            $model[ 'title' ] = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_obj->guid}\">{$post_obj->post_title}</a>", 'post_title',
-                                                                                      $post_type );
+            $model[ 'ID' ]         = $post_obj->ID;
+            $model[ 'post_title' ] = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_obj->guid}\">{$post_obj->post_title}</a>",
+                                         'post_title', $post_type );
             foreach ( $fields as $field ) {
                 if ( substr_compare( $field, 'tax-cat-', 0, 8, FALSE ) === 0 || substr_compare( $field, 'tax-tag-', 0, 8, FALSE ) === 0 ) {
                     $taxonomy = substr( $field, 8 );
@@ -1502,6 +1503,7 @@ EOD
             } else {
                 wp_enqueue_style( 'search_results_table', plugins_url( 'search-results-table.css', __FILE__ ) );
             }
+            wp_enqueue_script( 'backbone' );
         } );
         add_action( 'template_redirect', function( ) {
             global $wp_query;
@@ -1515,29 +1517,35 @@ EOD
             $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
             $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
             if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
-                add_action( 'wp_head', function( ) use ( $posts_imploded ) {
+                add_action( 'wp_footer', function( ) use ( $posts_imploded ) {
                     global $wp_query;
                     $collection = str_replace( '\"', '\\\\"', Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts,
                         [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
                     error_log( '$collection=' . $collection );
 ?>
 <script type="text/javascript">
-    try{
-        var stcfwPosts=JSON.parse('<?php echo $collection; ?>');
-        console.log("stcfwPosts=",stcfwPosts);
-    }catch(e){
-        console.log("e=",e);
-    }
+    (function(){
+        var stcfw=window.stcfw=window.stcfw||{};
+        stcfw.Post=Backbone.Model.extend();
+        stcfw.Posts=Backbone.Collection.extend({model:stcfw.Post});
+        stcfw.posts=new stcfw.Posts();
+        try{
+            stcfw.posts.reset(JSON.parse('<?php echo $collection; ?>'));
+            console.log("stcfw.posts=",stcfw.posts);
+        }catch(e){
+            console.log("e=",e);
+        }
+    }());
 </script>
 <?php
-                } );
+                }, 21 );
                 get_header( );
                 $thumbnails = [ ];
                 $permalinks = [ ];
                 foreach ( $posts as $post ) {
                     if ( $thumbnail = get_post_thumbnail_id( $post ) ) {
                         $thumbnails[ ] = $thumbnail;
-                        $permalinks[ ] = [ get_permalink( $thumbnail ), get_permalink( $post ), get_the_title( $post ) ];
+                        $permalinks[ ] = [ get_permalink( $thumbnail ), get_permalink( $post ), get_the_title( $post ), $post ];
                     }
                 }
                 $attr = [
