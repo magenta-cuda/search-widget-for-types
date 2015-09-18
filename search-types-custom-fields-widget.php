@@ -464,6 +464,284 @@ EOD
         return apply_filters( self::VALUE_FILTER_NAME, $value, $field, $post_type );
     }
     
+    # get_backbone_collection() is used to generate a collection of models that may be used to populate the Backbone.js collection of posts.
+    # Since, this code was derived from code used to generate an HTML table of the selected posts the value of the fields are the contents of the
+    # corresponding <td> HTML element of the table. These are not raw values but values that have been processed for display as HTML. In particular
+    # the value of a URL is an HTML <a> element with suitable embedded text.
+    
+    public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded ) {
+        global $wpdb;
+        error_log( 'get_backbone_collection():$posts=' . print_r( $posts, true ) );
+        $models = [ ];
+        foreach ( $posts as $post_obj ) {
+            $post = $post_obj->ID;
+            $model =& $models[ ];
+            $model = [ ];
+            $model[ 'title' ] = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_obj->guid}\">{$post_obj->post_title}</a>", 'post_title',
+                                                                                      $post_type );
+            foreach ( $fields as $field ) {
+                if ( substr_compare( $field, 'tax-cat-', 0, 8, FALSE ) === 0 || substr_compare( $field, 'tax-tag-', 0, 8, FALSE ) === 0 ) {
+                    $taxonomy = substr( $field, 8 );
+                    # TODO: may be more efficient to get the terms for all the posts in one query
+                    if ( is_array( $terms = get_the_terms( $post, $taxonomy ) ) ) {
+                        $terms = implode( ', ', array_map( function( $term ) use ( $field ) {
+                            return Search_Types_Custom_Fields_Widget::value_filter( $term->name, $field, $post_type );
+                        }, $terms ) );
+                        $model[ $field ] = $terms;
+                    }
+                } else if ( ( $child_of = strpos( $field, '_wpcf_belongs_' ) === 0 ) || ( $parent_of = strpos( $field, 'inverse_' ) === 0 ) ) {
+                    if ( $child_of ) {
+                        if ( !isset( $child_of_values[$field] ) ) {
+                            # Do one query for all posts on first post and save the result for later posts
+                            $child_of_values[$field] = $wpdb->get_results( <<<EOD
+SELECT m.post_id, m.meta_value FROM $wpdb->postmeta m, $wpdb->posts p
+WHERE m.meta_value = p.ID AND p.post_status = 'publish' AND m.meta_key = '$field' AND m.post_id IN ( $posts_imploded )
+EOD
+                                , OBJECT_K );
+                        }
+                        $value = array_key_exists( $post, $child_of_values[ $field ] ) ? $child_of_values[ $field ][ $post ]->meta_value : '';
+                    } else if ( $parent_of ) {
+                        if ( !isset( $parent_of_values[$field] ) ) {
+                            # Do one query for all posts on first post and save the result for later posts
+                            # This case is more complex since a parent can have multiple childs
+                            $post_type = substr( $field, 8, strpos( $field, '_wpcf_belongs_' ) - 9 );
+                            $meta_key = substr( $field, strpos( $field, '_wpcf_belongs_' ) );
+                            $results = $wpdb->get_results( <<<EOD
+SELECT m.meta_value, m.post_id FROM $wpdb->postmeta m, $wpdb->posts p
+WHERE m.post_id = p.ID AND p.post_status = 'publish' AND p.post_type = '$post_type' AND m.meta_key = '$meta_key' AND m.meta_value IN ( $posts_imploded )
+EOD
+                                , OBJECT );
+                            $values = [ ];
+                            foreach ( $results as $result ) {
+                                $values[ $result->meta_value ][ ] = $result->post_id;
+                            }
+                            $parent_of_values[ $field ] = $values;
+                            unset( $values );
+                        }
+                        $value = array_key_exists( $post, $parent_of_values[$field] ) ? $parent_of_values[$field][$post] : NULL;
+                    }
+                    # for child of and parent of use post title instead of post id for label and embed in an <a> html element
+                    if ( $value ) {
+                        if ( is_array( $value ) ) {
+                            $label = implode( ', ', array_map( function( $v ) use ( &$post_titles ) {
+                                return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
+                            }, $value ) );
+                        } else {
+                            $label = "<a href=\"{$post_titles[$value]->guid}\">{$post_titles[$value]->post_title}</a>";
+                        }
+                        $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
+                        $model[ $field ] = $label;
+                    }
+                    unset( $value );
+                } else if ( $field === 'pst-std-attachment' ) {
+                    # for efficiency on first iteration get all relevant attachments for all posts for use by later iterations
+                    if ( !isset( $attachments ) ) {
+                        $results = $wpdb->get_results( <<<EOD
+SELECT ID, post_parent FROM $wpdb->posts WHERE post_type = 'attachment' AND post_parent IN ( $posts_imploded )
+EOD
+                            , OBJECT );
+                        $attachments = [ ];
+                        foreach ( $results as $result ) {
+                            $attachments[ $result->post_parent ][ ] = $result->ID;
+                        }
+                    }
+                    if ( array_key_exists( $post, $attachments ) ) {
+                        $label = implode( ', ', array_map( function( $v ) use ( &$post_titles ) {
+                            return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
+                        }, $attachments[ $post ] ) );
+                        $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
+                        $model[ $field ] = $label;
+                    }
+                } else if ( $field === 'pst-std-post_author' ) {
+                    # use user display name in place of user id
+                    # for efficiency on first iteration get all relevant user data for all posts for use by later iterations
+                    if ( !isset( $authors ) ) {
+                        $authors = $wpdb->get_results( <<<EOD
+SELECT p.ID, u.display_name, u.user_url FROM $wpdb->posts p, $wpdb->users u WHERE p.post_author = u.ID AND p.ID IN ( $posts_imploded )
+EOD
+                            , OBJECT_K );
+                    }
+                    if ( array_key_exists( $post, $authors ) ) {
+                        $author = $authors[ $post ];
+                        # if author has a url then display author name as a link to his url
+                        if ( $author->user_url ) {
+                            $label = "<a href=\"$author->user_url\">$author->display_name</a>";
+                        } else {
+                            $label = $author->display_name;
+                        }
+                        $model[ $field ] = $label;
+                    }
+                } else if ( $field === 'pst-std-post_content' ) {
+                    # use post excerpt in place of post content
+                    # for efficiency on first iteration get all relevant post excerpts for all posts for use by later iterations
+                    if ( !isset( $excerpts ) ) {
+                        $excerpts = $wpdb->get_results( "SELECT ID, post_excerpt FROM $wpdb->posts WHERE ID IN ( $posts_imploded )", OBJECT_K );
+                    }
+                    if ( array_key_exists( $post, $excerpts ) ) {
+                        $label = $excerpts[ $post ]->post_excerpt;
+                        if ( !$label ) {
+                            # use auto generated excerpt if there is no user supplied excerpt 
+                            if ( $post_for_excerpt = get_post( $post ) ) {
+                                if ( !post_password_required( $post ) ) {
+                                    # copied and modified from wp_trim_excerpt() of wp-includes/formatting.php
+                                    $label = $post_for_excerpt->post_content;
+                                    $label = strip_shortcodes( $label );
+                                    $label = apply_filters( 'the_content', $label );
+                                    $label = str_replace(']]>', ']]&gt;', $label);
+                                    $label = wp_trim_words( $label, 8, ' ' . '&hellip;' );
+                                }
+                            }
+                        }
+                        $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
+                        $model[ $field ] = $label;
+                    }     
+                } else {
+                    if ( !isset( $field_values[ $field ] ) ) {
+                        $results = $wpdb->get_results( <<<EOD
+SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = '$field' AND post_id IN ( $posts_imploded )
+EOD
+                            , OBJECT );
+                        $values = [ ];
+                        foreach( $results as $result ) {
+                            $values[ $result->post_id ][ ] = $result->meta_value;
+                        }
+                        $field_values[ $field ] = $values;
+                        unset( $values );
+                    }
+                    if ( array_key_exists( $post, $field_values[ $field ] ) && ( $field_values = $field_values[ $field ][ $post ] ) ) {
+                        $wpcf_field              = $wpcf_fields[ substr( $field, 5 ) ];
+                        $wpcf_field_type         = $wpcf_field[ 'type' ];
+                        $wpcf_field_data         = array_key_exists( 'data', $wpcf_field ) ? $wpcf_field['data'] : NULL;
+                        $wpcf_field_data_options = array_key_exists( 'options', $wpcf_field_data ) ? $wpcf_field_data[ 'options' ] : NULL;
+                        $class                   = '';
+                        $labels                  = [ ];
+                        foreach ( $field_values as $value ) {
+                            if ( !$value && $wpcf_field_type !== 'checkbox' ) {
+                                continue;
+                            }
+                            if ( is_serialized( $value ) ) {
+                                # serialized meta_value contains multiple values so need to unpack them and process them individually
+                                $unserialized = unserialize( $value );
+                                 if ( is_array( $unserialized ) ) {
+                                    if ( $wpcf_field_type === 'checkboxes' ) {
+                                        # for checkboxes use the unique option key as the value of the checkbox
+                                        $values = array_keys( $unserialized );
+                                    } else {
+                                        $values = array_values( $unserialized );
+                                    }
+                                } else {
+                                    error_log( '##### action:template_redirect()[UNEXPECTED!]:$unserialized=' . print_r( $unserialized, true ) );
+                                    $values = [ $unserialized ];
+                                }
+                            } else {
+                                if ( $wpcf_field_type === 'radio' || $wpcf_field_type === 'select' ) {
+                                    # for radio and select use the unique option key as the value of the radio or select
+                                    $values = [ Search_Types_Custom_Fields_Widget::search_wpcf_field_options(
+                                                  $wpcf_field_data_options, 'value', $value ) ];
+                                } else {
+                                    $values = [ $value ];
+                                }
+                            }
+                            unset( $value );
+                            $label = [ ];
+                            foreach ( $values as $value ) {
+                                if ( strlen( $value ) > 7 && ( substr_compare( $value, 'http://', 0, 7, true ) === 0
+                                    || substr_compare( $value, 'https://', 0, 8, true ) === 0 ) ) {
+                                    $url = $value;
+                                }
+                                $current =& $label[ ];
+                                if ( $wpcf_field_type === 'radio' ) {
+                                    # for radio replace option key with something more user friendly
+                                    $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
+                                    if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                        $current = $wpcf_field_data[ 'display' ] === 'value' ? $wpcf_field_data_options_value[ 'display_value' ]
+                                            : $wpcf_field_data_options_value[ 'title' ];
+                                    } else {
+                                        $current = $wpcf_field_data_options_value[ 'title' ]
+                                            . ( $wpcf_field_data[ 'display' ] === 'value' ? ( '(' . $wpcf_field_data_options_value[ 'display_value' ] . ')' )
+                                                : ( '(' . $wpcf_field_data_options_value[ 'value' ] . ')' ) );
+                                    }
+                                } else if ( $wpcf_field_type === 'select' ) {
+                                    $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
+                                    # for select replace option key with something more user friendly
+                                    if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                        $current = $wpcf_field_data_options_value[ 'title' ];
+                                    } else {
+                                        $current = $wpcf_field_data_options_value[ 'value' ]
+                                            . '(' . $wpcf_field_data_options_value[ 'title' ] . ')';
+                                    }
+                                } else if ( $wpcf_field_type === 'checkboxes' ) {
+                                    # checkboxes are handled very differently from radio and select 
+                                    # Why? seems that the radio/select way would work here also and be simpler
+                                    $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
+                                    if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                        if ( $wpcf_field_data_options_value[ 'display' ] === 'value' ) {
+                                            $current = $wpcf_field_data_options_value[ 'display_value_selected' ];
+                                        } else {
+                                            $current = $wpcf_field_data_options_value[ 'title' ];
+                                        }
+                                    } else {
+                                        $current = $wpcf_field_data_options_value[ 'title' ];
+                                         if ( $wpcf_field_data_options_value[ 'display' ] === 'db' ) {
+                                            $current .= ' (' . $wpcf_field_data_options_value[ 'set_value' ] . ')';
+                                        } else if ( $wpcf_field_data_options_value[ 'display' ] === 'value' ) {
+                                            $current .= ' (' . $wpcf_field_data_options_value[ 'display_value_selected' ] . ')';
+                                        }
+                                    }
+                                } else if ( $wpcf_field_type === 'checkbox' ) {
+                                    if ( $wpcf_field_data[ 'display' ] === 'db' ) {
+                                        $current = $value;
+                                    } else {
+                                        if ( $value ) {
+                                            $current = $wpcf_field_data[ 'display_value_selected' ];
+                                        } else {
+                                            $current = $wpcf_field_data[ 'display_value_not_selected' ];
+                                        }
+                                    }
+                                } else if ( $wpcf_field_type === 'image' || $wpcf_field_type === 'file' || $wpcf_field_type === 'audio'
+                                    || $wpcf_field_type === 'video' ) {
+                                    # use only filename for images and files
+                                    $current = ( $i = strrpos( $value, '/' ) ) !== FALSE ? substr( $value, $i + 1 ) : $value;
+                                } else if ( $wpcf_field_type === 'date' ) {
+                                    $current = date( Search_Types_Custom_Fields_Widget::DATE_FORMAT, $value );
+                                } else if ( $wpcf_field_type === 'url' ) {
+                                    # for URLs chop off http://
+                                    if ( substr_compare( $value, 'http://', 0, 7 ) === 0 ) {
+                                        $current = substr( $value, 7 );
+                                    } else if ( substr_compare( $value, 'https://', 0, 8 ) === 0 ) {
+                                        $current = substr( $value, 8 );
+                                    } else {
+                                        $current = $value;
+                                    }
+                                    # and provide line break hints
+                                    $current = str_replace( '/', '/&#8203;', $current );
+                                } else if ( $wpcf_field_type === 'numeric' ) {
+                                    $class = ' scpbcfw-result-table-detail-numeric';
+                                    $current = $value;
+                                } else {
+                                    $current = $value;
+                                }
+                                # if it is a link then embed in an <a> html element
+                                if ( !empty( $url ) ) {
+                                    $current = "<a href=\"$url\">$current</a>";
+                                }
+                                unset( $url, $current );
+                            }
+                            $labels[ ] = implode( ', ', $label );
+                            unset( $value, $values, $label );
+                        }
+                        $labels = implode( ', ', array_map( function( $label ) use ( $field ) {
+                            return Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
+                        }, $labels ) );
+                        $model[ $field ] = $labels;
+                    }   # if ( array_key_exists( $post, $field_values[$field] ) && ( $field_values = $field_values[$field][$post] ) ) {
+                }
+            }   # foreach ( $fields as $field ) {
+        }   # foreach ( $posts as $post ) 
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$models=' . print_r( $models, true ) );
+        return json_encode( $models );
+    }   # public static function get_backbone_collection( $posts, $fields, $post_type ) {
+    
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
 add_action( 'plugins_loaded', function( ) {
@@ -1237,6 +1515,22 @@ EOD
             $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
             $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
             if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
+                add_action( 'wp_head', function( ) use ( $posts_imploded ) {
+                    global $wp_query;
+                    $collection = str_replace( '\"', '\\\\"', Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts,
+                        [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
+                    error_log( '$collection=' . $collection );
+?>
+<script type="text/javascript">
+    try{
+        var stcfwPosts=JSON.parse('<?php echo $collection; ?>');
+        console.log("stcfwPosts=",stcfwPosts);
+    }catch(e){
+        console.log("e=",e);
+    }
+</script>
+<?php
+                } );
                 get_header( );
                 $thumbnails = [ ];
                 $permalinks = [ ];
@@ -1628,9 +1922,9 @@ EOD
                         }   # if ( array_key_exists( $post, $field_values[$field] ) && ( $field_values = $field_values[$field][$post] ) ) {
                     }
                     $content .= $td;
-                }
+                }   # foreach ( $fields as $field ) {
                 $content .= '</tr>';
-            }
+            }   # foreach ( $posts as $post ) {
             $content .= '</tbody></table></div></div>';
             echo $content;
             get_footer( );
