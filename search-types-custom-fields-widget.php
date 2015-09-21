@@ -574,28 +574,19 @@ EOD
                     }
                 } else if ( $field === 'pst-std-post_content' ) {
                     # use post excerpt in place of post content
-                    # for efficiency on first iteration get all relevant post excerpts for all posts for use by later iterations
-                    if ( !isset( $excerpts ) ) {
-                        $excerpts = $wpdb->get_results( "SELECT ID, post_excerpt FROM $wpdb->posts WHERE ID IN ( $posts_imploded )", OBJECT_K );
-                    }
-                    if ( array_key_exists( $post, $excerpts ) ) {
-                        $label = $excerpts[ $post ]->post_excerpt;
-                        if ( !$label ) {
-                            # use auto generated excerpt if there is no user supplied excerpt 
-                            if ( $post_for_excerpt = get_post( $post ) ) {
-                                if ( !post_password_required( $post ) ) {
-                                    # copied and modified from wp_trim_excerpt() of wp-includes/formatting.php
-                                    $label = $post_for_excerpt->post_content;
-                                    $label = strip_shortcodes( $label );
-                                    $label = apply_filters( 'the_content', $label );
-                                    $label = str_replace(']]>', ']]&gt;', $label);
-                                    $label = wp_trim_words( $label, 8, ' ' . '&hellip;' );
-                                }
-                            }
+                    if ( !( $label = $post_obj->post_excerpt ) ) {
+                        # use auto generated excerpt if there is no user supplied excerpt 
+                        if ( !post_password_required( $post ) ) {
+                            # copied and modified from wp_trim_excerpt() of wp-includes/formatting.php
+                            $label = $post_obj->post_content;
+                            $label = strip_shortcodes( $label );
+                            $label = apply_filters( 'the_content', $label );
+                            $label = str_replace(']]>', ']]&gt;', $label);
+                            $label = wp_trim_words( $label, 8, ' ' . '&hellip;' );
                         }
-                        $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
-                        $model[ $field ] = $label;
-                    }     
+                    }
+                    $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
+                    $model[ 'post_content' ] = $label;     
                 } else {
                     if ( !isset( $field_values[ $field ] ) ) {
                         $results = $wpdb->get_results( <<<EOD
@@ -1526,15 +1517,45 @@ EOD
 <script type="text/javascript">
     (function(){
         var stcfw=window.stcfw=window.stcfw||{};
-        stcfw.Post=Backbone.Model.extend();
+        stcfw.templateOptions={
+            evaluate:    /<#([\s\S]+?)#>/g,
+            interpolate: /\{\{\{([\s\S]+?)\}\}\}/g,
+            escape:      /\{\{([^\}]+?)\}\}(?!\})/g,
+            variable:    'data'
+        };
+        stcfw.Post=Backbone.Model.extend({idAttribute:"ID"});
         stcfw.Posts=Backbone.Collection.extend({model:stcfw.Post});
+        stcfw.PostHoverView=Backbone.View.extend({
+            className:"stcfw-generic-post_hover_view",
+            // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
+            template:_.template(jQuery("script#stcfw-template-generic-post_hover_view").html(),null,stcfw.templateOptions),
+            render:function(){
+                this.$el.empty();
+                this.$el.html(this.template(this.model.attributes));
+                return this;
+            }
+        });
         stcfw.posts=new stcfw.Posts();
+        stcfw.postHoverView=new stcfw.PostHoverView();
         try{
             stcfw.posts.reset(JSON.parse('<?php echo $collection; ?>'));
             console.log("stcfw.posts=",stcfw.posts);
         }catch(e){
             console.log("e=",e);
         }
+        jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").hover(
+            function(e){
+                var post=stcfw.posts.get(this.parentNode.dataset.post_id);
+                console.log("post=",post.attributes);
+                stcfw.postHoverView.model=post;
+                jQuery("div.gallery").prepend(stcfw.postHoverView.render().$el);
+                e.preventDefault();
+                e.stopPropagation();
+            },
+            function(){
+                jQuery("."+stcfw.postHoverView.className).detach();
+            }
+        );
     }());
 </script>
 <?php
@@ -1556,12 +1577,13 @@ EOD
                 $i     = 0;
                 $error = FALSE;
                 $html = preg_replace_callback( '#\shref=("|\')(.*?)\1#', function( $matches ) use ( $permalinks, &$i, &$error ) {
-                    if ( $matches[2] === $permalinks[$i][0] ) {
-                        return " href={$matches[1]}" . $permalinks[$i++][1] . $matches[1];
+                    $permalink = $permalinks[$i++];
+                    if ( $matches[2] === $permalink[0] ) {
+                        return " href={$matches[1]}" . $permalink[1] . $matches[1] . " data-post_id=\"{$permalink[3]}\"";
                     } else {
                         # the href was not identical to the image permalink but the ith image should link to the ith posts so ...
-                        return " href={$matches[1]}" . $permalinks[$i++][1] . $matches[1];
                         $error = 1;
+                        return " href={$matches[1]}" . $permalink[1] . $matches[1] . " data-post_id=\"{$permalink[3]}\"";
                     }
                     return $matches[0];
                 }, $html, -1, $count );
@@ -1592,6 +1614,14 @@ EOD
                     error_log( 'search types custom fields widget error: gallery format failed to relink, error code = ' . $error );
                 }
                 echo $html;
+?>
+<script type="text/html" id="stcfw-template-generic-post_hover_view">
+<div>
+<h3>{{{ data.post_title }}}</h3>
+{{{ data.post_content }}}
+</div>
+</script> 
+<?php
                 get_footer( );
                 die;
             }
