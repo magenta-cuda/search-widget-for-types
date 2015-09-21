@@ -1514,7 +1514,7 @@ EOD
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, [ 'pst-std-post_content' ],
                     $_REQUEST[ 'post_type' ], $posts_imploded );
                 error_log( '$collection=' . $collection );
-                wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'collection' => $collection ] );
+                wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection ] );
                 get_header( );
                 $thumbnails = [ ];
                 $permalinks = [ ];
@@ -1568,7 +1568,7 @@ EOD
                 if ( $error ) {
                     error_log( 'search types custom fields widget error: gallery format failed to relink, error code = ' . $error );
                 }
-                echo $html;
+                echo "<div id=\"stcfw-gallery-container\" style=\"position:relative;\">$html</div>";
                 require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                 get_footer( );
                 die;
