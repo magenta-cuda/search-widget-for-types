@@ -1508,58 +1508,13 @@ EOD
             $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
             $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
             if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
-                add_action( 'wp_footer', function( ) use ( $posts_imploded ) {
-                    global $wp_query;
-                    $collection = str_replace( '\"', '\\\\"', Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts,
-                        [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
-                    error_log( '$collection=' . $collection );
-?>
-<script type="text/javascript">
-    (function(){
-        var stcfw=window.stcfw=window.stcfw||{};
-        stcfw.templateOptions={
-            evaluate:    /<#([\s\S]+?)#>/g,
-            interpolate: /\{\{\{([\s\S]+?)\}\}\}/g,
-            escape:      /\{\{([^\}]+?)\}\}(?!\})/g,
-            variable:    'data'
-        };
-        stcfw.Post=Backbone.Model.extend({idAttribute:"ID"});
-        stcfw.Posts=Backbone.Collection.extend({model:stcfw.Post});
-        stcfw.PostHoverView=Backbone.View.extend({
-            className:"stcfw-generic-post_hover_view",
-            // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
-            template:_.template(jQuery("script#stcfw-template-generic-post_hover_view").html(),null,stcfw.templateOptions),
-            render:function(){
-                this.$el.empty();
-                this.$el.html(this.template(this.model.attributes));
-                return this;
-            }
-        });
-        stcfw.posts=new stcfw.Posts();
-        stcfw.postHoverView=new stcfw.PostHoverView();
-        try{
-            stcfw.posts.reset(JSON.parse('<?php echo $collection; ?>'));
-            console.log("stcfw.posts=",stcfw.posts);
-        }catch(e){
-            console.log("e=",e);
-        }
-        jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").hover(
-            function(e){
-                var post=stcfw.posts.get(this.parentNode.dataset.post_id);
-                console.log("post=",post.attributes);
-                stcfw.postHoverView.model=post;
-                jQuery("div.gallery").prepend(stcfw.postHoverView.render().$el);
-                e.preventDefault();
-                e.stopPropagation();
-            },
-            function(){
-                jQuery("."+stcfw.postHoverView.className).detach();
-            }
-        );
-    }());
-</script>
-<?php
-                }, 21 );
+                wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
+                #$collection = str_replace( '\"', '\\\\"', Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts,
+                #    [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
+                $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, [ 'pst-std-post_content' ],
+                    $_REQUEST[ 'post_type' ], $posts_imploded );
+                error_log( '$collection=' . $collection );
+                wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'collection' => $collection ] );
                 get_header( );
                 $thumbnails = [ ];
                 $permalinks = [ ];
@@ -1614,17 +1569,10 @@ EOD
                     error_log( 'search types custom fields widget error: gallery format failed to relink, error code = ' . $error );
                 }
                 echo $html;
-?>
-<script type="text/html" id="stcfw-template-generic-post_hover_view">
-<div>
-<h3>{{{ data.post_title }}}</h3>
-{{{ data.post_content }}}
-</div>
-</script> 
-<?php
+                require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                 get_footer( );
                 die;
-            }
+            }   # if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
             # get the applicable fields from the options for this widget
             if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
                 # display fields explicitly specified for post type
@@ -1972,6 +1920,8 @@ EOD
     if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
         && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use wordpress' ) {
         add_filter( 'get_search_query', function( $query ) {
+            error_log( 'filter:get_search_query():$query=' . $query );
+            error_log( 'filter:get_search_query():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
             $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
             $label  = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
             return $label;
