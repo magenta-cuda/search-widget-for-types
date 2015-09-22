@@ -27,9 +27,13 @@
             overlay.css({position:"absolute",backgroundColor:"white",opacity:0.90,border:"2px solid black",padding:"10px"});
             this.$el=overlay;
             this.el=overlay[0];
+            this.delegateEvents();
             return this;
         },
         onclick:function(){
+            console.log("overlay clicked");
+            // propagate click to target element
+            this.target.click();
         }
     });
     stcfw.posts=new stcfw.Posts();
@@ -40,29 +44,35 @@
     }catch(e){
         console.log("e=",e);
     }
+    // show overlay when mouse is over the target image element
     jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").mouseenter(function(e){
         var $this=jQuery(this);
         var view=stcfw.postHoverView;
+        view.target=$this;
+        // save target geometry for mousemove handler
         var offset=$this.offset();
         view.targetLeft=offset.left;
         view.targetTop=offset.top;
         view.targetRight=offset.left+$this.outerWidth();
         view.targetBottom=offset.top+$this.outerHeight();
+        // get the center of the target element to use to center the overlay
         var position=$this.position();
-        var parent=$this.offsetParent();
-        var parentWidth=parent.width();
         var x=position.left+$this.outerWidth()/2;
         var y=position.top+$this.outerHeight()/2;
+        // render the post of the target element
         view.model=stcfw.posts.get(this.parentNode.dataset.post_id);
         var $el=view.render().$el;
         var container=jQuery("div#stcfw-gallery-container").prepend($el);
+        // track mouse moves to find out when mouse moves outside of target element
         container.on("mousemove.stcfw",function(e){
             console.log("mousemove.stcfw");
             if(e.pageX<view.targetLeft||e.pageX>=view.targetRight||e.pageY<view.targetTop||e.pageY>=view.targetBottom){
+                // moved outside of target element so hide overlay and stop tracking mouse moves
                 stcfw.postHoverView.remove();
                 container.off("mousemove.stcfw");
             }
         });
+        // center over target element if possible
         x-=$el.outerWidth()/2;
         x=x>=0?x:0;
         y-=$el.outerHeight()/2;
