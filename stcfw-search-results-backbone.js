@@ -15,13 +15,21 @@
         template=jQuery("script#stcfw-template-generic-post_hover_view");
     }
     stcfw.PostHoverView=Backbone.View.extend({
-        className:"stcfw-generic-post_hover_view",
+        events:{
+            click:"onclick"
+        },
         // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
         template:_.template(template.html(),null,stcfw.templateOptions),
         render:function(){
-            this.$el.empty();
-            this.$el.html(this.template(this.model.attributes));
+            this.$el.remove();
+            //this.$el.html(this.template(this.model.attributes));
+            var overlay=jQuery(this.template(this.model.attributes));
+            overlay.css({position:"absolute",backgroundColor:"white",opacity:0.75,border:"2px solid black",padding:"10px"});
+            this.$el=overlay;
+            this.el=overlay[0];
             return this;
+        },
+        onclick:function(){
         }
     });
     stcfw.posts=new stcfw.Posts();
@@ -32,22 +40,36 @@
     }catch(e){
         console.log("e=",e);
     }
-    jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").hover(
-        function(e){
-            var $this=jQuery(this);
-            var position=$this.position();
-            var parent=$this.offsetParent();
-            var parentWidth=parent.width();
-            var post=stcfw.posts.get(this.parentNode.dataset.post_id);
-            console.log("post=",post.attributes);
-            var view=stcfw.postHoverView;
-            view.model=post;
-            jQuery("div#stcfw-gallery-container").prepend(view.render().$el);
-            e.preventDefault();
-            e.stopPropagation();
-        },
-        function(){
-            jQuery("."+stcfw.postHoverView.className).detach();
-        }
-    );
+    jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").mouseenter(function(e){
+        var $this=jQuery(this);
+        var view=stcfw.postHoverView;
+        var offset=$this.offset();
+        view.targetLeft=offset.left;
+        view.targetTop=offset.top;
+        view.targetRight=offset.left+$this.outerWidth();
+        view.targetBottom=offset.top+$this.outerHeight();
+        var position=$this.position();
+        var parent=$this.offsetParent();
+        var parentWidth=parent.width();
+        var x=11;
+        var y=11;
+        var post=stcfw.posts.get(this.parentNode.dataset.post_id);
+        console.log("post=",post.attributes);
+        view.model=post;
+        var $el=view.render().$el;
+        var width=$el.outerWidth();
+        $el.css({left:x,top:y});
+        var container=jQuery("div#stcfw-gallery-container");
+        container.prepend(view.$el);
+        container.on("mousemove.stcfw",function(e){
+            console.log("mousemove.stcfw");
+            if(e.pageX<view.targetLeft||e.pageX>=view.targetRight||e.pageY<view.targetTop||e.pageY>=view.targetBottom){
+                stcfw.postHoverView.remove();
+                container.off("mousemove.stcfw");
+            }
+        });
+        var width=$el.outerWidth();
+        e.preventDefault();
+        e.stopPropagation();
+    });
 }());
