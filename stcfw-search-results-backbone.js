@@ -24,7 +24,7 @@
             this.$el.remove();
             //this.$el.html(this.template(this.model.attributes));
             var overlay=jQuery(this.template(this.model.attributes));
-            overlay.css({position:"absolute",backgroundColor:"white",opacity:0.75,border:"2px solid black",padding:"10px"});
+            overlay.css({position:"absolute",backgroundColor:"white",opacity:0.90,border:"2px solid black",padding:"10px"});
             this.$el=overlay;
             this.el=overlay[0];
             return this;
@@ -51,16 +51,11 @@
         var position=$this.position();
         var parent=$this.offsetParent();
         var parentWidth=parent.width();
-        var x=11;
-        var y=11;
-        var post=stcfw.posts.get(this.parentNode.dataset.post_id);
-        console.log("post=",post.attributes);
-        view.model=post;
+        var x=position.left+$this.outerWidth()/2;
+        var y=position.top+$this.outerHeight()/2;
+        view.model=stcfw.posts.get(this.parentNode.dataset.post_id);
         var $el=view.render().$el;
-        var width=$el.outerWidth();
-        $el.css({left:x,top:y});
-        var container=jQuery("div#stcfw-gallery-container");
-        container.prepend(view.$el);
+        var container=jQuery("div#stcfw-gallery-container").prepend($el);
         container.on("mousemove.stcfw",function(e){
             console.log("mousemove.stcfw");
             if(e.pageX<view.targetLeft||e.pageX>=view.targetRight||e.pageY<view.targetTop||e.pageY>=view.targetBottom){
@@ -68,7 +63,11 @@
                 container.off("mousemove.stcfw");
             }
         });
-        var width=$el.outerWidth();
+        x-=$el.outerWidth()/2;
+        x=x>=0?x:0;
+        y-=$el.outerHeight()/2;
+        y=y>=0?y:0;
+        $el.css({left:x,top:y});
         e.preventDefault();
         e.stopPropagation();
     });
