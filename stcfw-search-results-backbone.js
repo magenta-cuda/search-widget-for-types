@@ -36,6 +36,17 @@
             this.target.click();
         }
     });
+    // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg">Gamma</a>'
+    // extractHrefAndLabelFromLink() returns an object with properties href and label 
+    // The main application of extractHrefAndLabelFromLink() is in evaluate expressions in templates,
+    // e.g. '<# print(extractHrefAndLabelFromLink(data.alpha).label); #>'
+    stcfw.extractHrefAndLabelFromLink=function(link){
+        var ret={};
+        var matches=link.match(/^<a\s.*?("|')(.*?)\1.*?>(.*?)<\/a>$/i);
+        ret.href=matches[2];
+        ret.label=matches[3];
+        return ret;
+    }
     stcfw.posts=new stcfw.Posts();
     stcfw.postHoverView=new stcfw.PostHoverView();
     try{

@@ -2,7 +2,7 @@
 
 <script type="text/html" id="stcfw-template-generic-post_hover_view">
 <div>
-<h3>{{{ data.post_title }}}</h3>
+<h3><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></h3>
 {{{ data.post_content }}}
 </div>
 </script> 
