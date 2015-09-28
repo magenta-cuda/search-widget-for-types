@@ -473,6 +473,8 @@ EOD
         global $wpdb;
         error_log( 'get_backbone_collection():$posts=' . print_r( $posts, true ) );
         $models = [ ];
+        $wpcf_fields = get_option( 'wpcf-fields', [ ] );
+        $post_titles = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
         foreach ( $posts as $post_obj ) {
             $post = $post_obj->ID;
             $model =& $models[ ];
@@ -722,7 +724,7 @@ EOD
                             $labels[ ] = implode( ', ', $label );
                             unset( $value, $values, $label );
                         }
-                        $labels = implode( ', ', array_map( function( $label ) use ( $field ) {
+                        $labels = implode( ', ', array_map( function( $label ) use ( $field, $post_type ) {
                             return Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
                         }, $labels ) );
                         $model[ $field ] = $labels;
@@ -1509,10 +1511,21 @@ EOD
             $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
             if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
+                # get the applicable fields from the options for this widget
+                if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
+                    # display fields explicitly specified for post type
+                    $fields = $option[ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
+                } else {
+                    # display fields not explicitly specified so just use the search fields for post type
+                    $fields = $option[ $_REQUEST[ 'post_type' ] ];
+                }
+                if ( !in_array( 'pst-std-post_content', $fields ) ) {
+                    $fields[ ] = 'pst-std-post_content';
+                }
                 #$collection = str_replace( '\"', '\\\\"', Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts,
                 #    [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
-                $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, [ 'pst-std-post_content' ],
-                    $_REQUEST[ 'post_type' ], $posts_imploded );
+                $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
+                                                                                          $posts_imploded );
                 error_log( '$collection=' . $collection );
                 wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection ] );
                 get_header( );

@@ -11,7 +11,7 @@ Search Types custom posts for posts that have user specified values for Types cu
 
 == Description ==
 
-This [search widget](http://alttypes.wordpress.com/search-types-custom-fields-widget/) can search for [Types](http://wordpress.org/plugins/types/) custom posts, WordPress posts and pages by the value of Types custom fields, WordPress taxonomies and post content. It is designed to be used with the Types plugin only and makes use of Types' proprietary database format to generate user friendly field names and field values. The widget uses user friendly substitutions for the actual values in the database when appropriate, e.g. post title is substituted for post id in parent/child fields. Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Types 1.8.5 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
+This [search widget](http://alttypes.wordpress.com/search-types-custom-fields-widget/) can search for [Types](http://wordpress.org/plugins/types/) custom posts, WordPress posts and pages by the value of Types custom fields, WordPress taxonomies and post content. It is designed to be used with the Types plugin only and makes use of Types' proprietary database format to generate user friendly field names and field values. The widget uses user friendly substitutions for the actual values in the database when appropriate, e.g. post title is substituted for post id in parent/child fields. The selected posts can be displayed as a standard WordPress list of posts, a spreadsheet of posts with their custom fields or a gallery of featured images. Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Types 1.8.5 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
 
 == Installation ==
 1. Upload the folder "search-types-custom-fields-widget" to the "/wp-content/plugins/" directory.
@@ -34,6 +34,8 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 6. A Sample Table of Post
 
 == Changelog ==
+= 0.5.1 =
+* The gallery of featured thumbnail images supports mouse-over popups implemented by a Backbone.js view using a optionally user supplied Underscore.js template.
 = 0.5 =
 * the search results can optionally be displayed as a gallery of featured images of the selected posts. The featured images have a clickable link back to their posts.
 = 0.4.9 =
@@ -92,6 +94,8 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 * Initial release.
 
 == Upgrade Notice ==
+= 0.5.1 =
+* The gallery of featured thumbnail images supports mouse-over popups implemented by a Backbone.js view using a optionally user supplied Underscore.js template.
 = 0.5 =
 * the search results can optionally be displayed as a gallery of featured images of the selected posts. The featured images have a clickable link back to their posts.
 = 0.4.9 =
