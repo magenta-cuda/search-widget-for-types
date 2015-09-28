@@ -469,19 +469,19 @@ EOD
     # corresponding <td> HTML element of the table. These are not raw values but values that have been processed for display as HTML. In particular
     # the value of a URL is an HTML <a> element with suitable embedded text.
     
-    public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded ) {
+    public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
         global $wpdb;
         error_log( 'get_backbone_collection():$posts=' . print_r( $posts, true ) );
         $models = [ ];
-        $wpcf_fields = get_option( 'wpcf-fields', [ ] );
-        $post_titles = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
         foreach ( $posts as $post_obj ) {
-            $post = $post_obj->ID;
-            $model =& $models[ ];
-            $model = [ ];
+            $post                  = $post_obj->ID;
+            $model                 =& $models[ ];
+            $model                 = [ ];
             $model[ 'ID' ]         = $post_obj->ID;
             $model[ 'post_title' ] = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_obj->guid}\">{$post_obj->post_title}</a>",
-                                         'post_title', $post_type );
+                                                                                      'post_title', $post_type );
+            $child_of_values       = [ ];
+            $parent_of_values      = [ ];
             foreach ( $fields as $field ) {
                 if ( substr_compare( $field, 'tax-cat-', 0, 8, FALSE ) === 0 || substr_compare( $field, 'tax-tag-', 0, 8, FALSE ) === 0 ) {
                     $taxonomy = substr( $field, 8 );
@@ -490,7 +490,7 @@ EOD
                         $terms = implode( ', ', array_map( function( $term ) use ( $field ) {
                             return Search_Types_Custom_Fields_Widget::value_filter( $term->name, $field, $post_type );
                         }, $terms ) );
-                        $model[ $field ] = $terms;
+                        $model[ substr( $field, 8 ) ] = $terms;
                     }
                 } else if ( ( $child_of = strpos( $field, '_wpcf_belongs_' ) === 0 ) || ( $parent_of = strpos( $field, 'inverse_' ) === 0 ) ) {
                     if ( $child_of ) {
@@ -553,7 +553,7 @@ EOD
                             return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
                         }, $attachments[ $post ] ) );
                         $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
-                        $model[ $field ] = $label;
+                        $model[ 'post_attachments' ] = $label;
                     }
                 } else if ( $field === 'pst-std-post_author' ) {
                     # use user display name in place of user id
@@ -572,7 +572,7 @@ EOD
                         } else {
                             $label = $author->display_name;
                         }
-                        $model[ $field ] = $label;
+                        $model[ 'post_author' ] = $label;
                     }
                 } else if ( $field === 'pst-std-post_content' ) {
                     # use post excerpt in place of post content
@@ -727,7 +727,7 @@ EOD
                         $labels = implode( ', ', array_map( function( $label ) use ( $field, $post_type ) {
                             return Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
                         }, $labels ) );
-                        $model[ $field ] = $labels;
+                        $model[ substr( $field, 5 ) ] = $labels;
                     }   # if ( array_key_exists( $post, $field_values[$field] ) && ( $field_values = $field_values[$field][$post] ) ) {
                 }
             }   # foreach ( $fields as $field ) {
@@ -1509,23 +1509,25 @@ EOD
             $posts_imploded = implode( ', ', $posts );
             $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
             $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
+            # get the applicable fields from the options for this widget
+            if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
+                # display fields explicitly specified for post type
+                $fields = $option[ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
+            } else {
+                # display fields not explicitly specified so just use the search fields for post type
+                $fields = $option[ $_REQUEST[ 'post_type' ] ];
+            }
+            $wpcf_fields = get_option( 'wpcf-fields', [ ] );
+            $post_titles = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
             if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
-                # get the applicable fields from the options for this widget
-                if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
-                    # display fields explicitly specified for post type
-                    $fields = $option[ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
-                } else {
-                    # display fields not explicitly specified so just use the search fields for post type
-                    $fields = $option[ $_REQUEST[ 'post_type' ] ];
-                }
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {
                     $fields[ ] = 'pst-std-post_content';
                 }
                 #$collection = str_replace( '\"', '\\\\"', Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts,
                 #    [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
-                                                                                          $posts_imploded );
+                                                                                          $posts_imploded, $option, $wpcf_fields, $post_titles );
                 error_log( '$collection=' . $collection );
                 wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection ] );
                 get_header( );
@@ -1586,14 +1588,6 @@ EOD
                 get_footer( );
                 die;
             }   # if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
-            # get the applicable fields from the options for this widget
-            if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
-                # display fields explicitly specified for post type
-                $fields = $option[ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
-            } else {
-                # display fields not explicitly specified so just use the search fields for post type
-                $fields = $option[ $_REQUEST[ 'post_type' ] ];
-            }
             if ( $container_width = $option[ 'search_table_width' ] ) {
                 $container_style = "style=\"width:{$container_width}px\"";
             } else {
@@ -1615,7 +1609,6 @@ EOD
             } );
             get_header( );
             # then do the body content
-            $wpcf_fields = get_option( 'wpcf-fields', [ ] );
             $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
             $label = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
             $label = Search_Types_Custom_Fields_Widget::value_filter( $label, 'post_type', $_REQUEST[ 'post_type' ] );
@@ -1655,7 +1648,6 @@ EOD;
             }
             unset( $field );
             $content         .= '</tr></thead><tbody>';
-            $post_titles      = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
             $child_of_values  = [ ];
             $parent_of_values = [ ];
             foreach ( $posts as $post ) {
