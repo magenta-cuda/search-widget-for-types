@@ -471,7 +471,6 @@ EOD
     
     public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
         global $wpdb;
-        error_log( 'get_backbone_collection():$posts=' . print_r( $posts, true ) );
         $models = [ ];
         foreach ( $posts as $post_obj ) {
             $post                  = $post_obj->ID;
@@ -492,7 +491,8 @@ EOD
                         }, $terms ) );
                         $model[ substr( $field, 8 ) ] = $terms;
                     }
-                } else if ( ( $child_of = strpos( $field, '_wpcf_belongs_' ) === 0 ) || ( $parent_of = strpos( $field, 'inverse_' ) === 0 ) ) {
+                } else if ( ( $child_of = substr_compare( $field, '_wpcf_belongs_', 0, 14 ) === 0 )
+                    || ( $parent_of = substr_compare( $field, 'inverse_', 0, 8 ) === 0 ) ) {
                     if ( $child_of ) {
                         if ( !isset( $child_of_values[$field] ) ) {
                             # Do one query for all posts on first post and save the result for later posts
@@ -533,7 +533,8 @@ EOD
                             $label = "<a href=\"{$post_titles[$value]->guid}\">{$post_titles[$value]->post_title}</a>";
                         }
                         $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
-                        $model[ $field ] = $label;
+                        # append a suffix to field name to specify either 'child of' or 'parent of' relationship
+                        $model[ substr( $field, strpos( $field, '_wpcf_belongs_' ) + 14 ) . ( $child_of ? '_of' : '_for' ) ] = $label;
                     }
                     unset( $value );
                 } else if ( $field === 'pst-std-attachment' ) {
@@ -732,7 +733,6 @@ EOD
                 }
             }   # foreach ( $fields as $field ) {
         }   # foreach ( $posts as $post ) 
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$models=' . print_r( $models, true ) );
         return json_encode( $models );
     }   # public static function get_backbone_collection( $posts, $fields, $post_type ) {
     
@@ -1528,7 +1528,6 @@ EOD
                 #    [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
                                                                                           $posts_imploded, $option, $wpcf_fields, $post_titles );
-                error_log( '$collection=' . $collection );
                 wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection ] );
                 get_header( );
                 $thumbnails = [ ];
