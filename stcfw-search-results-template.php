@@ -7,6 +7,6 @@
 <script type="text/html" id="stcfw-template-generic-post_hover_view">
 <div style="background-color:white;opacity:0.90;border:2px solid black;padding:10px;">
 <h3><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></h3>
-{{{ data.post_content }}}
+<span style="font-size:x-small;">{{{ data.post_content }}}</span>
 </div>
 </script> 

@@ -1519,6 +1519,10 @@ EOD
             }
             $wpcf_fields = get_option( 'wpcf-fields', [ ] );
             $post_titles = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
+            # do not trust the guid field - it may be obsolete!
+            array_walk( $post_titles, function( &$value, $key ) {
+                $value->guid = get_permalink( $key );
+            } );
             if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {
