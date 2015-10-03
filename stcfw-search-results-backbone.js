@@ -24,14 +24,13 @@
             this.$el.remove();
             //this.$el.html(this.template(this.model.attributes));
             var overlay=jQuery(this.template(this.model.attributes));
-            overlay.css({position:"absolute",backgroundColor:"white",opacity:0.90,border:"2px solid black",padding:"10px"});
+            overlay.css("position","absolute");
             this.$el=overlay;
             this.el=overlay[0];
             this.delegateEvents();
             return this;
         },
         onclick:function(){
-            console.log("overlay clicked");
             // propagate click to target element
             this.target.click();
         }
@@ -51,7 +50,6 @@
     stcfw.postHoverView=new stcfw.PostHoverView();
     try{
         stcfw.posts.reset(JSON.parse(stcfw.collection));
-        console.log("stcfw.posts=",stcfw.posts);
     }catch(e){
         console.log("e=",e);
     }
@@ -76,7 +74,6 @@
         var container=jQuery("div#stcfw-gallery-container").prepend($el);
         // track mouse moves to find out when mouse moves outside of target element
         container.on("mousemove.stcfw",function(e){
-            console.log("mousemove.stcfw");
             if(e.pageX<view.targetLeft||e.pageX>=view.targetRight||e.pageY<view.targetTop||e.pageY>=view.targetBottom){
                 // moved outside of target element so hide overlay and stop tracking mouse moves
                 stcfw.postHoverView.remove();

@@ -1924,8 +1924,6 @@ EOD
     if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
         && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use wordpress' ) {
         add_filter( 'get_search_query', function( $query ) {
-            error_log( 'filter:get_search_query():$query=' . $query );
-            error_log( 'filter:get_search_query():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
             $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
             $label  = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
             return $label;
