@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Search Types Custom Fields Widget package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Search Types Custom Fields Widget 0.5\n"
+"Project-Id-Version: Search Types Custom Fields Widget 0.5.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/search-types-custom-fields-widgetz\n"
-"POT-Creation-Date: 2015-09-07 04:35:15+00:00\n"
+"POT-Creation-Date: 2015-10-04 00:34:27+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -74,7 +74,7 @@ msgid "Start Search"
 msgstr ""
 
 #: search-types-custom-fields-widget.php:139
-#: search-types-custom-fields-widget.php:508
+#: search-types-custom-fields-widget.php:780
 msgid "Help"
 msgstr ""
 
@@ -83,10 +83,10 @@ msgid "Select Fields for:"
 msgstr ""
 
 #: search-types-custom-fields-widget.php:170
-#: search-types-custom-fields-widget.php:482
-#: search-types-custom-fields-widget.php:678
-#: search-types-custom-fields-widget.php:717
-#: search-types-custom-fields-widget.php:896
+#: search-types-custom-fields-widget.php:754
+#: search-types-custom-fields-widget.php:950
+#: search-types-custom-fields-widget.php:989
+#: search-types-custom-fields-widget.php:1168
 msgid "Open"
 msgstr ""
 
@@ -122,29 +122,29 @@ msgstr ""
 msgid "Number of columns for the gallery of search results:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:483
-#: search-types-custom-fields-widget.php:897
+#: search-types-custom-fields-widget.php:755
+#: search-types-custom-fields-widget.php:1169
 msgid "Close"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:510
+#: search-types-custom-fields-widget.php:782
 msgid "Search Conditions:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:698
+#: search-types-custom-fields-widget.php:970
 msgid "--Enter New Search Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:724
-#: search-types-custom-fields-widget.php:857
+#: search-types-custom-fields-widget.php:996
+#: search-types-custom-fields-widget.php:1129
 msgid "--Enter Search Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:867
+#: search-types-custom-fields-widget.php:1139
 msgid "--Enter Minimum Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:871
+#: search-types-custom-fields-widget.php:1143
 msgid "--Enter Maximum Value--"
 msgstr ""
 #. Plugin Name of the plugin/theme
