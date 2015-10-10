@@ -30,3 +30,27 @@
 <td style="border:2px solid black;padding:10px;">{{{ data.post_content }}}</td>
 </tr>
 </script> 
+
+<script type="text/html" id="stcfw-template-container-generic-list_view">
+<ul class="stcfw-results-item-container"></ul>
+</script>
+
+<script type="text/html" id="stcfw-template-item-generic-list_view">
+<li>{{{ data.post_title }}}</li>
+</script>
+
+<script type="text/html" id="stcfw-template-container-generic-debug_view">
+<table id="stcfw-table" style="border-collapse:collapse;">
+<thead>
+<tr><# print(stcfw.dumpFieldNames()); #></tr>
+</thead>
+<tbody class="stcfw-results-item-container">
+</tbody>
+</table>
+</script> 
+
+<script type="text/html" id="stcfw-template-item-generic-debug_view">
+<tr><# print(stcfw.dumpFieldValues(data.ID)); #></tr>
+</script> 
+
+

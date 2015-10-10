@@ -147,6 +147,7 @@
         // render the selected view
         var div=jQuery("div#stcfw-view");
         if(div.length){
+            div.empty();
             div.append(view.render().$el);
         };
     };
@@ -188,4 +189,23 @@
         e.preventDefault();
         e.stopPropagation();
     });
+    // debugging utilities
+    // dumpFieldNames() dumps field names as <th> elements for use in <tr> element of the debug_view template
+    stcfw.dumpFieldNames=function(){
+        var model=stcfw.posts.at(0);
+        var buffer="";
+        Object.keys(model.attributes).forEach(function(key){
+            buffer+="<th style=\"border:2px solid black;padding:10px;\">"+key+"</th>";
+        });
+        return buffer;
+    };
+    // dumpFieldValues() dumps field values as <td> elements for use in <tr> element of the debug_view template
+    stcfw.dumpFieldValues=function(id){
+        var model=stcfw.posts.get(id);
+        var buffer="";
+        Object.keys(model.attributes).forEach(function(key){
+            buffer+="<td style=\"border:2px solid black;padding:10px;\">"+model.attributes[key]+"</td>";
+        });
+        return buffer;        
+    };
 }());
