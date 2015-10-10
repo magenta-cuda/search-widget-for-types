@@ -46,7 +46,7 @@
             ItemView:Backbone.View.extend({
                 template:_.template(itemTemplate.html(),null,stcfw.templateOptions),
                 render:function(){
-                    this.$el.replaceWith(this.template(this.model.attributes));
+                    this.setElement(jQuery(this.template(this.model.attributes)));
                     return this;
                 }
             }),
@@ -58,6 +58,8 @@
                     console.log("post=",item.attributes);
                     itemView.model=item;
                     this.$container.append(itemView.render().$el);
+                    // unbind rendered element of view from view
+                    itemView.setElement(document.createElement("div"));
                 },this);
                 return this;
             }
