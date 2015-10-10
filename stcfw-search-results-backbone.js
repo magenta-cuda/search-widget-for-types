@@ -100,14 +100,27 @@
         });
         return templates;
     };
-    var templates=stcfw.findTemplates(stcfw.post_type);
+    // create Backbone views for each template found and add option for that view to select element
     stcfw.Views={};
+    var templates=stcfw.findTemplates(stcfw.post_type);
+    var select=jQuery("select#stcfw-select-views");
+    var selected=false;
     Object.keys(templates).forEach(function(key){
         var template=templates[key];
         if(template.hasOwnProperty("container")&&template.hasOwnProperty("item")){
             var View=stcfw.createView(template.container,template.item);
             if(View){
                 stcfw.Views[key]=View;
+                var option=jQuery("<option></option>");
+                option.val(key);
+                option.text(key);
+                if(!selected){
+                    // select first template found as default
+                    option.attr("selected",true);
+                    option.prop("selected",true);
+                    selected=true;
+                }
+                select.append(option);
             }
         }
     });
@@ -118,11 +131,14 @@
     }catch(e){
         console.log("e=",e);
     }
-    var tableDiv=jQuery("div#stcfw-table");
-    if(tableDiv.length){
-        stcfw.tableView=new stcfw.Views.table_view({collection:stcfw.posts});
-        tableDiv.append(stcfw.tableView.render().$el);
+    stcfw.doSelectedView=function(){
+        var view=new stcfw.Views[select.find("option:selected").val()]({collection:stcfw.posts});
+        var tableDiv=jQuery("div#stcfw-table");
+        if(tableDiv.length){
+            tableDiv.append(view.render().$el);
+        };
     };
+    stcfw.doSelectedView();
     // show overlay when mouse is over the target image element
     jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").mouseenter(function(e){
         var $this=jQuery(this);
