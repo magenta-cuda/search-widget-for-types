@@ -72,18 +72,34 @@
         return ret;
     };
     stcfw.findTemplates=function(postType){
-        return jQuery("script[id^='stcfw-template-"+postType+"-'], script[id^='stcfw-template-generic-']");
+        var postTypeLen=postType.length;
+        var templates={};
+        // Use a post type specific template if it exists otherwise use the generic template
+        jQuery("script[id^='stcfw-template-container-"+postType+"-']").each(function(){
+            templates[this.id.substr(26+postTypeLen)]={container:jQuery(this)};
+        });
+        jQuery("script[id^='stcfw-template-container-generic-']").each(function(){
+            if(!templates.hasOwnProperty(this.id.substr(33))){
+                templates[this.id.substr(33)]={container:jQuery(this),generic:true};
+            }
+        });
+        jQuery("script[id^='stcfw-template-item-"+postType+"-']").each(function(){
+            var template=templates[this.id.substr(21+postTypeLen)];
+            if(!template.generic){
+                template.item=jQuery(this);
+            }
+        });
+        jQuery("script[id^='stcfw-template-item-generic-']").each(function(){
+            var template=templates[this.id.substr(28)];
+            if(template.generic){
+                template.item=jQuery(this);
+            }
+        });
+        return templates;
     };
-    // Use a post type specific template if it exists otherwise use the generic template
-    var tableTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-table_view");
-    if(!tableTemplate.length){
-        tableTemplate=jQuery("script#stcfw-template-generic-table_view");
-    }
-    var rowTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-table_row_view");
-    if(!rowTemplate.length){
-        rowTemplate=jQuery("script#stcfw-template-generic-table_row_view");
-    }
-    stcfw.TableView=stcfw.createView(tableTemplate,rowTemplate);
+    var templates=stcfw.findTemplates(stcfw.post_type);
+    var template=templates.table_view;
+    stcfw.TableView=stcfw.createView(template.container,template.item);
     stcfw.posts=new stcfw.Posts();
     stcfw.postHoverView=new stcfw.PostHoverView();
     try{

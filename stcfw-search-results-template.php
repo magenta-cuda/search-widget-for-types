@@ -11,7 +11,7 @@
 </div>
 </script> 
 
-<script type="text/html" id="stcfw-template-generic-table_view">
+<script type="text/html" id="stcfw-template-container-generic-table_view">
 <table id="stcfw-table" style="border-collapse:collapse;">
 <thead>
 <tr>
@@ -24,7 +24,7 @@
 </table>
 </script> 
 
-<script type="text/html" id="stcfw-template-generic-table_row_view">
+<script type="text/html" id="stcfw-template-item-generic-table_view">
 <tr>
 <td style="border:2px solid black;padding:10px;">{{{ data.post_title }}}</td>
 <td style="border:2px solid black;padding:10px;">{{{ data.post_content }}}</td>
