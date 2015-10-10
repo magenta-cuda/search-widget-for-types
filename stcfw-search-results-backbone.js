@@ -36,6 +36,9 @@
         }
     });
     stcfw.createView=function(containerTemplate,itemTemplate){
+        if(!containerTemplate instanceof jQuery || !itemTemplate instanceof jQuery || !containerTemplate.length || !itemTemplate.length){
+            return null;
+        }
         return Backbone.View.extend({
             // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
             template:_.template(containerTemplate.html(),null,stcfw.templateOptions),
@@ -98,10 +101,18 @@
         return templates;
     };
     var templates=stcfw.findTemplates(stcfw.post_type);
-    var template=templates.table_view;
-    stcfw.TableView=stcfw.createView(template.container,template.item);
-    stcfw.posts=new stcfw.Posts();
+    stcfw.Views={};
+    Object.keys(templates).forEach(function(key){
+        var template=templates[key];
+        if(template.hasOwnProperty("container")&&template.hasOwnProperty("item")){
+            var View=stcfw.createView(template.container,template.item);
+            if(View){
+                stcfw.Views[key]=View;
+            }
+        }
+    });
     stcfw.postHoverView=new stcfw.PostHoverView();
+    stcfw.posts=new stcfw.Posts();
     try{
         stcfw.posts.reset(JSON.parse(stcfw.collection));
     }catch(e){
@@ -109,7 +120,7 @@
     }
     var tableDiv=jQuery("div#stcfw-table");
     if(tableDiv.length){
-        stcfw.tableView=new stcfw.TableView({collection:stcfw.posts});
+        stcfw.tableView=new stcfw.Views.table_view({collection:stcfw.posts});
         tableDiv.append(stcfw.tableView.render().$el);
     };
     // show overlay when mouse is over the target image element
