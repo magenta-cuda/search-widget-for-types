@@ -131,13 +131,26 @@
     }catch(e){
         console.log("e=",e);
     }
+    stcfw.views={};
     stcfw.doSelectedView=function(){
-        var view=new stcfw.Views[select.find("option:selected").val()]({collection:stcfw.posts});
-        var tableDiv=jQuery("div#stcfw-table");
-        if(tableDiv.length){
-            tableDiv.append(view.render().$el);
+        var previousSelection=stcfw.currentSelection;
+        stcfw.currentSelection=select.find("option:selected").val();
+        // if the selected view hasn't changed skip to render step 
+        if(stcfw.currentSelection!==previousSelection){
+            // find previuosly cached view if it exists
+            var view=stcfw.views[stcfw.currentSelection];
+            if(!view){
+                // nothing in cache so create a new view
+                view=stcfw.views[stcfw.currentSelection]=new stcfw.Views[stcfw.currentSelection]({collection:stcfw.posts});
+            }
+        }
+        // render the selected view
+        var div=jQuery("div#stcfw-view");
+        if(div.length){
+            div.append(view.render().$el);
         };
     };
+    select.change(stcfw.doSelectedView);
     stcfw.doSelectedView();
     // show overlay when mouse is over the target image element
     jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").mouseenter(function(e){

@@ -1544,7 +1544,7 @@ EOD
                 get_header( );
 ?>
 <select id="stcfw-select-views"></select>
-<div id="stcfw-table"></div>
+<div id="stcfw-view"></div>
 <?php
                 require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                 get_footer( );
