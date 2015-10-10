@@ -68,7 +68,7 @@ EOD
         $select_post_types = array_diff( array_filter( array_keys( $instance ), function( $key ) {
             return substr_compare( $key, "scpbcfw-", 0, 8 ) !== 0;
         } ), [ 'maximum_number_of_items', 'set_is_search', 'use_simplified_labels_for_select', 'enable_table_view_option', 'search_table_width',
-            'search_gallery_columns' ] );
+            'search_gallery_columns', 'use_backbone_model_view_presenter' ] );
         foreach ( $results as $result ) {
             $name = $result->post_type;
             # skip unselected post types
@@ -363,7 +363,8 @@ EOD
     value="use simplified labels" <?php if ( isset( $instance[ 'use_simplified_labels_for_select' ] ) ) { echo 'checked'; } ?>>
 <?php _e( 'Use simplified labels for the values of select, checkboxes and radio button fields:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
-</div><div class="scpbcfw-admin-option-box">
+</div>
+<div class="scpbcfw-admin-option-box">
 <input type="checkbox"
     id="<?php echo $this->get_field_id( 'enable_table_view_option' ); ?>"
     name="<?php echo $this->get_field_name( 'enable_table_view_option' ); ?>"
@@ -395,6 +396,15 @@ EOD
     placeholder="<?php _e( '5', self::LANGUAGE_DOMAIN ); ?>"
     size="5">
 <?php _e( 'Number of columns for the gallery of search results:', self::LANGUAGE_DOMAIN ); ?>
+<div style="clear:both;"></div>
+</div>
+<div class="scpbcfw-admin-option-box">
+<input type="checkbox"
+    id="<?php echo $this->get_field_id( 'use_backbone_model_view_presenter' ); ?>"
+    name="<?php echo $this->get_field_name( 'use_backbone_model_view_presenter' ); ?>"
+    class="scpbcfw-admin-option-checkbox"
+    value="use backbone" <?php if ( isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) { echo 'checked'; } ?>>
+<?php _e( 'Use Backbone.js Model-View-Presenter for search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 </div>
@@ -1523,6 +1533,22 @@ EOD
             array_walk( $post_titles, function( &$value, $key ) {
                 $value->guid = get_permalink( $key );
             } );
+            if ( $option[ 'use_backbone_model_view_presenter' ] === 'use backbone' ) {
+                wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
+                if ( !in_array( 'pst-std-post_content', $fields ) ) {
+                    $fields[ ] = 'pst-std-post_content';
+                }
+                $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
+                                                                                          $posts_imploded, $option, $wpcf_fields, $post_titles );
+                wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection ] );
+                get_header( );
+?>
+<div id="stcfw-table"></div>
+<?php
+                require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
+                get_footer( );
+                die;
+            }
             if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {

@@ -10,3 +10,23 @@
 <span style="font-size:x-small;">{{{ data.post_content }}}</span>
 </div>
 </script> 
+
+<script type="text/html" id="stcfw-template-generic-table_view">
+<table id="stcfw-table" style="border-collapse:collapse;">
+<thead>
+<tr>
+<th style="border:2px solid black;padding:10px;">Post</th>
+<th style="border:2px solid black;padding:10px;">Excerpt</th>
+</tr>
+</thead>
+<tbody class="stcfw-results-item-container">
+</tbody>
+</table>
+</script> 
+
+<script type="text/html" id="stcfw-template-generic-table_row_view">
+<tr>
+<td style="border:2px solid black;padding:10px;">{{{ data.post_title }}}</td>
+<td style="border:2px solid black;padding:10px;">{{{ data.post_content }}}</td>
+</tr>
+</script> 

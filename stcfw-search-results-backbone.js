@@ -10,16 +10,16 @@
     stcfw.Post=Backbone.Model.extend({idAttribute:"ID"});
     stcfw.Posts=Backbone.Collection.extend({model:stcfw.Post});
     // Use a post type specific template if it exists otherwise use the generic template
-    var template=jQuery("script#stcfw-template-"+stcfw.post_type+"-post_hover_view");
-    if(!template.length){
-        template=jQuery("script#stcfw-template-generic-post_hover_view");
+    var hoverTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-post_hover_view");
+    if(!hoverTemplate.length){
+        hoverTemplate=jQuery("script#stcfw-template-generic-post_hover_view");
     }
     stcfw.PostHoverView=Backbone.View.extend({
         events:{
             click:"onclick"
         },
         // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
-        template:_.template(template.html(),null,stcfw.templateOptions),
+        template:_.template(hoverTemplate.html(),null,stcfw.templateOptions),
         render:function(){
             this.$el.remove();
             //this.$el.html(this.template(this.model.attributes));
@@ -33,6 +33,40 @@
         onclick:function(){
             // propagate click to target element
             this.target.click();
+        }
+    });
+    // Use a post type specific template if it exists otherwise use the generic template
+    var tableTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-table_view");
+    if(!tableTemplate.length){
+        tableTemplate=jQuery("script#stcfw-template-generic-table_view");
+    }
+    var rowTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-table_row_view");
+    if(!rowTemplate.length){
+        rowTemplate=jQuery("script#stcfw-template-generic-table_row_view");
+    }
+    var containerTemplate=tableTemplate;
+    var itemTemplate=rowTemplate;
+    stcfw.ContainerView=Backbone.View.extend({
+        // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
+        template:_.template(containerTemplate.html(),null,stcfw.templateOptions),
+        container:".stcfw-results-item-container",
+        ItemView:Backbone.View.extend({
+            template:_.template(itemTemplate.html(),null,stcfw.templateOptions),
+            render:function(){
+                this.$el.replaceWith(this.template(this.model.attributes));
+                return this;
+            }
+        }),
+        render:function(){
+            this.$el.html(this.template({}));
+            this.$container=this.$el.find(this.container);
+            var itemView=new this.ItemView();
+            this.collection.each(function(item){
+                console.log("post=",item.attributes);
+                itemView.model=item;
+                this.$container.append(itemView.render().$el);
+            },this);
+            return this;
         }
     });
     // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg">Gamma</a>'
@@ -53,6 +87,11 @@
     }catch(e){
         console.log("e=",e);
     }
+    var tableDiv=jQuery("div#stcfw-table");
+    if(tableDiv.length){
+        stcfw.tableView=new stcfw.ContainerView({collection:stcfw.posts});
+        tableDiv.append(stcfw.tableView.render().$el);
+    };
     // show overlay when mouse is over the target image element
     jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").mouseenter(function(e){
         var $this=jQuery(this);
