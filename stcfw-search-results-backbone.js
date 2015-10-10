@@ -35,40 +35,31 @@
             this.target.click();
         }
     });
-    // Use a post type specific template if it exists otherwise use the generic template
-    var tableTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-table_view");
-    if(!tableTemplate.length){
-        tableTemplate=jQuery("script#stcfw-template-generic-table_view");
-    }
-    var rowTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-table_row_view");
-    if(!rowTemplate.length){
-        rowTemplate=jQuery("script#stcfw-template-generic-table_row_view");
-    }
-    var containerTemplate=tableTemplate;
-    var itemTemplate=rowTemplate;
-    stcfw.ContainerView=Backbone.View.extend({
-        // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
-        template:_.template(containerTemplate.html(),null,stcfw.templateOptions),
-        container:".stcfw-results-item-container",
-        ItemView:Backbone.View.extend({
-            template:_.template(itemTemplate.html(),null,stcfw.templateOptions),
+    stcfw.createView=function(containerTemplate,itemTemplate){
+        return Backbone.View.extend({
+            // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
+            template:_.template(containerTemplate.html(),null,stcfw.templateOptions),
+            container:".stcfw-results-item-container",
+            ItemView:Backbone.View.extend({
+                template:_.template(itemTemplate.html(),null,stcfw.templateOptions),
+                render:function(){
+                    this.$el.replaceWith(this.template(this.model.attributes));
+                    return this;
+                }
+            }),
             render:function(){
-                this.$el.replaceWith(this.template(this.model.attributes));
+                this.$el.html(this.template({}));
+                this.$container=this.$el.find(this.container);
+                var itemView=new this.ItemView();
+                this.collection.each(function(item){
+                    console.log("post=",item.attributes);
+                    itemView.model=item;
+                    this.$container.append(itemView.render().$el);
+                },this);
                 return this;
             }
-        }),
-        render:function(){
-            this.$el.html(this.template({}));
-            this.$container=this.$el.find(this.container);
-            var itemView=new this.ItemView();
-            this.collection.each(function(item){
-                console.log("post=",item.attributes);
-                itemView.model=item;
-                this.$container.append(itemView.render().$el);
-            },this);
-            return this;
-        }
-    });
+        });
+    };
     // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg">Gamma</a>'
     // extractHrefAndLabelFromLink() returns an object with properties href and label 
     // The main application of extractHrefAndLabelFromLink() is in evaluate expressions in templates,
@@ -79,7 +70,20 @@
         ret.href=matches[2];
         ret.label=matches[3];
         return ret;
+    };
+    stcfw.findTemplates=function(postType){
+        return jQuery("script[id^='stcfw-template-"+postType+"-'], script[id^='stcfw-template-generic-']");
+    };
+    // Use a post type specific template if it exists otherwise use the generic template
+    var tableTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-table_view");
+    if(!tableTemplate.length){
+        tableTemplate=jQuery("script#stcfw-template-generic-table_view");
     }
+    var rowTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-table_row_view");
+    if(!rowTemplate.length){
+        rowTemplate=jQuery("script#stcfw-template-generic-table_row_view");
+    }
+    stcfw.TableView=stcfw.createView(tableTemplate,rowTemplate);
     stcfw.posts=new stcfw.Posts();
     stcfw.postHoverView=new stcfw.PostHoverView();
     try{
@@ -89,7 +93,7 @@
     }
     var tableDiv=jQuery("div#stcfw-table");
     if(tableDiv.length){
-        stcfw.tableView=new stcfw.ContainerView({collection:stcfw.posts});
+        stcfw.tableView=new stcfw.TableView({collection:stcfw.posts});
         tableDiv.append(stcfw.tableView.render().$el);
     };
     // show overlay when mouse is over the target image element
