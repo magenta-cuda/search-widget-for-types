@@ -193,11 +193,18 @@
     });
     // debugging utilities
     // dumpFieldNames() dumps field names as <th> elements for use in <tr> element of the debug_view template
+    var fieldNames=[];
     stcfw.dumpFieldNames=function(){
-        var model=stcfw.posts.at(0);
+        stcfw.posts.forEach(function(model){
+            Object.keys(model.attributes).forEach(function(key){
+                if(fieldNames.indexOf(key)===-1){
+                    fieldNames.push(key);
+                }
+            });
+        });
         var buffer="";
-        Object.keys(model.attributes).forEach(function(key){
-            buffer+="<th style=\"border:2px solid black;padding:10px;\">"+key+"</th>";
+        fieldNames.forEach(function(name){
+            buffer+="<th style=\"border:2px solid black;padding:10px;\">"+name+"</th>";
         });
         return buffer;
     };
@@ -205,8 +212,8 @@
     stcfw.dumpFieldValues=function(id){
         var model=stcfw.posts.get(id);
         var buffer="";
-        Object.keys(model.attributes).forEach(function(key){
-            buffer+="<td style=\"border:2px solid black;padding:10px;\">"+model.attributes[key]+"</td>";
+        fieldNames.forEach(function(name){
+            buffer+="<td style=\"border:2px solid black;padding:10px;\">"+model.attributes[name]+"</td>";
         });
         return buffer;        
     };

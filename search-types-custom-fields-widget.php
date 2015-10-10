@@ -1543,8 +1543,10 @@ EOD
                 wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection ] );
                 get_header( );
 ?>
+<div style="padding:10px;">
 <select id="stcfw-select-views"></select>
-<div id="stcfw-view"></div>
+</div>
+<div id="stcfw-view" style="padding:10px;"></div>
 <?php
                 require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                 get_footer( );

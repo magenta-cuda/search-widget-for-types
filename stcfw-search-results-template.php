@@ -40,6 +40,8 @@
 </script>
 
 <script type="text/html" id="stcfw-template-container-generic-debug_view">
+<div>
+<h2>This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates. Note that links are embedded in HTML &lt;a&gt; elements.</h2>
 <table id="stcfw-table" style="border-collapse:collapse;">
 <thead>
 <tr><# print(stcfw.dumpFieldNames()); #></tr>
@@ -51,6 +53,7 @@
 
 <script type="text/html" id="stcfw-template-item-generic-debug_view">
 <tr><# print(stcfw.dumpFieldValues(data.ID)); #></tr>
+</div>
 </script> 
 
 
