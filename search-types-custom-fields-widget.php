@@ -1533,14 +1533,15 @@ EOD
             array_walk( $post_titles, function( &$value, $key ) {
                 $value->guid = get_permalink( $key );
             } );
-            if ( $option[ 'use_backbone_model_view_presenter' ] === 'use backbone' ) {
+            if ( isset( $option[ 'use_backbone_model_view_presenter' ] ) ) {
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {
                     $fields[ ] = 'pst-std-post_content';
                 }
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
                                                                                           $posts_imploded, $option, $wpcf_fields, $post_titles );
-                wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection ] );
+                wp_localize_script( 'stcfw-search-results-backbone', 'stcfw',
+                    [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone' ] );
                 get_header( );
 ?>
 <div style="padding:10px;">
@@ -1561,7 +1562,8 @@ EOD
                 #    [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
                                                                                           $posts_imploded, $option, $wpcf_fields, $post_titles );
-                wp_localize_script( 'stcfw-search-results-backbone', 'stcfw', [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection ] );
+                wp_localize_script( 'stcfw-search-results-backbone', 'stcfw',
+                    [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'classic' ] );
                 get_header( );
                 $thumbnails = [ ];
                 $permalinks = [ ];
