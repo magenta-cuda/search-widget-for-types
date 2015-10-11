@@ -1,16 +1,5 @@
 <!-- Templates for stcfw-search-results-backbone.js - they will be compiled with _.template().    -->
 
-<!-- The id for gallery mouseover popups is "stcfw-template-" . $post_type . "-post_hover_view".  -->
-<!-- The "generic" template is used if no post type specific template is found.                   -->
-<!-- The fields in the Backbone model are the same fields as those displayed in the table format. -->
-
-<script type="text/html" id="stcfw-template-generic-post_hover_view">
-<div style="background-color:white;opacity:0.90;border:2px solid black;padding:10px;">
-<h3><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></h3>
-<span style="font-size:x-small;">{{{ data.post_content }}}</span>
-</div>
-</script> 
-
 <!-- Templates for "backbone" mode have two parts a container part and an item part.              -->
 <!-- The id for a "container" is "stcfw-template-container" . $post_type . $view_name.            -->
 <!-- The id for a "item" is "stcfw-template-item" . $post_type . $view_name.                      -->
@@ -18,6 +7,8 @@
 <!-- The fields in the Backbone model are the same fields as those displayed in the table format. -->
 <!-- You can use the stcfw-template-...-generic-debug_view template to get a dump of all fields.  -->
 <!-- The order of the templates here is also the order of the options in the select element.      -->
+<!-- Please use WordPress templating syntax -- see stcfw.templateOptions from                     -->
+<!-- stcfw-search-results-backbone.js which is copied from .../wp-includes/js/wp-util.js.         -->
 
 <!-- This is a starter table template.                                                            -->
 <!-- You should create a post type specific template and add specific fields for that post type.  -->
@@ -66,12 +57,15 @@
 
 <script type="text/html" id="stcfw-template-container-generic-debug_view">
 <div>
-<h2>This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates.
+<div>This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates.
 The fields are essentially the same fields as those selected for the table format.
 Note that links are embedded in HTML &lt;a&gt; elements. 
 You can use stcfw.extractHrefAndLabelFromLink() to extract the href and label from the link.
 Also post_content is really the post excerpt.
-Edit &quot;stcfw-search-results-template.php&quot; to change these templates or add your own templates.</h2>
+Edit &quot;stcfw-search-results-template.php&quot; to change these templates or add your own templates.
+The documentation of Underscore.js templates is <a href="http://underscorejs.org/#template" target="_blank">here</a>.
+However, we actually use the WordPress' version of the template settings.
+</div>
 <p>
 <table id="stcfw-table" style="border-collapse:collapse;">
 <thead>
@@ -84,6 +78,20 @@ Edit &quot;stcfw-search-results-template.php&quot; to change these templates or 
 
 <script type="text/html" id="stcfw-template-item-generic-debug_view">
 <tr><# print(stcfw.dumpFieldValues(data.ID)); #></tr>
+</div>
+</script> 
+
+<!-- ############################################################################################ -->
+
+<!-- The following template is used by the gallery format in the old "classic" mode.              -->
+<!-- The id for gallery mouseover popups is "stcfw-template-" . $post_type . "-post_hover_view".  -->
+<!-- The "generic" template is used if no post type specific template is found.                   -->
+<!-- The fields in the Backbone model are the same fields as those displayed in the table format. -->
+
+<script type="text/html" id="stcfw-template-generic-post_hover_view">
+<div style="background-color:white;opacity:0.90;border:2px solid black;padding:10px;">
+<h3><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></h3>
+<span style="font-size:x-small;">{{{ data.post_content }}}</span>
 </div>
 </script> 
 
