@@ -49,7 +49,12 @@
 </script>
 
 <script type="text/html" id="stcfw-template-item-generic-gallery_view">
-<img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>" width="160">
+<a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>">
+    <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>"
+        alt="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #>"
+        title="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #>"
+        width="200">
+</a>
 </script>
 
 <!-- You can use the stcfw-template-...-generic-debug_view template to get a dump of all fields.  -->

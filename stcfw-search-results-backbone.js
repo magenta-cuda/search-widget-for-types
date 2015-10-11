@@ -149,7 +149,7 @@
                     stcfw.Views[key]=View;
                     var option=jQuery("<option></option>");
                     option.val(key);
-                    option.text(key);
+                    option.text(key.replace(/_|-/," "));
                     if(!selected){
                         // select first template found as default
                         option.attr("selected",true);
