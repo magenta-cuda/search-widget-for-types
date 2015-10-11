@@ -3,7 +3,7 @@ Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
 Tested up to: 4.3.1
-Stable tag: 0.5.1
+Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,10 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 6. A Sample Table of Post
 
 == Changelog ==
+= 1.0 =
+* The front-end re-written as a single-page web application using a Backbone.js Model-View-Presenter - you can select either classic mode or backbone mode.
+* You can specify your own Underscore.js template to customize the displayed results - see stcfw-search-results-template.php.
+
 = 0.5.1 =
 * The gallery of featured thumbnail images supports mouse-over popups implemented by a Backbone.js view using a optionally user supplied Underscore.js template.
 = 0.5 =
@@ -94,6 +98,9 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 * Initial release.
 
 == Upgrade Notice ==
+= 1.0 =
+* The front-end re-written as a single-page web application using a Backbone.js Model-View-Presenter - you can select either classic mode or backbone mode.
+* You can specify your own Underscore.js template to customize the displayed results - see stcfw-search-results-template.php.
 = 0.5.1 =
 * The gallery of featured thumbnail images supports mouse-over popups implemented by a Backbone.js view using a optionally user supplied Underscore.js template.
 = 0.5 =
