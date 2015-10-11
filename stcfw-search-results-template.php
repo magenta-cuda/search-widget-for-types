@@ -11,6 +11,14 @@
 </div>
 </script> 
 
+<!-- Templates for "backbone" mode have two parts a container part and an item part.              -->
+<!-- The id for a "container" is "stcfw-template-container" . $post_type . $view_name.            -->
+<!-- The id for a "item" is "stcfw-template-item" . $post_type . $view_name.                      -->
+<!-- The "generic" template is used if no post type specific template is found.                   -->
+<!-- The fields in the Backbone model are the same fields as those displayed in the table format. -->
+<!-- You can use the stcfw-template-...-generic-debug_view template to get a dump of all fields.  -->
+<!-- The order of the templates here is also the order of the options in the select element.      -->
+
 <script type="text/html" id="stcfw-template-container-generic-table_view">
 <table id="stcfw-table" style="border-collapse:collapse;">
 <thead>
@@ -36,12 +44,15 @@
 </script>
 
 <script type="text/html" id="stcfw-template-item-generic-list_view">
-<li>{{{ data.post_title }}}</li>
+<li>{{{ data.post_title }}}<br>&nbsp;&nbsp;&nbsp;&nbsp;{{{ data.post_content }}}</li>
 </script>
+
+<!-- You can use the stcfw-template-...-generic-debug_view template to get a dump of all fields.  -->
+<!-- Remove or comment out this template for production mode.                                     -->
 
 <script type="text/html" id="stcfw-template-container-generic-debug_view">
 <div>
-<h2>This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates. Note that links are embedded in HTML &lt;a&gt; elements.</h2>
+<h2>This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates. Note that links are embedded in HTML &lt;a&gt; elements. post_content is really post excerpt.</h2>
 <table id="stcfw-table" style="border-collapse:collapse;">
 <thead>
 <tr><# print(stcfw.dumpFieldNames()); #></tr>

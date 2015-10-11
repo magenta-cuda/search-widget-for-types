@@ -547,6 +547,23 @@ EOD
                         $model[ substr( $field, strpos( $field, '_wpcf_belongs_' ) + 14 ) . ( $child_of ? '_of' : '_for' ) ] = $label;
                     }
                     unset( $value );
+                } else if ( $field === 'pst-std-thumbnail' ) {
+                    # for efficiency on first iteration get all relevant thumbnails for all posts for use by later iterations
+                    if ( !isset( $thumbnails ) ) {
+                        $results = $wpdb->get_results( <<<EOD
+SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = '_thumbnail_id' AND post_id IN ( $posts_imploded )
+EOD
+                            , OBJECT );
+                        $thumbnails = [ ];
+                        foreach ( $results as $result ) {
+                            $thumbnails[ $result->post_id ] = $result->meta_value;
+                        }
+                    }
+                    if ( array_key_exists( $post, $thumbnails ) ) {
+                        $thumbnail = $thumbnails[ $post ];
+                        $label = "<a href=\"{$post_titles[ $thumbnail ]->guid}\">{$post_titles[ $thumbnail ]->post_title}</a>";
+                        $model[ 'thumbnail' ] = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
+                    }
                 } else if ( $field === 'pst-std-attachment' ) {
                     # for efficiency on first iteration get all relevant attachments for all posts for use by later iterations
                     if ( !isset( $attachments ) ) {
@@ -1535,8 +1552,12 @@ EOD
             } );
             if ( isset( $option[ 'use_backbone_model_view_presenter' ] ) ) {
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
+                // always include post excerpt and thumbnail
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {
                     $fields[ ] = 'pst-std-post_content';
+                }
+                if ( !in_array( 'pst-std-thumbnail', $fields ) ) {
+                    $fields[ ] = 'pst-std-thumbnail';
                 }
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
                                                                                           $posts_imploded, $option, $wpcf_fields, $post_titles );
