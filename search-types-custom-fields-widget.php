@@ -104,10 +104,21 @@ EOD
 <?php _e( 'Show search results in ', self::LANGUAGE_DOMAIN ); ?><br>
 <input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use wordpress" checked>
     <?php _e( 'WordPress format:', self::LANGUAGE_DOMAIN ); ?><br>
+<?php
+            if ( !isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) {
+?>
 <input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use table">
     <?php _e( 'table format:', self::LANGUAGE_DOMAIN ); ?><br>
 <input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use gallery">
     <?php _e( 'gallery format:', self::LANGUAGE_DOMAIN ); ?><br>
+<?php
+            } else {
+?>
+<input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use backbone">
+    <?php _e( 'alternate format:', self::LANGUAGE_DOMAIN ); ?><br>
+<?php
+            }
+?>
 </div>
 <?php
         }
@@ -561,7 +572,8 @@ EOD
                     }
                     if ( array_key_exists( $post, $thumbnails ) ) {
                         $thumbnail = $thumbnails[ $post ];
-                        $label = "<a href=\"{$post_titles[ $thumbnail ]->guid}\">{$post_titles[ $thumbnail ]->post_title}</a>";
+                        $href = wp_get_attachment_image_src( $thumbnail, 'medium' )[0];
+                        $label = "<a href=\"{$href}\">{$post_titles[ $thumbnail ]->post_title}</a>";
                         $model[ 'thumbnail' ] = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
                     }
                 } else if ( $field === 'pst-std-attachment' ) {

@@ -47,6 +47,14 @@
 <li>{{{ data.post_title }}}<br>&nbsp;&nbsp;&nbsp;&nbsp;{{{ data.post_content }}}</li>
 </script>
 
+<script type="text/html" id="stcfw-template-container-generic-gallery_view">
+<div class="stcfw-results-item-container"></div>
+</script>
+
+<script type="text/html" id="stcfw-template-item-generic-gallery_view">
+<img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>" width="160">
+</script>
+
 <!-- You can use the stcfw-template-...-generic-debug_view template to get a dump of all fields.  -->
 <!-- Remove or comment out this template for production mode.                                     -->
 
