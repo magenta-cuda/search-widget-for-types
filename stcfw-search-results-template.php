@@ -19,6 +19,9 @@
 <!-- You can use the stcfw-template-...-generic-debug_view template to get a dump of all fields.  -->
 <!-- The order of the templates here is also the order of the options in the select element.      -->
 
+<!-- This is a starter table template.                                                            -->
+<!-- You should create a post type specific template and add specific fields for that post type.  -->
+
 <script type="text/html" id="stcfw-template-container-generic-table_view">
 <table id="stcfw-table" style="border-collapse:collapse;">
 <thead>
@@ -47,6 +50,9 @@
 <li>{{{ data.post_title }}}<br>&nbsp;&nbsp;&nbsp;&nbsp;{{{ data.post_content }}}</li>
 </script>
 
+<!-- This is a very simple gallery template.                                                      -->
+<!-- Note the use of stcfw.extractHrefAndLabelFromLink() to extract the href from an <a> element. -->
+
 <script type="text/html" id="stcfw-template-container-generic-gallery_view">
 <div class="stcfw-results-item-container"></div>
 </script>
@@ -60,7 +66,13 @@
 
 <script type="text/html" id="stcfw-template-container-generic-debug_view">
 <div>
-<h2>This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates. Note that links are embedded in HTML &lt;a&gt; elements. post_content is really post excerpt.</h2>
+<h2>This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates.
+The fields are essentially the same fields as those selected for the table format.
+Note that links are embedded in HTML &lt;a&gt; elements. 
+You can use stcfw.extractHrefAndLabelFromLink() to extract the href and label from the link.
+Also post_content is really the post excerpt.
+Edit &quot;stcfw-search-results-template.php&quot; to change these templates or add your own templates.</h2>
+<p>
 <table id="stcfw-table" style="border-collapse:collapse;">
 <thead>
 <tr><# print(stcfw.dumpFieldNames()); #></tr>

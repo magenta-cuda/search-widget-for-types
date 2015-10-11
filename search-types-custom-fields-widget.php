@@ -97,7 +97,8 @@ EOD
 <?php _e( 'of the search conditions.', self::LANGUAGE_DOMAIN ); ?>
 </div>
 <?php
-        if ( array_key_exists( 'enable_table_view_option', $instance ) && $instance[ 'enable_table_view_option' ] === 'table view option enabled' ) {
+        if ( ( array_key_exists( 'enable_table_view_option', $instance ) && $instance[ 'enable_table_view_option' ] === 'table view option enabled' )
+            || isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) {
 ?>
 <hr>
 <div class="scpbcfw-search-fields-checkbox-box" style="clear:both;">
