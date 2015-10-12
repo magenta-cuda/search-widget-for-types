@@ -9,6 +9,7 @@
 <!-- The order of the templates here is also the order of the options in the select element.      -->
 <!-- Please use WordPress templating syntax -- see stcfw.templateOptions from                     -->
 <!-- stcfw-search-results-backbone.js which is copied from .../wp-includes/js/wp-util.js.         -->
+<!-- You can also specify styles using the css file search-results-backbone.css.                  -->
 
 <!-- This is a starter table template.                                                            -->
 <!-- You should create a post type specific template and add specific fields for that post type.  -->

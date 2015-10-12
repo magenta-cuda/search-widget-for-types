@@ -1,0 +1,17 @@
+/*
+    Styles for backbone mode search results
+*/
+
+div#stcfw-select-views-box {
+    float:left;
+    border:2px solid black;
+    border-radius:7px;
+    background-color:#e0e0e0;
+    padding:10px;
+    margin:10px;
+}
+
+div#stcfw-view {
+    clear:both;
+    padding:10px;
+}

@@ -1531,6 +1531,8 @@ EOD
 
     if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
         && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] !== 'use wordpress' ) {
+        $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
+        $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
         # for alternate output format do not page output
         add_filter( 'post_limits', function( $limit, &$query ) {
             if ( !$query->is_main_query( ) ) {
@@ -1538,16 +1540,19 @@ EOD
             }
             return ' ';
         }, 10, 2 );
-        add_action( 'wp_enqueue_scripts', function( ) {
+        add_action( 'wp_enqueue_scripts', function( ) use ( $option ) {
             # use post type specific css file if it exists otherwise use the default css file
             if ( file_exists( dirname( __FILE__ ) . "/search-results-table-$_REQUEST[post_type].css") ) {
                 wp_enqueue_style( 'search_results_table', plugins_url( "search-results-table-$_REQUEST[post_type].css", __FILE__ ) );
             } else {
                 wp_enqueue_style( 'search_results_table', plugins_url( 'search-results-table.css', __FILE__ ) );
             }
+            if ( isset( $option[ 'use_backbone_model_view_presenter' ] ) ) {
+                wp_enqueue_style( 'search_results_backbone', plugins_url( 'search-results-backbone.css', __FILE__ ) );
+            }
             wp_enqueue_script( 'backbone' );
         } );
-        add_action( 'template_redirect', function( ) {
+        add_action( 'template_redirect', function( ) use ( $option ) {
             global $wp_query;
             global $wpdb;
             # in this case a template is dynamically constructed and returned
@@ -1556,8 +1561,6 @@ EOD
                 return $post->ID;
             }, $wp_query->posts );
             $posts_imploded = implode( ', ', $posts );
-            $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
-            $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
             # get the applicable fields from the options for this widget
             if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
                 # display fields explicitly specified for post type
@@ -1587,10 +1590,10 @@ EOD
                     [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone' ] );
                 get_header( );
 ?>
-<div style="float:left;border:2px solid black;border-radius:7px;background-color:#e0e0e0;padding:10px;margin:10px;">
+<div id="stcfw-select-views-box">
 Change View: <select id="stcfw-select-views"></select>
 </div>
-<div id="stcfw-view" style="clear:both;padding:10px;"></div>
+<div id="stcfw-view"></div>
 <?php
                 require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                 get_footer( );
