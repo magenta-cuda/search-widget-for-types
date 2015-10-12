@@ -557,7 +557,8 @@ EOD
                         }
                         $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
                         # append a suffix to field name to specify either 'child of' or 'parent of' relationship
-                        $model[ substr( $field, strpos( $field, '_wpcf_belongs_' ) + 14 ) . ( $child_of ? '_of' : '_for' ) ] = $label;
+                        $key = substr( $field, strpos( $field, '_wpcf_belongs_' ) + 14 ) . ( $child_of ? '_of' : '_for' );
+                        $model[ $key ] = ( isset( $model[ $key ] ) ? $model[ $key ] . ', ' : '' ) . $label;
                     }
                     unset( $value );
                 } else if ( $field === 'pst-std-thumbnail' ) {
