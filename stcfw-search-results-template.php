@@ -43,6 +43,7 @@
 
 <!-- This is a very simple gallery template.                                                      -->
 <!-- Note the use of stcfw.extractHrefAndLabelFromLink() to extract the href from an <a> element. -->
+<!-- This template only works if the posts have featured images.                                  -->
 
 <script type="text/html" id="stcfw-template-container-generic-gallery_view">
 <div class="stcfw-results-item-container"></div>

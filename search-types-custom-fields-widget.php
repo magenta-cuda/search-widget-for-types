@@ -495,6 +495,7 @@ EOD
         global $wpdb;
         $models = [ ];
         foreach ( $posts as $post_obj ) {
+            $post_obj->guid        = get_permalink( $post_obj->ID );
             $post                  = $post_obj->ID;
             $model                 =& $models[ ];
             $model                 = [ ];
@@ -508,7 +509,7 @@ EOD
                     $taxonomy = substr( $field, 8 );
                     # TODO: may be more efficient to get the terms for all the posts in one query
                     if ( is_array( $terms = get_the_terms( $post, $taxonomy ) ) ) {
-                        $terms = implode( ', ', array_map( function( $term ) use ( $field ) {
+                        $terms = implode( ', ', array_map( function( $term ) use ( $field, $post_type ) {
                             return Search_Types_Custom_Fields_Widget::value_filter( $term->name, $field, $post_type );
                         }, $terms ) );
                         $model[ substr( $field, 8 ) ] = $terms;

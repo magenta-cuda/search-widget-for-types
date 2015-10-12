@@ -215,9 +215,17 @@
     // e.g. '<# print(extractHrefAndLabelFromLink(data.alpha).label); #>'
     stcfw.extractHrefAndLabelFromLink=function(link){
         var ret={};
+        if(!link){
+            ret.label=ret.href="";
+            return ret;
+        }
         var matches=link.match(/^<a\s.*?("|')(.*?)\1.*?>(.*?)<\/a>$/i);
-        ret.href=matches[2];
-        ret.label=matches[3];
+        if(matches){
+            ret.href=matches[2];
+            ret.label=matches[3];
+        }else{
+            ret.label=ret.href="";
+        }
         return ret;
     };
 }());
