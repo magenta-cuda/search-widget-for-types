@@ -1587,10 +1587,10 @@ EOD
                     [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone' ] );
                 get_header( );
 ?>
-<div style="padding:10px;">
-<select id="stcfw-select-views"></select>
+<div style="float:left;border:2px solid black;border-radius:7px;background-color:#e0e0e0;padding:10px;margin:10px;">
+Change View: <select id="stcfw-select-views"></select>
 </div>
-<div id="stcfw-view" style="padding:10px;"></div>
+<div id="stcfw-view" style="clear:both;padding:10px;"></div>
 <?php
                 require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                 get_footer( );
