@@ -18,8 +18,8 @@
 <table id="stcfw-table" style="border-collapse:collapse;">
 <thead>
 <tr>
-<th style="border:2px solid black;padding:10px;">Post</th>
-<th style="border:2px solid black;padding:10px;">Excerpt</th>
+<th style="border:2px solid black;padding:10px;background-color:#d0d0d0;">Post</th>
+<th style="border:2px solid black;padding:10px;background-color:#d0d0d0;">Excerpt</th>
 </tr>
 </thead>
 <tbody class="stcfw-results-item-container">
@@ -35,11 +35,11 @@
 </script> 
 
 <script type="text/html" id="stcfw-template-container-generic-list_view">
-<ul class="stcfw-results-item-container"></ul>
+<ol class="stcfw-results-item-container" style="list-style-type:upper-roman;"></ol>
 </script>
 
 <script type="text/html" id="stcfw-template-item-generic-list_view">
-<li>{{{ data.post_title }}}<br>&nbsp;&nbsp;&nbsp;&nbsp;{{{ data.post_content }}}</li>
+<li><strong>{{{ data.post_title }}}</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;{{{ data.post_content }}}</li>
 </script>
 
 <!-- This is a very simple gallery template.                                                      -->
@@ -64,7 +64,8 @@
 
 <script type="text/html" id="stcfw-template-container-generic-debug_view">
 <div>
-<div>This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates.
+<div style="background-color:#e0e0e0;border-radius:7px;padding:15px;margin-bottom:15px;">
+This is a dump of all fields in the selected posts. The field names are exactly as you would use them in Underscore.js templates.
 The fields are essentially the same fields as those selected for the table format.
 Note that links are embedded in HTML &lt;a&gt; elements. 
 You can use stcfw.extractHrefAndLabelFromLink() to extract the href and label from the link.
@@ -73,14 +74,15 @@ Edit &quot;stcfw-search-results-template.php&quot; to change these templates or 
 The documentation of Underscore.js templates is <a href="http://underscorejs.org/#template" target="_blank">here</a>.
 However, we actually use the WordPress' version of the template settings.
 </div>
-<p>
-<table id="stcfw-table" style="border-collapse:collapse;">
+<div style="overflow-x:auto;">
+<table id="stcfw-table" style="border-collapse:collapse;width:2048px;">
 <thead>
 <tr><# print(stcfw.dumpFieldNames()); #></tr>
 </thead>
 <tbody class="stcfw-results-item-container">
 </tbody>
 </table>
+</div>
 </script> 
 
 <script type="text/html" id="stcfw-template-item-generic-debug_view">
