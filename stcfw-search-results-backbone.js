@@ -124,13 +124,13 @@
             });
             jQuery("script[id^='stcfw-template-item-"+postType+"-']").each(function(){
                 var template=templates[this.id.substr(21+postTypeLen)];
-                if(!template.generic){
+                if(template&&!template.generic){
                     template.item=jQuery(this);
                 }
             });
             jQuery("script[id^='stcfw-template-item-generic-']").each(function(){
                 var template=templates[this.id.substr(28)];
-                if(template.generic){
+                if(template&&template.generic){
                     template.item=jQuery(this);
                 }
             });

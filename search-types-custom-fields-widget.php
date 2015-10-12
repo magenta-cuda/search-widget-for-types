@@ -574,9 +574,17 @@ EOD
                     }
                     if ( array_key_exists( $post, $thumbnails ) ) {
                         $thumbnail = $thumbnails[ $post ];
-                        $href = wp_get_attachment_image_src( $thumbnail, 'medium' )[0];
+                        $href = wp_get_attachment_image_src( $thumbnail, 'medium' );
+                        if ( $href ) {
+                            $href = $href[0];
+                        } else {
+                            $href = includes_url( 'images/smilies/frownie.png' );
+                        }
                         $label = "<a href=\"{$href}\">{$post_titles[ $thumbnail ]->post_title}</a>";
                         $model[ 'thumbnail' ] = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
+                    } else {
+                        $model[ 'thumbnail' ] = "<a href=\"" . includes_url( 'images/smilies/frownie.png' ) . "\">"
+                                                    . __( "No Featured Image", self::LANGUAGE_DOMAIN ) . "</a>";
                     }
                 } else if ( $field === 'pst-std-attachment' ) {
                     # for efficiency on first iteration get all relevant attachments for all posts for use by later iterations
