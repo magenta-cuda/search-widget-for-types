@@ -80,7 +80,7 @@
             e.stopPropagation();
         });
     }else if(stcfw.mode==='backbone'){
-        stcfw.createView=function(containerTemplate,itemTemplate){
+        stcfw.createView=function(containerTemplate,itemTemplate,onRenderFunction){
             if(!containerTemplate instanceof jQuery || !itemTemplate instanceof jQuery || !containerTemplate.length || !itemTemplate.length){
                 return null;
             }
@@ -107,7 +107,9 @@
                         itemView.setElement(document.createElement("div"));
                     },this);
                     return this;
-                }
+                },
+                // the onRenderFunction is called when the template is rendered
+                onRenderFunction:onRenderFunction
             });
         };
         stcfw.findTemplates=function(postType){
@@ -134,6 +136,20 @@
                     template.item=jQuery(this);
                 }
             });
+            // a template may have a function that will be called when the template is rendered
+            Object.keys(templates).forEach(function(key){
+                console.log("key=",key);
+                var template=templates[key];
+                if(template.generic){
+                    if(stcfwTemplateFunctions.hasOwnProperty("stcfw-template-function-generic-"+key)){
+                        template.onRenderFunction=stcfwTemplateFunctions["stcfw-template-function-generic-"+key];
+                    }
+                }else{
+                    if(stcfw.templateFunctions.hasOwnProperty("stcfw-template-function-generic-"+key)){
+                        template.onRenderFunction=stcfw.templateFunctions["stcfw-template-function-"+postType+"-"+key];
+                    }
+                }
+            });
             return templates;
         };
         // create Backbone views for each template found and add option for that view to select element
@@ -144,7 +160,7 @@
         Object.keys(templates).forEach(function(key){
             var template=templates[key];
             if(template.hasOwnProperty("container")&&template.hasOwnProperty("item")){
-                var View=stcfw.createView(template.container,template.item);
+                var View=stcfw.createView(template.container,template.item,template.onRenderFunction);
                 if(View){
                     stcfw.Views[key]=View;
                     var option=jQuery("<option></option>");
@@ -178,6 +194,9 @@
             if(div.length){
                 div.empty();
                 div.append(view.render().$el);
+                if(typeof view.onRenderFunction==="function"){
+                    view.onRenderFunction(view.$el);
+                }
             };
         };
         select.change(stcfw.doSelectedView);

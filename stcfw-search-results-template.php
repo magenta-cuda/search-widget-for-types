@@ -10,9 +10,16 @@
 <!-- Please use WordPress templating syntax -- see stcfw.templateOptions from                     -->
 <!-- stcfw-search-results-backbone.js which is copied from .../wp-includes/js/wp-util.js.         -->
 <!-- You can also specify styles using the css file search-results-backbone.css.                  -->
+<!-- You can also specify a function to run after a template is rendered.                         -->
+<!-- The function should be defined as a property of window.stcfwTemplateFunctions with name like -->
+<!-- "stcfw-template-function-" . $post_type . $view_name.                                        -->
 
 <!-- This is a starter table template.                                                            -->
 <!-- You should create a post type specific template and add specific fields for that post type.  -->
+
+<script type="text/javascript">
+window.stcfwTemplateFunctions=window.stcfwTemplateFunctions||{};
+</script>
 
 <script type="text/html" id="stcfw-template-container-generic-table_view">
 <table id="stcfw-table" style="border-collapse:collapse;">
@@ -57,6 +64,13 @@
         title="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #>"
         width="200">
 </a>
+</script>
+
+<script type="text/javascript">
+// This is an example of a template function. Note that since the function name has hyphens you must use the bracket form for property names.
+window.stcfwTemplateFunctions["stcfw-template-function-generic-gallery_view"]=function($el){
+    console.log($el);
+};
 </script>
 
 <!-- You can use the stcfw-template-...-generic-debug_view template to get a dump of all fields.  -->
