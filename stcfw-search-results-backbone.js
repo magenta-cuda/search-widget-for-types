@@ -15,71 +15,80 @@
     }catch(e){
         console.log("e=",e);
     }
-    if(stcfw.mode==='classic'){
-        // Use a post type specific template if it exists otherwise use the generic template
-        var hoverTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-post_hover_view");
-        if(!hoverTemplate.length){
-            hoverTemplate=jQuery("script#stcfw-template-generic-post_hover_view");
+    
+    // PostHoverView is used to implement a popup view of the selected post. This was implemented for the old "classic" mode.
+    // But with some small (unfortunately ugly) hacks can now be used in the new "backbone" mode.
+    
+    // Use a post type specific template if it exists otherwise use the generic template
+    var hoverTemplate=jQuery("script#stcfw-template-"+stcfw.post_type+"-post_hover_view");
+    if(!hoverTemplate.length){
+        hoverTemplate=jQuery("script#stcfw-template-generic-post_hover_view");
+    }
+    stcfw.PostHoverView=Backbone.View.extend({
+        events:{
+            click:"onclick"
+        },
+        // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
+        template:_.template(hoverTemplate.html(),null,stcfw.templateOptions),
+        render:function(){
+            this.$el.remove();
+            //this.$el.html(this.template(this.model.attributes));
+            var overlay=jQuery(this.template(this.model.attributes));
+            overlay.css("position","absolute");
+            this.$el=overlay;
+            this.el=overlay[0];
+            this.delegateEvents();
+            return this;
+        },
+        onclick:function(){
+            // propagate click to target element
+            this.target.click();
         }
-        stcfw.PostHoverView=Backbone.View.extend({
-            events:{
-                click:"onclick"
-            },
-            // The version of _.template() used by WordPress seems to need a null argument before the settings argument. See .../wp-includes/js/wp-util.js
-            template:_.template(hoverTemplate.html(),null,stcfw.templateOptions),
-            render:function(){
-                this.$el.remove();
-                //this.$el.html(this.template(this.model.attributes));
-                var overlay=jQuery(this.template(this.model.attributes));
-                overlay.css("position","absolute");
-                this.$el=overlay;
-                this.el=overlay[0];
-                this.delegateEvents();
-                return this;
-            },
-            onclick:function(){
-                // propagate click to target element
-                this.target.click();
+    });
+    stcfw.postHoverView=new stcfw.PostHoverView();
+    // show overlay when mouse is over the target image element
+    stcfw.mouseEnterItemHandler=function(e){
+        var $this=jQuery(this);
+        var view=stcfw.postHoverView;
+        view.target=$this;
+        // save target geometry for mousemove handler
+        var offset=$this.offset();
+        view.targetLeft=offset.left;
+        view.targetTop=offset.top;
+        view.targetRight=offset.left+$this.outerWidth();
+        view.targetBottom=offset.top+$this.outerHeight();
+        // get the center of the target element to use to center the overlay
+        var position=$this.position();
+        var x=position.left+$this.outerWidth()/2;
+        var y=position.top+$this.outerHeight()/2;
+        var id=this.dataset.id;
+        if(!id){
+            id=this.parentNode.dataset.post_id;
+        }
+        // render the post of the target element
+        view.model=stcfw.posts.get(id);
+        var $el=view.render().$el;
+        var container=$this.parents("div.stcfw-results-item-container,div#stcfw-gallery-container").prepend($el);
+        // track mouse moves to find out when mouse moves outside of target element
+        container.on("mousemove.stcfw",function(e){
+            if(e.pageX<view.targetLeft||e.pageX>=view.targetRight||e.pageY<view.targetTop||e.pageY>=view.targetBottom){
+                // moved outside of target element so hide overlay and stop tracking mouse moves
+                stcfw.postHoverView.remove();
+                container.off("mousemove.stcfw");
             }
         });
-        stcfw.postHoverView=new stcfw.PostHoverView();
-        // show overlay when mouse is over the target image element
-        jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").mouseenter(function(e){
-            var $this=jQuery(this);
-            var view=stcfw.postHoverView;
-            view.target=$this;
-            // save target geometry for mousemove handler
-            var offset=$this.offset();
-            view.targetLeft=offset.left;
-            view.targetTop=offset.top;
-            view.targetRight=offset.left+$this.outerWidth();
-            view.targetBottom=offset.top+$this.outerHeight();
-            // get the center of the target element to use to center the overlay
-            var position=$this.position();
-            var x=position.left+$this.outerWidth()/2;
-            var y=position.top+$this.outerHeight()/2;
-            // render the post of the target element
-            view.model=stcfw.posts.get(this.parentNode.dataset.post_id);
-            var $el=view.render().$el;
-            var container=jQuery("div#stcfw-gallery-container").prepend($el);
-            // track mouse moves to find out when mouse moves outside of target element
-            container.on("mousemove.stcfw",function(e){
-                if(e.pageX<view.targetLeft||e.pageX>=view.targetRight||e.pageY<view.targetTop||e.pageY>=view.targetBottom){
-                    // moved outside of target element so hide overlay and stop tracking mouse moves
-                    stcfw.postHoverView.remove();
-                    container.off("mousemove.stcfw");
-                }
-            });
-            // center over target element if possible
-            x-=$el.outerWidth()/2;
-            x=x>=0?x:0;
-            y-=$el.outerHeight()/2;
-            y=y>=0?y:0;
-            $el.css({left:x,top:y});
-            e.preventDefault();
-            e.stopPropagation();
-        });
-    }else if(stcfw.mode==='backbone'){
+        // center over target element if possible
+        x-=$el.outerWidth()/2;
+        x=x>=0?x:0;
+        y-=$el.outerHeight()/2;
+        y=y>=0?y:0;
+        $el.css({left:x,top:y});
+        e.preventDefault();
+        e.stopPropagation();
+    };
+    if(stcfw.mode==="classic"){
+        jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").mouseenter(stcfw.mouseEnterItemHandler);
+    }else if(stcfw.mode==="backbone"){
         stcfw.createView=function(containerTemplate,itemTemplate,onRenderFunction){
             if(!containerTemplate instanceof jQuery || !itemTemplate instanceof jQuery || !containerTemplate.length || !itemTemplate.length){
                 return null;

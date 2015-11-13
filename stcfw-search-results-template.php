@@ -62,13 +62,17 @@ window.stcfwTemplateFunctions=window.stcfwTemplateFunctions||{};
     <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>"
         alt="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #>"
         title="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #>"
+        data-id="{{{ data.ID }}}"
         width="200">
 </a>
 </script>
 
 <script type="text/javascript">
 // This is an example of a template function. Note that since the function name has hyphens you must use the bracket form for property names.
+// The argument of the function is the $el property of the Backbone.js view, i.e., the jQuery wrapper of the rendered element
+
 window.stcfwTemplateFunctions["stcfw-template-function-generic-gallery_view"]=function($el){
+    $el.find("img").mouseenter(window.stcfw.mouseEnterItemHandler);
     console.log($el);
 };
 </script>
