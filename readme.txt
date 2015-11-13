@@ -40,6 +40,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 == Changelog ==
 = 1.1 =
 * Add facility for invoking a function after a Backbone.js template has been rendered - usful for attaching event listeners on the rendered elements.
+* Added the popup feature of the classic mode gallery to the new backbone mode gallery.
 
 = 1.0 =
 * The front-end re-written as a single-page web application using a Backbone.js Model-View-Presenter - you can select either classic mode or backbone mode.
@@ -107,6 +108,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 == Upgrade Notice ==
 = 1.1 =
 * Add facility for invoking a function after a Backbone.js template has been rendered - usful for attaching event listeners on the rendered elements.
+* Added the popup feature of the classic mode gallery to the new backbone mode gallery.
 = 1.0 =
 * The front-end re-written as a single-page web application using a Backbone.js Model-View-Presenter - you can select either classic mode or backbone mode.
 * You can specify your own Underscore.js template to customize the displayed results - see stcfw-search-results-template.php.
