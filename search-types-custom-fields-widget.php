@@ -16,6 +16,10 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+/*
+    Project IV: Search Types Custom Fields
+ */
+ 
 class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
     # start of user configurable constants

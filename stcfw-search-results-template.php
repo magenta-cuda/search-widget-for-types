@@ -73,7 +73,6 @@ window.stcfwTemplateFunctions=window.stcfwTemplateFunctions||{};
 
 window.stcfwTemplateFunctions["stcfw-template-function-generic-gallery_view"]=function($el){
     $el.find("img").mouseenter(window.stcfw.mouseEnterItemHandler);
-    console.log($el);
 };
 </script>
 
@@ -111,6 +110,7 @@ However, we actually use the WordPress' version of the template settings.
 <!-- ############################################################################################ -->
 
 <!-- The following template is used by the gallery format in the old "classic" mode.              -->
+<!-- It is also used in the new "backbone" mode as the mouse-over popup of the gallery format.    -->
 <!-- The id for gallery mouseover popups is "stcfw-template-" . $post_type . "-post_hover_view".  -->
 <!-- The "generic" template is used if no post type specific template is found.                   -->
 <!-- The fields in the Backbone model are the same fields as those displayed in the table format. -->

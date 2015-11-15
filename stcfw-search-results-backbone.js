@@ -109,7 +109,6 @@
                     this.$container=this.$el.find(this.container);
                     var itemView=new this.ItemView();
                     this.collection.each(function(item){
-                        console.log("post=",item.attributes);
                         itemView.model=item;
                         this.$container.append(itemView.render().$el);
                         // unbind rendered element of view from view
@@ -147,7 +146,6 @@
             });
             // a template may have a function that will be called when the template is rendered
             Object.keys(templates).forEach(function(key){
-                console.log("key=",key);
                 var template=templates[key];
                 if(template.generic){
                     if(stcfwTemplateFunctions.hasOwnProperty("stcfw-template-function-generic-"+key)){
