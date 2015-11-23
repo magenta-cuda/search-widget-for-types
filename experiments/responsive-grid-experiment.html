@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+img.ems_xii-responsive {
+    box-sizing: border-box;
+    float: left;
+    width: 25%;
+}
+div.ems_xii-clear {
+    clear:both;
+    border:1px solid blue;
+}
+    
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script>
+jQuery( window ).resize( function( ) {
+    jQuery( "div.ems_xii-clear" ).remove( );
+    var imgs = jQuery( "img.ems_xii-responsive" );
+    if ( imgs.length ) {
+        var cols = Math.round( imgs.first( ).parent( ).width( ) / imgs.width( ) );
+        imgs.each( function( index ) {
+            if ( index % cols === cols - 1 ) {
+                jQuery( this ).after( '<div class="ems_xii-clear"></div>' );
+            }
+        } );
+    }
+} );
+jQuery( document ).ready( function( ) {
+    jQuery( window ).resize( );
+} );
+</script>
+</head>
+<body>
+<div>
+<img class="ems_xii-responsive" src="440-magnum.jpg">
+<img class="ems_xii-responsive" src="logo-edelbrock.png">
+<img class="ems_xii-responsive" src="alien_trespass.jpg">
+<img class="ems_xii-responsive" src="wordpress.jpg">
+<div class="ems_xii-clear" style="clear:both;border:1px solid red;"></div>
+<img class="ems_xii-responsive" src="1968-dodge-charger.jpg">
+<img class="ems_xii-responsive" src="logo-edelbrock.png">
+<img class="ems_xii-responsive" src="440-magnum.jpg">
+<img class="ems_xii-responsive" src="logo-edelbrock.png">
+<img class="ems_xii-responsive" src="alien_trespass.jpg">
+<img class="ems_xii-responsive" src="wordpress.jpg">
+</div>
+</body>
+</html>
