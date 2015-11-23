@@ -20,10 +20,20 @@ jQuery( window ).resize( function( ) {
     var imgs = jQuery( "img.ems_xii-responsive" );
     if ( imgs.length ) {
         var cols = Math.round( imgs.first( ).parent( ).width( ) / imgs.width( ) );
+        var maxHeight = 0;
         imgs.each( function( index ) {
+            var $this = jQuery( this );
             if ( index % cols === cols - 1 ) {
-                jQuery( this ).after( '<div class="ems_xii-clear"></div>' );
+                $this.after( '<div class="ems_xii-clear"></div>' );
             }
+            var height = $this.height( );
+            if ( height > maxHeight ) {
+                maxHeight = height;
+            }
+        } );
+        imgs.each( function( ) {
+            var $this = jQuery( this );
+            $this.css( "padding-top", ( ( maxHeight - $this.height( ) ) / 2 ) + "px" );
         } );
     }
 } );
