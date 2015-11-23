@@ -29,7 +29,7 @@ window.stcfwTemplateFunctions=window.stcfwTemplateFunctions||{};
 <th style="border:2px solid black;padding:10px;background-color:#d0d0d0;">Excerpt</th>
 </tr>
 </thead>
-<tbody class="stcfw-results-item-container">
+<tbody class="stcfw-results-item-container stcfw-template-container-generic-table_view">
 </tbody>
 </table>
 </script> 
@@ -42,7 +42,7 @@ window.stcfwTemplateFunctions=window.stcfwTemplateFunctions||{};
 </script> 
 
 <script type="text/html" id="stcfw-template-container-generic-list_view">
-<ol class="stcfw-results-item-container" style="list-style-type:upper-roman;"></ol>
+<ol class="stcfw-results-item-container stcfw-template-container-generic-list_view" style="list-style-type:upper-roman;"></ol>
 </script>
 
 <script type="text/html" id="stcfw-template-item-generic-list_view">
@@ -54,16 +54,15 @@ window.stcfwTemplateFunctions=window.stcfwTemplateFunctions||{};
 <!-- This template only works if the posts have featured images.                                  -->
 
 <script type="text/html" id="stcfw-template-container-generic-gallery_view">
-<div class="stcfw-results-item-container"></div>
+<div class="stcfw-results-item-container stcfw-template-container-generic-gallery_view st_iv-responsive_container"></div>
 </script>
 
 <script type="text/html" id="stcfw-template-item-generic-gallery_view">
-<a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>">
+<a class="st_iv-responsive_item" href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>">
     <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>"
         alt="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #>"
         title="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #>"
-        data-id="{{{ data.ID }}}"
-        width="200">
+        data-id="{{{ data.ID }}}">
 </a>
 </script>
 

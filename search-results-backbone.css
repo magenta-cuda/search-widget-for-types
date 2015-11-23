@@ -15,3 +15,45 @@ div#stcfw-view {
     clear:both;
     padding:10px;
 }
+
+.st_iv-responsive_item {
+    box-sizing: border-box;
+    float: left;
+    width: 100%;
+    padding-left: 4px;
+    padding-right: 4px;
+    border: 2px solid black;
+    border-radius: 4%;
+}
+
+.st_iv-responsive_item img {
+    width: 100%;
+}
+    
+div.st_iv-clear {
+    clear:both;
+}
+
+@media (min-width:480px) {
+    .st_iv-responsive_item {
+        width:50%;
+    }
+}
+
+@media (min-width:768px) {
+    .st_iv-responsive_item {
+        width:33%;
+    }
+}
+
+@media (min-width:992px) {
+    .st_iv-responsive_item {
+        width:25%;
+    }
+}
+
+@media (min-width:1200px) {
+    .st_iv-responsive_item {
+        width:20%;
+    }
+}

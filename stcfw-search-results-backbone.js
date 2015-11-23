@@ -205,6 +205,7 @@
                     view.onRenderFunction(view.$el);
                 }
             };
+            jQuery( window ).resize( )
         };
         select.change(stcfw.doSelectedView);
         stcfw.doSelectedView();
@@ -255,3 +256,35 @@
         return ret;
     };
 }());
+
+jQuery( window ).resize( function( ) {
+    jQuery( "div.st_iv-responsive_container" ).each( function( ) {
+        var container = jQuery( this );
+        container.find( "div.st_iv-clear" ).remove( );
+        var items = container.find( ".st_iv-responsive_item" );
+        if ( items.length ) {
+            var cols = Math.round( items.first( ).parent( ).width( ) / items.outerWidth( ) );
+            var maxHeight = 0;
+            items.each( function( index ) {
+                var $this = jQuery( this );
+                if ( index % cols === cols - 1 ) {
+                    $this.after( '<div class="st_iv-clear"></div>' );
+                }
+                var height = $this.height( );
+                if ( height > maxHeight ) {
+                    maxHeight = height;
+                }
+            } );
+            items.each( function( ) {
+                var $this = jQuery( this );
+                var padding = ( ( maxHeight - $this.height( ) ) / 2 ) + 4 + "px";
+                $this.css( "padding-top", padding );
+                $this.css( "padding-bottom", padding );
+            } );
+        }
+    } );
+} );
+
+jQuery( document ).ready( function( ) {
+    jQuery( window ).resize( );
+} );
