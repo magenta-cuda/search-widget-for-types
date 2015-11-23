@@ -42,28 +42,31 @@ div.ems_xii-clear {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script>
 jQuery( window ).resize( function( ) {
-    jQuery( "div.ems_xii-clear" ).remove( );
-    var imgs = jQuery( "img.ems_xii-responsive_item" );
-    if ( imgs.length ) {
-        var cols = Math.round( imgs.first( ).parent( ).width( ) / imgs.outerWidth( ) );
-        var maxHeight = 0;
-        imgs.each( function( index ) {
-            var $this = jQuery( this );
-            if ( index % cols === cols - 1 ) {
-                $this.after( '<div class="ems_xii-clear"></div>' );
-            }
-            var height = $this.height( );
-            if ( height > maxHeight ) {
-                maxHeight = height;
-            }
-        } );
-        imgs.each( function( ) {
-            var $this = jQuery( this );
-            var padding = ( ( maxHeight - $this.height( ) ) / 2 ) + 4 + "px";
-            $this.css( "padding-top", padding );
-            $this.css( "padding-bottom", padding );
-        } );
-    }
+    jQuery( "div.ems_xii-responsive_container" ).each( function( ) {
+        var container = jQuery( this );
+        container.find( "div.ems_xii-clear" ).remove( );
+        var imgs = container.find( "img.ems_xii-responsive_item" );
+        if ( imgs.length ) {
+            var cols = Math.round( imgs.first( ).parent( ).width( ) / imgs.outerWidth( ) );
+            var maxHeight = 0;
+            imgs.each( function( index ) {
+                var $this = jQuery( this );
+                if ( index % cols === cols - 1 ) {
+                    $this.after( '<div class="ems_xii-clear"></div>' );
+                }
+                var height = $this.height( );
+                if ( height > maxHeight ) {
+                    maxHeight = height;
+                }
+            } );
+            imgs.each( function( ) {
+                var $this = jQuery( this );
+                var padding = ( ( maxHeight - $this.height( ) ) / 2 ) + 4 + "px";
+                $this.css( "padding-top", padding );
+                $this.css( "padding-bottom", padding );
+            } );
+        }
+    } );
 } );
 jQuery( document ).ready( function( ) {
     jQuery( window ).resize( );
@@ -71,7 +74,7 @@ jQuery( document ).ready( function( ) {
 </script>
 </head>
 <body>
-<div class="ems_xii-responsive_container>
+<div class="ems_xii-responsive_container">
 <img class="ems_xii-responsive_item" src="440-magnum.jpg">
 <img class="ems_xii-responsive_item" src="logo-edelbrock.png">
 <img class="ems_xii-responsive_item" src="alien_trespass.jpg">
