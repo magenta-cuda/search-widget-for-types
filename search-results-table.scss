@@ -1,31 +1,40 @@
 /*
     Styles for search results table
 */
+
 table.scpbcfw-result-table {
   border-collapse: collapse;
   width: 99%;
   margin: 0px auto;
-  table-layout: auto; }
-  table.scpbcfw-result-table tr:nth-child(even) {
-    background-color: silver; }
-  table.scpbcfw-result-table th, table.scpbcfw-result-table td {
+  table-layout: auto;
+
+  tr:nth-child(even) {
+    background-color: rgb(192, 192, 192);
+  }
+
+  th, td {
     border: 2px solid black;
-    padding: 5px; }
-  table.scpbcfw-result-table th {
-    background-color: gray;
+    padding: 5px;
+  }
+
+  th {
+    background-color: rgb(128, 128, 128);
     background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
     background-position: 100% 50%;
     background-repeat: no-repeat;
     color: black;
-    text-align: center; }
-  table.scpbcfw-result-table td.scpbcfw-result-table-detail-numeric {
-    text-align: center; }
+    text-align: center;
+  }
+
+  td.scpbcfw-result-table-detail-numeric {
+    text-align: center;
+  }
+}
 
 div.st_iv-popup {
   background-color: white;
   opacity: 0.90;
   border: 2px solid black;
   border-radius: 7px;
-  padding: 10px; }
-
-/*# sourceMappingURL=search-results-table.css.map */
+  padding: 10px;
+}
