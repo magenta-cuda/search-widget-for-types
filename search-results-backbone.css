@@ -1,59 +1,61 @@
 /*
     Styles for backbone mode search results
 */
-
 div#stcfw-select-views-box {
-    float:left;
-    border:2px solid black;
-    border-radius:7px;
-    background-color:#e0e0e0;
-    padding:10px;
-    margin:10px;
-}
-
+  float: left;
+  border: 2px solid black;
+  border-radius: 7px;
+  background-color: #e0e0e0;
+  padding: 10px;
+  margin: 10px; }
 div#stcfw-view {
-    clear:both;
-    padding:10px;
-}
+  clear: both;
+  padding: 10px; }
+
+table.st_iv-table_generic {
+  border-collapse: collapse; }
+  table.st_iv-table_generic th {
+    border: 2px solid black;
+    padding: 10px;
+    background-color: #d0d0d0; }
+  table.st_iv-table_generic td {
+    border: 2px solid black;
+    padding: 10px; }
+
+ol.st_iv-list_generic {
+  list-style-type: upper-roman; }
 
 .st_iv-responsive_item {
-    box-sizing: border-box;
-    float: left;
-    width: 100%;
-    padding-left: 4px;
-    padding-right: 4px;
-    border: 2px solid black;
-    border-radius: 4%;
-}
+  box-sizing: border-box;
+  float: left;
+  width: 100%;
+  padding-left: 4px;
+  padding-right: 4px;
+  border: 2px solid black;
+  border-radius: 4%; }
+  .st_iv-responsive_item img {
+    width: 100%; }
 
-.st_iv-responsive_item img {
-    width: 100%;
-}
-    
 div.st_iv-clear {
-    clear:both;
-}
+  clear: both; }
+div.st_iv-popup {
+  background-color: white;
+  opacity: 0.90;
+  border: 2px solid black;
+  border-radius: 7px;
+  padding: 10px; }
 
-@media (min-width:480px) {
-    .st_iv-responsive_item {
-        width:50%;
-    }
-}
+@media (min-width: 480px) {
+  .st_iv-responsive_item {
+    width: 50%; } }
+@media (min-width: 768px) {
+  .st_iv-responsive_item {
+    width: 33%; } }
+@media (min-width: 992px) {
+  .st_iv-responsive_item {
+    width: 25%; } }
+@media (min-width: 1200px) {
+  .st_iv-responsive_item {
+    width: 20%; } }
 
-@media (min-width:768px) {
-    .st_iv-responsive_item {
-        width:33%;
-    }
-}
-
-@media (min-width:992px) {
-    .st_iv-responsive_item {
-        width:25%;
-    }
-}
-
-@media (min-width:1200px) {
-    .st_iv-responsive_item {
-        width:20%;
-    }
-}
+/*# sourceMappingURL=search-results-backbone.css.map */

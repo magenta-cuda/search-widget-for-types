@@ -69,6 +69,7 @@
         view.model=stcfw.posts.get(id);
         var $el=view.render().$el;
         var container=$this.parents("div.stcfw-results-item-container,div#stcfw-gallery-container").prepend($el);
+        $el.width( 0.8 * $this.outerWidth( ) );
         // track mouse moves to find out when mouse moves outside of target element
         container.on("mousemove.stcfw",function(e){
             if(e.pageX<view.targetLeft||e.pageX>=view.targetRight||e.pageY<view.targetTop||e.pageY>=view.targetBottom){
@@ -85,6 +86,7 @@
         $el.css({left:x,top:y});
         e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation( );
     };
     if(stcfw.mode==="classic"){
         jQuery("dl.gallery-item a[data-post_id] img,figure.gallery-item a[data-post_id] img").mouseenter(stcfw.mouseEnterItemHandler);

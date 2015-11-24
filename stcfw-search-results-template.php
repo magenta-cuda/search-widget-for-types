@@ -22,11 +22,11 @@ window.stcfwTemplateFunctions=window.stcfwTemplateFunctions||{};
 </script>
 
 <script type="text/html" id="stcfw-template-container-generic-table_view">
-<table id="stcfw-table" style="border-collapse:collapse;">
+<table class="st_iv-table_generic">
 <thead>
 <tr>
-<th style="border:2px solid black;padding:10px;background-color:#d0d0d0;">Post</th>
-<th style="border:2px solid black;padding:10px;background-color:#d0d0d0;">Excerpt</th>
+<th>Post</th>
+<th>Excerpt</th>
 </tr>
 </thead>
 <tbody class="stcfw-results-item-container stcfw-template-container-generic-table_view">
@@ -36,13 +36,13 @@ window.stcfwTemplateFunctions=window.stcfwTemplateFunctions||{};
 
 <script type="text/html" id="stcfw-template-item-generic-table_view">
 <tr>
-<td style="border:2px solid black;padding:10px;">{{{ data.post_title }}}</td>
-<td style="border:2px solid black;padding:10px;">{{{ data.post_content }}}</td>
+<td>{{{ data.post_title }}}</td>
+<td>{{{ data.post_content }}}</td>
 </tr>
 </script> 
 
 <script type="text/html" id="stcfw-template-container-generic-list_view">
-<ol class="stcfw-results-item-container stcfw-template-container-generic-list_view" style="list-style-type:upper-roman;"></ol>
+<ol class="stcfw-results-item-container stcfw-template-container-generic-list_view st_iv-list_generic"></ol>
 </script>
 
 <script type="text/html" id="stcfw-template-item-generic-list_view">
@@ -91,7 +91,7 @@ The documentation of Underscore.js templates is <a href="http://underscorejs.org
 However, we actually use the WordPress' version of the template settings.
 </div>
 <div style="overflow-x:auto;">
-<table id="stcfw-table" style="border-collapse:collapse;width:2048px;">
+<table id="stcfw-dump-table" style="border-collapse:collapse;width:2048px;">
 <thead>
 <tr><# print(stcfw.dumpFieldNames()); #></tr>
 </thead>
@@ -115,7 +115,7 @@ However, we actually use the WordPress' version of the template settings.
 <!-- The fields in the Backbone model are the same fields as those displayed in the table format. -->
 
 <script type="text/html" id="stcfw-template-generic-post_hover_view">
-<div style="background-color:white;opacity:0.90;border:2px solid black;padding:10px;">
+<div class="st_iv-popup">
 <h3><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></h3>
 <span style="font-size:x-small;">{{{ data.post_content }}}</span>
 </div>
