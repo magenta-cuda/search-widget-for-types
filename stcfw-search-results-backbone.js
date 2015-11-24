@@ -207,7 +207,9 @@
                     view.onRenderFunction(view.$el);
                 }
             };
-            jQuery( window ).resize( )
+            window.setTimeout( function( ) {
+                jQuery( window ).resize( );
+            }, 1 );
         };
         select.change(stcfw.doSelectedView);
         stcfw.doSelectedView();
