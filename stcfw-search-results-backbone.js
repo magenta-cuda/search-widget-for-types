@@ -209,7 +209,7 @@
             };
             window.setTimeout( function( ) {
                 jQuery( window ).resize( );
-            }, 1 );
+            }, 10 );
         };
         select.change(stcfw.doSelectedView);
         stcfw.doSelectedView();
@@ -271,6 +271,16 @@ jQuery( window ).resize( function( ) {
             var maxHeight = 0;
             items.each( function( index ) {
                 var $this = jQuery( this );
+                // if item contains an image check if the image is loaded
+                var img = $this.find( "img" );
+                if ( img.length && !img[0].naturalWidth ) {
+                    // image not loaded so abort and re-schedule resize
+                    console.log( "naturalWidth=", img[0].naturalWidth );
+                    window.setTimeout( function( ) {
+                        jQuery( window ).resize( );
+                    }, 10 );
+                    return;
+                }
                 if ( index % cols === cols - 1 ) {
                     $this.after( '<div class="st_iv-clear"></div>' );
                 }
@@ -279,8 +289,10 @@ jQuery( window ).resize( function( ) {
                     maxHeight = height;
                 }
             } );
+            console.log( "maxHeight=", maxHeight );
             items.each( function( ) {
                 var $this = jQuery( this );
+                console.log( "$this.height( )=", $this.height( ) );
                 var padding = ( ( maxHeight - $this.height( ) ) / 2 ) + 4 + "px";
                 $this.css( "padding-top", padding );
                 $this.css( "padding-bottom", padding );
