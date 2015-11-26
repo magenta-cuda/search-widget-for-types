@@ -3,7 +3,7 @@ Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
 Tested up to: 4.3.1
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,10 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 6. A Sample Table of Post
 
 == Changelog ==
+
+= 1.1.1 =
+* Make the Backbone.js mode gallery responsive.
+
 = 1.1 =
 * Add facility for invoking a function after a Backbone.js template has been rendered - usful for attaching event listeners on the rendered elements.
 * Added the popup feature of the classic mode gallery to the new backbone mode gallery.
@@ -106,6 +110,8 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 * Initial release.
 
 == Upgrade Notice ==
+= 1.1.1 =
+* Make the Backbone.js mode gallery responsive.
 = 1.1 =
 * Add facility for invoking a function after a Backbone.js template has been rendered - usful for attaching event listeners on the rendered elements.
 * Added the popup feature of the classic mode gallery to the new backbone mode gallery.
