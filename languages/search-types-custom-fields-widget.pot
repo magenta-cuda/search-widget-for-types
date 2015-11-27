@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Search Types Custom Fields Widget package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Search Types Custom Fields Widget 0.5.1\n"
+"Project-Id-Version: Search Types Custom Fields Widget 1.1.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/search-types-custom-fields-widgetz\n"
-"POT-Creation-Date: 2015-10-04 00:34:27+00:00\n"
+"POT-Creation-Date: 2015-11-27 00:48:09+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,139 +12,151 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: search-types-custom-fields-widget.php:40
-#: search-types-custom-fields-widget.php:41
+#: search-types-custom-fields-widget.php:44
+#: search-types-custom-fields-widget.php:45
 msgid "Search Types Custom Fields"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:43
+#: search-types-custom-fields-widget.php:47
 msgid "For "
 msgstr ""
 
-#: search-types-custom-fields-widget.php:44
+#: search-types-custom-fields-widget.php:48
 msgid "Of "
 msgstr ""
 
-#: search-types-custom-fields-widget.php:58
+#: search-types-custom-fields-widget.php:62
 msgid "Search:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:60
+#: search-types-custom-fields-widget.php:64
 msgid "post type:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:62
+#: search-types-custom-fields-widget.php:66
 msgid "--select post type--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:92
+#: search-types-custom-fields-widget.php:96
 msgid "Results should satisfy"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:94
+#: search-types-custom-fields-widget.php:98
 msgid "All"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:96
+#: search-types-custom-fields-widget.php:100
 msgid "Any"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:97
+#: search-types-custom-fields-widget.php:101
 msgid "of the search conditions."
 msgstr ""
 
-#: search-types-custom-fields-widget.php:104
+#: search-types-custom-fields-widget.php:109
 msgid "Show search results in "
 msgstr ""
 
-#: search-types-custom-fields-widget.php:106
+#: search-types-custom-fields-widget.php:111
 msgid "WordPress format:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:108
+#: search-types-custom-fields-widget.php:116
 msgid "table format:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:110
+#: search-types-custom-fields-widget.php:118
 msgid "gallery format:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:118
+#: search-types-custom-fields-widget.php:123
+msgid "alternate format:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:134
 msgid "Start Search"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:139
-#: search-types-custom-fields-widget.php:780
+#: search-types-custom-fields-widget.php:155
+#: search-types-custom-fields-widget.php:834
 msgid "Help"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:141
+#: search-types-custom-fields-widget.php:157
 msgid "Select Fields for:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:170
-#: search-types-custom-fields-widget.php:754
-#: search-types-custom-fields-widget.php:950
-#: search-types-custom-fields-widget.php:989
-#: search-types-custom-fields-widget.php:1168
+#: search-types-custom-fields-widget.php:186
+#: search-types-custom-fields-widget.php:808
+#: search-types-custom-fields-widget.php:1004
+#: search-types-custom-fields-widget.php:1043
+#: search-types-custom-fields-widget.php:1222
 msgid "Open"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:346
+#: search-types-custom-fields-widget.php:362
 msgid "Maximum number of items to display per custom field:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:355
+#: search-types-custom-fields-widget.php:371
 msgid "Display search results using excerpts (if it is supported by your theme):"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:364
+#: search-types-custom-fields-widget.php:380
 msgid "Use simplified labels for the values of select, checkboxes and radio button fields:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:373
+#: search-types-custom-fields-widget.php:390
 msgid "Enable option to display search results using a table of posts or gallery of featured images:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:383
+#: search-types-custom-fields-widget.php:400
 msgid "from css"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:385
+#: search-types-custom-fields-widget.php:402
 msgid "Width in pixels of the table of search results:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:395
+#: search-types-custom-fields-widget.php:412
 msgid "5"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:397
+#: search-types-custom-fields-widget.php:414
 msgid "Number of columns for the gallery of search results:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:755
-#: search-types-custom-fields-widget.php:1169
+#: search-types-custom-fields-widget.php:423
+msgid "Use Backbone.js Model-View-Presenter for search results:"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:592
+msgid "No Featured Image"
+msgstr ""
+
+#: search-types-custom-fields-widget.php:809
+#: search-types-custom-fields-widget.php:1223
 msgid "Close"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:782
+#: search-types-custom-fields-widget.php:836
 msgid "Search Conditions:"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:970
+#: search-types-custom-fields-widget.php:1024
 msgid "--Enter New Search Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:996
-#: search-types-custom-fields-widget.php:1129
+#: search-types-custom-fields-widget.php:1050
+#: search-types-custom-fields-widget.php:1183
 msgid "--Enter Search Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:1139
+#: search-types-custom-fields-widget.php:1193
 msgid "--Enter Minimum Value--"
 msgstr ""
 
-#: search-types-custom-fields-widget.php:1143
+#: search-types-custom-fields-widget.php:1197
 msgid "--Enter Maximum Value--"
 msgstr ""
 #. Plugin Name of the plugin/theme
