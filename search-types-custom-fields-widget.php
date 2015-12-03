@@ -72,7 +72,7 @@ EOD
         $select_post_types = array_diff( array_filter( array_keys( $instance ), function( $key ) {
             return substr_compare( $key, "scpbcfw-", 0, 8 ) !== 0;
         } ), [ 'maximum_number_of_items', 'set_is_search', 'use_simplified_labels_for_select', 'enable_table_view_option', 'search_table_width',
-            'search_gallery_columns', 'use_backbone_model_view_presenter' ] );
+            'search_gallery_columns', 'use_backbone_model_view_presenter', 'use_bootstrap' ] );
         foreach ( $results as $result ) {
             $name = $result->post_type;
             # skip unselected post types
@@ -421,6 +421,15 @@ EOD
     class="scpbcfw-admin-option-checkbox"
     value="use backbone" <?php if ( isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) { echo 'checked'; } ?>>
 <?php _e( 'Use Backbone.js Model-View-Presenter for search results:', self::LANGUAGE_DOMAIN ); ?>
+<div style="clear:both;"></div>
+</div>
+<div class="scpbcfw-admin-option-box">
+<input type="checkbox"
+    id="<?php echo $this->get_field_id( 'use_bootstrap' ); ?>"
+    name="<?php echo $this->get_field_name( 'use_bootstrap' ); ?>"
+    class="scpbcfw-admin-option-checkbox"
+    value="use bootstrap" <?php if ( !empty( $instance[ 'use_bootstrap' ] ) ) { echo 'checked'; } ?>>
+<?php _e( 'Use Twitter Bootstrap for search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 </div>
@@ -1228,6 +1237,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
         if ( !$query->is_main_query() || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
             return;
         }
+        error_log( 'filter:parse_query():$query=' . print_r( $query, true ) );
         $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] );
         $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
         if ( isset( $option[ $number ][ 'set_is_search' ] ) ) {
@@ -1241,6 +1251,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
         if ( !$query->is_main_query( ) || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
             return $where;
         }
+        error_log( 'filter:posts_where():$where=' . $where );
         # this is a Types search request so modify the SQL where clause
         $and_or = $_REQUEST['search_types_custom_fields_and_or'] == 'and' ? 'AND' : 'OR';
         # first get taxonomy name to term_taxonomy_id transalation table in case we need the translations
@@ -1534,8 +1545,9 @@ EOD
         return $where;
     }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 
-    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
-        && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] !== 'use wordpress' ) {
+    $search_types_custom_fields_show_using_macro = array_key_exists( 'search_types_custom_fields_show_using_macro', $_REQUEST )
+                                                       ? $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] : NULL;
+    if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro !== 'use wordpress' ) {
         $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
         $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
         # for alternate output format do not page output
@@ -1569,11 +1581,19 @@ EOD
                 array_walk( $post_titles, function( &$value, $key ) {
                     $value->guid = get_permalink( $key );
                 } );
-                if ( isset( $option[ 'use_backbone_model_view_presenter' ] ) ) {
+                if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
+                    # Backbone mode
                     get_header( );
-                    if ( false ) {
+                    if ( !empty( $option[ 'use_bootstrap' ] ) ) {
+                        # Backbone with Bootstrap mode
                         require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
+?>
+<div id="st_iv-bootstrap1"><div id="st_iv-bootstrap2">
+<h1>Bootstrap Here</h1>
+</div></div>
+<?php                        
                     } else {
+                        # Backbone no Bootstrap mode
 ?>
 <div id="stcfw-select-views-box">
 Change View: <select id="stcfw-select-views"></select>
@@ -1585,7 +1605,8 @@ Change View: <select id="stcfw-select-views"></select>
                     get_footer( );
                     die;
                 }
-                if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
+                if ( $search_types_custom_fields_show_using_macro === 'use gallery' ) {
+                    # Classic Gallery mode
                     get_header( );
                     $thumbnails = [ ];
                     $permalinks = [ ];
@@ -1643,7 +1664,8 @@ Change View: <select id="stcfw-select-views"></select>
                     require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                     get_footer( );
                     die;
-                }   # if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
+                }   # if ( $search_types_custom_fields_show_using_macro === 'use gallery' ) {
+                # Classic Table mode
                 if ( $container_width = $option[ 'search_table_width' ] ) {
                     $container_style = "style=\"width:{$container_width}px\"";
                 } else {
@@ -1978,22 +2000,31 @@ EOD
         } );   # add_action( 'after_setup_theme', function( ) use ( $option ) {
         add_action( 'wp_enqueue_scripts', function( ) use ( $option, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
             global $wp_query;
-            # use post type specific css file if it exists otherwise use the default css file
-            if ( file_exists( dirname( __FILE__ ) . "/css/search-results-table-$_REQUEST[post_type].css") ) {
-                wp_enqueue_style( 'search_results_table', plugins_url( "css/search-results-table-$_REQUEST[post_type].css", __FILE__ ) );
-            } else if ( file_exists( dirname( __FILE__ ) . "/search-results-table-$_REQUEST[post_type].css") ) {
-                wp_enqueue_style( 'search_results_table', plugins_url( "search-results-table-$_REQUEST[post_type].css", __FILE__ ) );
-            } else {
-                wp_enqueue_style( 'search_results_table', plugins_url( 'css/search-results-table.css', __FILE__ ) );
-            }
-            if ( isset( $option[ 'use_backbone_model_view_presenter' ] ) ) {
-                if ( false ) {
+            # enqueue CSS
+            if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
+                # Backbone mode
+                if ( !empty( $option[ 'use_bootstrap' ] ) ) {
+                    # Backbone with Bootstrap mode
+                    wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
                     wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
                 } else {
+                    # Backbone and no Bootstrap mode
                     wp_enqueue_style( 'search_results_backbone', plugins_url( 'css/search-results-backbone.css', __FILE__ ) );
                 }
+            } else {
+                # Classic mode
+                # use post type specific css file if it exists otherwise use the default css file
+                if ( file_exists( dirname( __FILE__ ) . "/css/search-results-table-$_REQUEST[post_type].css") ) {
+                    wp_enqueue_style( 'search_results_table', plugins_url( "css/search-results-table-$_REQUEST[post_type].css", __FILE__ ) );
+                } else if ( file_exists( dirname( __FILE__ ) . "/search-results-table-$_REQUEST[post_type].css") ) {
+                    wp_enqueue_style( 'search_results_table', plugins_url( "search-results-table-$_REQUEST[post_type].css", __FILE__ ) );
+                } else {
+                    wp_enqueue_style( 'search_results_table', plugins_url( 'css/search-results-table.css', __FILE__ ) );
+                }
             }
-            if ( isset( $option[ 'use_backbone_model_view_presenter' ] ) ) {
+            # enqueue JavaScript
+            if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
+                # Backbone mode
                 // always include post excerpt and thumbnail
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {
                     $fields[ ] = 'pst-std-post_content';
@@ -2003,18 +2034,21 @@ EOD
                 }
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
                                                                                           $posts_imploded, $option, $wpcf_fields, $post_titles );
-                if ( false ) {
+                if ( !empty( $option[ 'use_bootstrap' ] ) ) {
+                    # Backbone with Bootstrap mode
                     wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ),
                                        [ 'backbone' ], FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw',
                                         [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone' ] );
                 } else {
+                    # Backbone and no Bootstrap mode
                     wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'js/stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ],
                                        FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone', 'stcfw',
                                         [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone' ] );
                 }
-            } else if ( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use gallery' ) {
+            } else if ( $search_types_custom_fields_show_using_macro === 'use gallery' ) {
+                # Classic Gallery mode
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'js/stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ],
                                    FALSE, TRUE );
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {
@@ -2027,15 +2061,17 @@ EOD
                 wp_localize_script( 'stcfw-search-results-backbone', 'stcfw',
                                     [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'classic' ] );
             } else {
+                # Classic Table mode
                 wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
             }
         } );
-    }   # if ( isset( $_REQUEST['search_types_custom_fields_show_using_macro'] )
-    if ( isset( $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] )
-        && $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] === 'use wordpress' ) {
+    }   # if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro !== 'use wordpress' ) {
+    if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro === 'use wordpress' ) {
         add_filter( 'get_search_query', function( $query ) {
+            error_log( 'filter:get_search_query():$query=' . $query );
             $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
             $label  = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
+            error_log( 'filter:get_search_query():$label=' . $label );
             return $label;
         } );
     }
