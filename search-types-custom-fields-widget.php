@@ -1589,7 +1589,8 @@ EOD
                         require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
 ?>
 <div id="st_iv-bootstrap1"><div id="st_iv-bootstrap2">
-<h1>Bootstrap Here</h1>
+    <h1>Bootstrap Here</h1>
+    <div id="st_iv-container"></div>
 </div></div>
 <?php                        
                     } else {
