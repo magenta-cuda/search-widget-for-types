@@ -1,0 +1,21 @@
+div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
+  .st_iv-gallery .st_iv-gallery_item {
+    box-sizing: border-box;
+    > a > img {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      margin: auto;
+    }
+    > figcaption {
+      box-sizing: border-box;
+      height: 5%;
+      padding: 0px;
+      text-align: center;
+      font-size: 3vh;
+      background-color: cyan;
+      margin-top: 10px;
+    }
+  }
+}

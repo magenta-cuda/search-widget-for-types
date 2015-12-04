@@ -1168,13 +1168,13 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     margin-left: auto; }
   @media (min-width: 768px) {
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .container {
-      width: 750px; } }
+      width: 100%; } }
   @media (min-width: 992px) {
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .container {
-      width: 970px; } }
+      width: 100%; } }
   @media (min-width: 1200px) {
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .container {
-      width: 1170px; } }
+      width: 100%; } }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .container-fluid {
     padding-right: 15px;
     padding-left: 15px;

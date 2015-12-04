@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AACE,4EAAmC;EACjC,UAAU,EAAE,UAAU;EACtB,sFAAU;IACR,UAAU,EAAE,UAAU;IACtB,KAAK,EAAE,IAAI;IACX,SAAS,EAAE,IAAI;IACf,MAAM,EAAE,IAAI;IACZ,MAAM,EAAE,IAAI;EAEd,yFAAa;IACX,UAAU,EAAE,UAAU;IACtB,MAAM,EAAE,EAAE;IACV,OAAO,EAAE,GAAG;IACZ,UAAU,EAAE,MAAM;IAClB,SAAS,EAAE,GAAG;IACd,gBAAgB,EAAE,IAAI;IACtB,UAAU,EAAE,IAAI",
+"sources": ["search-results-backbone-bootstrap.scss"],
+"names": [],
+"file": "search-results-backbone-bootstrap.css"
+}
