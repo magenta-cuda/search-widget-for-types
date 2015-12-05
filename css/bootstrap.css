@@ -4,6 +4,10 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url("../fonts/glyphicons-halflings-regular.eot");
+  src: url("../fonts/glyphicons-halflings-regular.eot?#iefix") format("embedded-opentype"), url("../fonts/glyphicons-halflings-regular.woff2") format("woff2"), url("../fonts/glyphicons-halflings-regular.woff") format("woff"), url("../fonts/glyphicons-halflings-regular.ttf") format("truetype"), url("../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular") format("svg"); }
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
   font-family: sans-serif;
   -webkit-text-size-adjust: 100%;
@@ -200,11 +204,6 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .table-bordered th,
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .table-bordered td {
       border: 1px solid #ddd !important; } }
-@font-face {
-  div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
-    font-family: 'Glyphicons Halflings';
-    src: url("../fonts/glyphicons-halflings-regular.eot");
-    src: url("../fonts/glyphicons-halflings-regular.eot?#iefix") format("embedded-opentype"), url("../fonts/glyphicons-halflings-regular.woff2") format("woff2"), url("../fonts/glyphicons-halflings-regular.woff") format("woff"), url("../fonts/glyphicons-halflings-regular.ttf") format("truetype"), url("../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular") format("svg"); } }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .glyphicon {
     position: relative;
     top: 1px;
