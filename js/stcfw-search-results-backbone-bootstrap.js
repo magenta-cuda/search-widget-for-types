@@ -81,7 +81,8 @@ jQuery( document ).ready( function( ) {
         } );
         viewContainer.template = _.template( jQuery( "script#st_iv-bs-template_carousel" ).html( ), null, stcfw.templateOptions );
         container.empty( );
-        container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ) );
+        //container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ) );
+        container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ).css( { position:"fixed", left:"0px", top:"0px", zIndex:"1000000" } ) );
     }
 
     // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg">Gamma</a>'
