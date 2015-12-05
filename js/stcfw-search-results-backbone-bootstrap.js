@@ -61,7 +61,7 @@ jQuery( document ).ready( function( ) {
         container.append( containerView.render( ).$el.find( "div.container" ) );
     }
     
-    stcfw.renderCarousel = function( container, collection ) {
+    stcfw.renderCarousel = function( container, collection, id ) {
         var modelView      = new stcfw.ModelView( );
         modelView.template = _.template( jQuery( "script#st_iv-bs-template_carousel_item" ).html( ), null, stcfw.templateOptions );
         var htmlBullets    = "";
@@ -70,11 +70,12 @@ jQuery( document ).ready( function( ) {
             model.attributes.index = index;
             modelView.model = model;
             var active      = index === 0 ? ' class="active"' : "";
-            htmlBullets    += '<li data-target="#myCarousel" data-slide-to="' + index + '"' + active + '></li>';
+            htmlBullets    += '<li data-target="#' + id + '" data-slide-to="' + index + '"' + active + '></li>';
             htmlItems      += modelView.render( true );
         } );
         var viewContainer = new stcfw.ContainerView( {
             attributes: {
+                id:      id,
                 bullets: htmlBullets,
                 items:   htmlItems
             }
@@ -114,5 +115,5 @@ jQuery( document ).ready( function( ) {
     
     var container = jQuery( "div#st_iv-container" );
     //stcfw.renderGallery( container, stcfw.posts );
-    stcfw.renderCarousel( container, stcfw.posts );
+    stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
 } );

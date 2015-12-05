@@ -19,7 +19,7 @@
 </script>
 <!-- Bootstrap Backbone Carousel Template -->
 <script type="text/html" id="st_iv-bs-template_carousel">
-<div id="myCarousel" class="carousel slide" data-ride="carousel">
+<div id="{{{ data.id }}}" class="carousel slide" data-ride="carousel">
   <!-- Indicators -->
   <ol class="carousel-indicators">
     {{{ data.bullets }}}
@@ -29,11 +29,11 @@
     {{{ data.items }}}
   </div>
   <!-- Left and right controls -->
-  <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+  <a class="left carousel-control" href="#{{{ data.id }}}" role="button" data-slide="prev">
     <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
     <span class="sr-only">Previous</span>
   </a>
-  <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+  <a class="right carousel-control" href="#{{{ data.id }}}" role="button" data-slide="next">
     <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
     <span class="sr-only">Next</span>
   </a>
