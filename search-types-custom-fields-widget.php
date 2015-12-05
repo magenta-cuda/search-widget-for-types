@@ -2037,6 +2037,7 @@ EOD
                                                                                           $posts_imploded, $option, $wpcf_fields, $post_titles );
                 if ( !empty( $option[ 'use_bootstrap' ] ) ) {
                     # Backbone with Bootstrap mode
+                    wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
                     wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ),
                                        [ 'backbone' ], FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw',

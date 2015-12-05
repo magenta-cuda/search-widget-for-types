@@ -61,6 +61,29 @@ jQuery( document ).ready( function( ) {
         container.append( containerView.render( ).$el.find( "div.container" ) );
     }
     
+    stcfw.renderCarousel = function( container, collection ) {
+        var modelView      = new stcfw.ModelView( );
+        modelView.template = _.template( jQuery( "script#st_iv-bs-template_carousel_item" ).html( ), null, stcfw.templateOptions );
+        var htmlBullets    = "";
+        var htmlItems      = "";
+        collection.forEach( function( model, index ) {
+            model.attributes.index = index;
+            modelView.model = model;
+            var active      = index === 0 ? ' class="active"' : "";
+            htmlBullets    += '<li data-target="#myCarousel" data-slide-to="' + index + '"' + active + '></li>';
+            htmlItems      += modelView.render( true );
+        } );
+        var viewContainer = new stcfw.ContainerView( {
+            attributes: {
+                bullets: htmlBullets,
+                items:   htmlItems
+            }
+        } );
+        viewContainer.template = _.template( jQuery( "script#st_iv-bs-template_carousel" ).html( ), null, stcfw.templateOptions );
+        container.empty( );
+        container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ) );
+    }
+
     // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg">Gamma</a>'
     // extractHrefAndLabelFromLink() returns an object with properties href and label 
     // The main application of extractHrefAndLabelFromLink() is in evaluate expressions in templates,
@@ -89,5 +112,6 @@ jQuery( document ).ready( function( ) {
     }
     
     var container = jQuery( "div#st_iv-container" );
-    stcfw.renderGallery( container, stcfw.posts );
+    //stcfw.renderGallery( container, stcfw.posts );
+    stcfw.renderCarousel( container, stcfw.posts );
 } );

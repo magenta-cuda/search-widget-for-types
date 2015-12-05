@@ -18,4 +18,56 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       margin-top: 10px;
     }
   }
+  
+  div.carousel.slide {
+    box-sizing: border-box;
+    height: 100vh;
+  }
+  .carousel-inner {
+    height: 100%;
+
+    > .item {
+      width: 100%;
+      height: 100%;
+      position: relative;
+
+      > {
+        img, a > img {
+          height: 95%;
+          width: auto;
+          max-width: none;
+          position: absolute;
+          left: 50%;
+          top: 5%;
+          transform: translate(-50%, 0px);
+        }
+
+        figcaption {
+          height: 5%;
+          padding: 0px;
+          text-align: center;
+          font-size: 3vh;
+          background-color: cyan;
+        }
+      }
+    }
+  }
+  @supports ( object-fit: contain ) {
+    .carousel-inner {
+      > .item {
+        > img, a > img {
+          width: 100%;
+          object-fit: contain;
+        }
+      }
+    }
+  }
+  .carousel-indicators {
+    bottom: 1%;
+
+    li {
+      border: 1px solid black;
+      background-color: gray;
+    }
+  }
 }
