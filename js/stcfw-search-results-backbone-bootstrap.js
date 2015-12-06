@@ -88,9 +88,9 @@ jQuery( document ).ready( function( ) {
 
     stcfw.renderTabs = function( container, collection ) {
         var tabView       = new stcfw.ModelView( );
-        tabView.template  = _.template( jQuery( "script#st_iv-bs-template_tabs_tab"  ).html( ), null, stcfw.templateOptions );
+        tabView.template  = _.template( stcfw.getTemplate( "st_iv-bs-template_tabs_tab",  stcfw.post_type ).html( ), null, stcfw.templateOptions );
         var itemView      = new stcfw.ModelView( );
-        itemView.template = _.template( jQuery( "script#st_iv-bs-template_tabs_item" ).html( ), null, stcfw.templateOptions );
+        itemView.template = _.template( stcfw.getTemplate( "st_iv-bs-template_tabs_item", stcfw.post_type ).html( ), null, stcfw.templateOptions );
         var htmlTabs      = "";
         var htmlItems     = "";
         collection.forEach( function( model, index ) {
@@ -105,11 +105,39 @@ jQuery( document ).ready( function( ) {
                 items: htmlItems
             }
         } );
-        viewContainer.template = _.template( jQuery( "script#st_iv-bs-template_tabs_container" ).html( ), null, stcfw.templateOptions );
+        viewContainer.template = _.template( stcfw.getTemplate( "st_iv-bs-template_tabs", stcfw.post_type ).html( ), null, stcfw.templateOptions );
         container.empty( );
         container.append( viewContainer.render( ).$el.find( "div.st_iv-bs-template_tabs_container" ) );
     }
 
+    stcfw.renderTable = function( container, collection ) {
+        var itemView      = new stcfw.ModelView( );
+        itemView.template = _.template( stcfw.getTemplate( "st_iv-bs-template_table_item", stcfw.post_type ).html( ), null, stcfw.templateOptions );
+        var htmlItems     = "";
+        collection.forEach( function( model, index ) {
+            itemView.model = model;
+            htmlItems     += itemView.render( true );
+        } );
+        var viewContainer = new stcfw.ContainerView( {
+            attributes: {
+                items: htmlItems
+            }
+        } );
+        viewContainer.template = _.template( stcfw.getTemplate( "st_iv-bs-template_table", stcfw.post_type ).html( ), null, stcfw.templateOptions );
+        container.empty( );
+        container.append( viewContainer.render( ).$el.find( "table.table" ) );
+    }
+
+    stcfw.getTemplate = function( name, postType ) {
+        if ( postType ) {
+            var script = jQuery( "script#" + name + "-" + postType );
+            if ( script.length ) {
+                return script;
+            }
+        }
+        return jQuery( "script#" + name );
+    };
+    
     // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg">Gamma</a>'
     // extractHrefAndLabelFromLink() returns an object with properties href and label 
     // The main application of extractHrefAndLabelFromLink() is in evaluate expressions in templates,
@@ -140,5 +168,6 @@ jQuery( document ).ready( function( ) {
     var container = jQuery( "div#st_iv-container" );
     //stcfw.renderGallery( container, stcfw.posts );
     //stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
-    stcfw.renderTabs( container, stcfw.posts );
+    //stcfw.renderTabs( container, stcfw.posts );
+    stcfw.renderTable( container, stcfw.posts );
 } );

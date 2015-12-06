@@ -49,7 +49,7 @@
 </figure>
 </script>
 <!-- Bootstrap Tabs Backbone Container Template -->
-<script type="text/html" id="st_iv-bs-template_tabs_container">
+<script type="text/html" id="st_iv-bs-template_tabs">
 <div class="st_iv-bs-template_tabs_container">
   <!-- Tabs -->
   <nav role="navigation" class="navbar navbar-default">
@@ -91,4 +91,25 @@
     <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
   </a>
 </figure>
+</script>
+<!-- Bootstrap Table Backbone Container Template -->
+<script type="text/html" id="st_iv-bs-template_table">
+<table class="table">
+  <thead>
+    <tr>
+      <th>Post</th>
+      <th>Excerpt</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{{ data.items }}}
+  </tbody>
+</table>
+</script>
+<!-- Bootstrap Table Backbone Item Template -->
+<script type="text/html" id="st_iv-bs-template_table_item">
+    <tr>
+      <td>{{{ data.post_title }}}</td>
+      <td>{{{ data.post_content }}}</td>
+    </tr>
 </script>
