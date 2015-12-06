@@ -48,5 +48,21 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators {
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators li {
     border: 1px solid black;
     background-color: gray; }
+div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure {
+  position: relative;
+  height: 80vh;
+  overflow: hidden; }
+  div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
+    position: absolute;
+    left: 50%;
+    top: 0px;
+    transform: translate(-50%, 0px);
+    display: block;
+    height: 100%;
+    max-width: none; }
+    @supports (object-fit: contain) {
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
+        width: 100%;
+        object-fit: contain; } }
 
 /*# sourceMappingURL=search-results-backbone-bootstrap.css.map */

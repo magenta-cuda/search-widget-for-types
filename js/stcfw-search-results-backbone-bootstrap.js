@@ -86,6 +86,30 @@ jQuery( document ).ready( function( ) {
         container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ).css( { position:"fixed", left:"0px", top:"0px", zIndex:"1000000" } ) );
     }
 
+    stcfw.renderTabs = function( container, collection ) {
+        var tabView       = new stcfw.ModelView( );
+        tabView.template  = _.template( jQuery( "script#st_iv-bs-template_tabs_tab"  ).html( ), null, stcfw.templateOptions );
+        var itemView      = new stcfw.ModelView( );
+        itemView.template = _.template( jQuery( "script#st_iv-bs-template_tabs_item" ).html( ), null, stcfw.templateOptions );
+        var htmlTabs      = "";
+        var htmlItems     = "";
+        collection.forEach( function( model, index ) {
+            model.attributes.index         = index;
+            itemView.model = tabView.model = model;
+            htmlTabs                      += tabView.render( true );
+            htmlItems                     += itemView.render( true );
+        } );
+        var viewContainer = new stcfw.ContainerView( {
+            attributes: {
+                tabs:  htmlTabs,
+                items: htmlItems
+            }
+        } );
+        viewContainer.template = _.template( jQuery( "script#st_iv-bs-template_tabs_container" ).html( ), null, stcfw.templateOptions );
+        container.empty( );
+        container.append( viewContainer.render( ).$el.find( "div.st_iv-bs-template_tabs_container" ) );
+    }
+
     // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg">Gamma</a>'
     // extractHrefAndLabelFromLink() returns an object with properties href and label 
     // The main application of extractHrefAndLabelFromLink() is in evaluate expressions in templates,
@@ -105,7 +129,7 @@ jQuery( document ).ready( function( ) {
         }
         return ret;
     };
-    
+
     stcfw.posts=new stcfw.Posts( );
     try {
         stcfw.posts.reset( JSON.parse( stcfw.collection ) );
@@ -115,5 +139,6 @@ jQuery( document ).ready( function( ) {
     
     var container = jQuery( "div#st_iv-container" );
     //stcfw.renderGallery( container, stcfw.posts );
-    stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
+    //stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
+    stcfw.renderTabs( container, stcfw.posts );
 } );
