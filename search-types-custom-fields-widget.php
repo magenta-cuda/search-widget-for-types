@@ -1589,7 +1589,24 @@ EOD
                         require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
 ?>
 <div id="st_iv-bootstrap1"><div id="st_iv-bootstrap2">
-    <h1>Bootstrap Here</h1>
+    <!-- responsive Bootstrap navbar for view selection -->
+    <nav role="navigation" class="navbar navbar-inverse">
+        <div class="navbar-header">
+            <button type="button" data-target="#ems_xii-nav_images" data-toggle="collapse" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span><span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div id="ems_xii-nav_images" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li id="ems_xii-gallery" class="active"><a href="#">Gallery</a></li>
+                <li id="ems_xii-carousel"><a href="#">Carousel</a></li>
+                <li id="ems_xii-flexbox"><a href="#">Tabs</a></li>
+                <li id="ems_xii-tabs"><a href="#">Table</a></li>
+            </ul>
+        </div>
+    </nav>
     <div id="st_iv-container"></div>
 </div></div>
 <?php                        
