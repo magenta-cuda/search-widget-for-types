@@ -166,8 +166,24 @@ jQuery( document ).ready( function( ) {
     }
     
     var container = jQuery( "div#st_iv-container" );
-    //stcfw.renderGallery( container, stcfw.posts );
+    stcfw.renderGallery( container, stcfw.posts );
     //stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
     //stcfw.renderTabs( container, stcfw.posts );
-    stcfw.renderTable( container, stcfw.posts );
+    //stcfw.renderTable( container, stcfw.posts );
+    
+    jQuery( "div#st_iv-nav_images li a" ).click( function( e ) {
+        jQuery( "div#st_iv-nav_images li" ).removeClass( "active" );
+        var li = jQuery( this.parentNode ).addClass( "active" )[0];
+        if ( li.id === "st_iv-gallery" ) {
+            stcfw.renderGallery( container, stcfw.posts );
+        } else if ( li.id === "st_iv-carousel" ) {
+            stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
+        } else if ( li.id === "st_iv-tabs" ) {
+            stcfw.renderTabs( container, stcfw.posts );
+        } else if ( li.id === "st_iv-table" ) {
+            stcfw.renderTable( container, stcfw.posts );
+        }
+        e.preventDefault( );
+    } );
+
 } );

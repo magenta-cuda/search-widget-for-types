@@ -1592,18 +1592,18 @@ EOD
     <!-- responsive Bootstrap navbar for view selection -->
     <nav role="navigation" class="navbar navbar-inverse">
         <div class="navbar-header">
-            <button type="button" data-target="#ems_xii-nav_images" data-toggle="collapse" class="navbar-toggle">
+            <button type="button" data-target="#st_iv-nav_images" data-toggle="collapse" class="navbar-toggle">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span><span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
         </div>
-        <div id="ems_xii-nav_images" class="collapse navbar-collapse">
+        <div id="st_iv-nav_images" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li id="ems_xii-gallery" class="active"><a href="#">Gallery</a></li>
-                <li id="ems_xii-carousel"><a href="#">Carousel</a></li>
-                <li id="ems_xii-flexbox"><a href="#">Tabs</a></li>
-                <li id="ems_xii-tabs"><a href="#">Table</a></li>
+                <li id="st_iv-gallery" class="active"><a href="#">Gallery</a></li>
+                <li id="st_iv-carousel"><a href="#">Carousel</a></li>
+                <li id="st_iv-tabs"><a href="#">Tabs</a></li>
+                <li id="st_iv-table"><a href="#">Table</a></li>
             </ul>
         </div>
     </nav>
