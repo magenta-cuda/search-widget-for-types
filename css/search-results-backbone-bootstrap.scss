@@ -24,6 +24,15 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     width: 100vw;
     height: 100vh;
     background-color: white;
+    
+    button.st_iv-bs-carousel_close_btn {
+      position: absolute;
+      top: 2%;
+      right: 2%;
+      z-index: 5;
+      color: #fff;
+      background-color: transparent;
+    }
   }
   .carousel-inner {
     height: 100%;

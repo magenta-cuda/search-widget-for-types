@@ -20,6 +20,7 @@
 <!-- Bootstrap Backbone Carousel Template -->
 <script type="text/html" id="st_iv-bs-template_carousel">
 <div id="{{{ data.id }}}" class="carousel slide" data-ride="carousel">
+  <button type="button" class="st_iv-bs-carousel_close_btn btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
   <!-- Indicators -->
   <ol class="carousel-indicators">
     {{{ data.bullets }}}
