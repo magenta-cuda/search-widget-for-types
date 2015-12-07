@@ -277,7 +277,7 @@ jQuery( window ).resize( function( ) {
                     // image not loaded so abort and re-schedule resize
                     window.setTimeout( function( ) {
                         jQuery( window ).resize( );
-                    }, 10 );
+                    }, 200 );
                     return;
                 }
                 if ( index % cols === cols - 1 ) {

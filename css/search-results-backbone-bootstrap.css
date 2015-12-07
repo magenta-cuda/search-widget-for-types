@@ -68,11 +68,17 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container d
     top: 0px;
     transform: translate(-50%, 0px);
     display: block;
-    height: 100%;
+    height: 95%;
     max-width: none; }
     @supports (object-fit: contain) {
       div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
         width: 100%;
         object-fit: contain; } }
+  div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure figcaption {
+    position: absolute;
+    left: 50%;
+    bottom: 0px;
+    transform: translate(-50%, 0px);
+    height: 5%; }
 
 /*# sourceMappingURL=search-results-backbone-bootstrap.css.map */

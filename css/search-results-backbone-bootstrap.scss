@@ -96,12 +96,19 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
         top: 0px;
         transform: translate(-50%, 0px);
         display: block;
-        height: 100%;
+        height: 95%;
         max-width: none;
         @supports ( object-fit: contain ) {
           width: 100%;
           object-fit: contain;
         }
+      }
+      figcaption {
+        position: absolute;
+        left: 50%;
+        bottom: 0px;
+        transform: translate(-50%, 0px);
+        height: 5%;        
       }
     }
   }

@@ -1,3 +1,8 @@
+<!--
+These Backbone.js templates should be instantiated in a Twitter Bootstrap environment i.e. where bootstrap.css and bootstrap.js are loaded.
+This is done by instantiating these templates in .../js/stcfw-search-results-backbone-bootstrap.js which is always loaded in a Bootstrap environment.
+-->
+
 <!-- Bootstrap Backbone Gallery Template -->
 <script type="text/html" id="st_iv-bs-template_gallery">
 <div class="container st_iv-gallery">
@@ -91,6 +96,7 @@
   <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="blank">
     <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
   </a>
+  <figcaption>{{{ data.post_content }}}</figcaption>
 </figure>
 </script>
 <!-- Bootstrap Table Backbone Container Template -->
