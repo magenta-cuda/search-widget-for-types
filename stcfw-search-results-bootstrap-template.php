@@ -43,10 +43,10 @@
 <!-- Bootstrap Backbone Carousel Item Template -->
 <script type="text/html" id="st_iv-bs-template_carousel_item">
 <figure class="item ems_xii-item<# if ( data.index === 0 ) { #> active<# } #>">
-  <figcaption><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></figcaption>
   <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="blank">
     <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
   </a>
+  <figcaption><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></figcaption>
 </figure>
 </script>
 <!-- Bootstrap Tabs Backbone Container Template -->

@@ -38,20 +38,23 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-inner {
       max-width: none;
       position: absolute;
       left: 50%;
-      top: 5%;
+      top: 0px;
       transform: translate(-50%, 0px); }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-inner > .item > figcaption {
       height: 5%;
+      position: absolute;
+      left: 50%;
+      bottom: 0px;
+      transform: translate(-50%, 0px);
       padding: 0px;
       text-align: center;
-      font-size: 3vh;
-      background-color: cyan; }
+      font-size: 3vh; }
 @supports (object-fit: contain) {
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-inner > .item > img, div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-inner > .item a > img {
     width: 100%;
     object-fit: contain; } }
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators {
-  bottom: 1%; }
+  bottom: 6%; }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators li {
     border: 1px solid black;
     background-color: gray; }
