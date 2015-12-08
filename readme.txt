@@ -3,7 +3,7 @@ Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
 Tested up to: 4.3.1
-Stable tag: 1.1.1.1
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ This [search widget](http://alttypes.wordpress.com/search-types-custom-fields-wi
 
 Version 1.0 can optionally display the search results using a [Backbone.js](http://backbonejs.org/) model-view-presenter with [Underscore.js templates](http://underscorejs.org/#template). Since, the Underscore.js templates are instantiated on the client side the user can instantaneously (i.e. without doing a HTTP request) switch between multiple views of the search results. Of course you can provide your own Underscore.js templates.
 
-Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Types 1.8.10 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
+Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Types 1.8.11 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
 
 == Installation ==
 1. Upload the folder "search-types-custom-fields-widget" to the "/wp-content/plugins/" directory.
@@ -38,6 +38,10 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 6. A Sample Table of Post
 
 == Changelog ==
+
+= 1.2 =
+* Added option to show the search results using a responsive Twitter Bootstrap stylesheet.
+
 = 1.1.1.1 =
 * update the .pot file
 
@@ -112,6 +116,8 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 * Initial release.
 
 == Upgrade Notice ==
+= 1.2 =
+* Added option to show the search results using a responsive Twitter Bootstrap stylesheet.
 = 1.1.1.1 =
 * update the .pot file
 = 1.1.1 =
