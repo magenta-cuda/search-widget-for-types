@@ -14,7 +14,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
 <!-- Bootstrap Backbone Gallery Item Template -->
 <script type="text/html" id="st_iv-bs-template_gallery_item">
         <div class="col-sm-6 col-md-4 col-lg-3">
-            <figure class="st_iv-gallery_item">
+            <figure class="img-rounded st_iv-gallery_item">
                 <figcaption><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></figcaption>
                 <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="blank">
                     <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
@@ -59,7 +59,6 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
 <div class="st_iv-bs-template_tabs_container">
   <!-- Tabs -->
   <nav role="navigation" class="navbar navbar-default">
-    <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
       <button type="button" data-target="#tabbarCollapse" data-toggle="collapse" class="navbar-toggle">
         <span class="sr-only">Toggle navigation</span>
@@ -67,9 +66,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <!-- <a href="#" class="navbar-brand">Brand</a> -->
     </div>
-    <!-- Collection of nav links and other content for toggling -->
     <div id="tabbarCollapse" class="collapse navbar-collapse">
       <ul class="nav navbar-nav nav-tabs" role="tablist">
         {{{ data.tabs }}}
@@ -94,7 +91,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
 <script type="text/html" id="st_iv-bs-template_tabs_item">
 <figure id="st_iv-tab_pane{{{ data.index }}}" role="tabpanel" class="tab-pane<# if ( data.index === 0 ) { #> active<# } #>">
   <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="blank">
-    <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
+    <img class="img-rounded" src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
   </a>
   <figcaption>{{{ data.post_content }}}</figcaption>
 </figure>

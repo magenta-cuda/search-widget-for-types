@@ -1,21 +1,19 @@
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 .st_iv-gallery .st_iv-gallery_item {
-  box-sizing: border-box; }
+  overflow: hidden;
+  border: 1px solid black;
+  margin-bottom: 20px; }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .st_iv-gallery .st_iv-gallery_item > a > img {
-    box-sizing: border-box;
     width: 100%;
     max-width: 100%;
     height: auto;
     margin: auto; }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .st_iv-gallery .st_iv-gallery_item > figcaption {
-    box-sizing: border-box;
     height: 5%;
-    padding: 0px;
+    padding: 0.5%;
     text-align: center;
     font-size: 3vh;
-    background-color: cyan;
-    margin-top: 10px; }
+    background-color: cyan; }
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide {
-  box-sizing: border-box;
   width: 100vw;
   height: 100vh;
   background-color: white; }
@@ -70,7 +68,8 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container d
     transform: translate(-50%, 0px);
     display: block;
     height: 90%;
-    max-width: none; }
+    max-width: none;
+    padding: 1%; }
     @supports (object-fit: contain) {
       div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
         width: 100%;
