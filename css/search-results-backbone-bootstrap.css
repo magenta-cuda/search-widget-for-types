@@ -68,7 +68,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container d
     top: 0px;
     transform: translate(-50%, 0px);
     display: block;
-    height: 95%;
+    height: 90%;
     max-width: none; }
     @supports (object-fit: contain) {
       div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
@@ -79,6 +79,8 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container d
     left: 50%;
     bottom: 0px;
     transform: translate(-50%, 0px);
-    height: 5%; }
+    height: 10%;
+    width: 100%;
+    text-align: center; }
 
 /*# sourceMappingURL=search-results-backbone-bootstrap.css.map */
