@@ -419,8 +419,8 @@ EOD
     id="<?php echo $this->get_field_id( 'use_backbone_model_view_presenter' ); ?>"
     name="<?php echo $this->get_field_name( 'use_backbone_model_view_presenter' ); ?>"
     class="scpbcfw-admin-option-checkbox scpbcfw-enable-use-backbone-option scpbcfw-search-table-width"
-    value="use backbone" <?php if ( isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) { echo 'checked'; } ?>
-    <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>>
+    value="use backbone" <?php if ( !empty( $instance[ 'use_backbone_model_view_presenter' ] ) ) { echo 'checked'; } ?>
+    <?php if ( empty( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>>
 <?php _e( 'Use Backbone.js Model-View-Presenter for search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
@@ -430,7 +430,7 @@ EOD
     name="<?php echo $this->get_field_name( 'use_bootstrap' ); ?>"
     class="scpbcfw-admin-option-checkbox scpbcfw-enable-use-bootstrap-option scpbcfw-search-table-width"
     value="use bootstrap" <?php if ( !empty( $instance[ 'use_bootstrap' ] ) ) { echo 'checked'; } ?>
-    <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>>
+    <?php if ( empty( $instance['enable_table_view_option'] ) || empty( $instance['use_backbone_model_view_presenter'] ) ) { echo 'disabled'; } ?>>
 <?php _e( 'Use Twitter Bootstrap for search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
@@ -1560,8 +1560,10 @@ EOD
             return ' ';
         }, 10, 2 );
         # in this case a template is dynamically constructed and returned
-        add_action( 'after_setup_theme', function( ) use ( $option, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
-            add_action( 'template_redirect', function( ) use ( $option, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
+        add_action( 'after_setup_theme', function( )
+            use ( $option, $search_types_custom_fields_show_using_macro, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
+            add_action( 'template_redirect', function( )
+                use ( $option, $search_types_custom_fields_show_using_macro, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
                 global $wp_query;
                 global $wpdb;
                 # get the list of posts
