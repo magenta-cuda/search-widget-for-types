@@ -97,6 +97,10 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
 </figure>
 </script>
 <!-- Bootstrap Table Backbone Container Template -->
+<!-- These are just a starter templates - you can use them to create post type specific templates with post type specific fields. --> 
+<!-- Your templates should have ids like "st_iv-bs-template_table-{$post_type}" and "st_iv-bs-template_table_item-{$post_type"}.  -->
+<!-- See the function stcfw.getTemplate() in ../js/stcfw-search-results-backbone-bootstrap.js.                                    -->
+<!-- You can get the field names using the "debug_view" which is available when no bootstrap mode is selected.                    -->
 <script type="text/html" id="st_iv-bs-template_table">
 <table class="table">
   <thead>

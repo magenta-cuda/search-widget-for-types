@@ -713,7 +713,7 @@ EOD
                                 if ( $wpcf_field_type === 'radio' ) {
                                     # for radio replace option key with something more user friendly
                                     $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
-                                    if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                    if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                                         $current = $wpcf_field_data[ 'display' ] === 'value' ? $wpcf_field_data_options_value[ 'display_value' ]
                                             : $wpcf_field_data_options_value[ 'title' ];
                                     } else {
@@ -724,7 +724,7 @@ EOD
                                 } else if ( $wpcf_field_type === 'select' ) {
                                     $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
                                     # for select replace option key with something more user friendly
-                                    if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                    if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                                         $current = $wpcf_field_data_options_value[ 'title' ];
                                     } else {
                                         $current = $wpcf_field_data_options_value[ 'value' ]
@@ -734,7 +734,7 @@ EOD
                                     # checkboxes are handled very differently from radio and select 
                                     # Why? seems that the radio/select way would work here also and be simpler
                                     $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
-                                    if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                    if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                                         if ( $wpcf_field_data_options_value[ 'display' ] === 'value' ) {
                                             $current = $wpcf_field_data_options_value[ 'display_value_selected' ];
                                         } else {
@@ -1116,7 +1116,7 @@ EOD
                     } else if ( $field_type === 'radio' ) {
                         # for radio replace option key with something more user friendly
                         $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
-                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                        if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                             $label = $wpcf_field_data[ 'display' ] === 'value' ? $wpcf_field_data_options_value[ 'display_value' ]
                                 : $wpcf_field_data_options_value[ 'title' ];
                         } else {
@@ -1127,7 +1127,7 @@ EOD
                     } else if ( $field_type === 'select' ) {
                         # for select replace option key with something more user friendly
                         $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ]; 
-                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                        if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                             $label = $wpcf_field_data_options_value[ 'title' ];
                         } else {
                             $label = $wpcf_field_data_options_value[ 'value' ] . '(' . $wpcf_field_data_options_value[ 'title' ] . ')';
@@ -1136,7 +1136,7 @@ EOD
                         # checkboxes are handled very differently from radio and select 
                         # Why? seems that the radio/select way would work here also and be simpler
                         $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
-                        if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                        if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                             if ( $wpcf_field_data_options_value[ 'display' ] == 'value' ) {
                                 $label = $wpcf_field_data_options_value[ 'display_value_selected' ];
                             } else {
@@ -1241,7 +1241,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
         }
         $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] );
         $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
-        if ( isset( $option[ $number ][ 'set_is_search' ] ) ) {
+        if ( !empty( $option[ $number ][ 'set_is_search' ] ) ) {
             # depending on the theme this may display excerpts instead of the full post
             $query->is_search = true;
         }
@@ -1925,7 +1925,7 @@ EOD
                                         if ( $wpcf_field_type === 'radio' ) {
                                             # for radio replace option key with something more user friendly
                                             $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
-                                            if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                            if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                                                 $current = $wpcf_field_data[ 'display' ] === 'value' ? $wpcf_field_data_options_value[ 'display_value' ]
                                                     : $wpcf_field_data_options_value[ 'title' ];
                                             } else {
@@ -1936,7 +1936,7 @@ EOD
                                         } else if ( $wpcf_field_type === 'select' ) {
                                             $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
                                             # for select replace option key with something more user friendly
-                                            if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                            if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                                                 $current = $wpcf_field_data_options_value[ 'title' ];
                                             } else {
                                                 $current = $wpcf_field_data_options_value[ 'value' ]
@@ -1946,7 +1946,7 @@ EOD
                                             # checkboxes are handled very differently from radio and select 
                                             # Why? seems that the radio/select way would work here also and be simpler
                                             $wpcf_field_data_options_value = $wpcf_field_data_options[ $value ];
-                                            if ( isset( $option[ 'use_simplified_labels_for_select' ] ) ) {
+                                            if ( !empty( $option[ 'use_simplified_labels_for_select' ] ) ) {
                                                 if ( $wpcf_field_data_options_value[ 'display' ] === 'value' ) {
                                                     $current = $wpcf_field_data_options_value[ 'display_value_selected' ];
                                                 } else {
