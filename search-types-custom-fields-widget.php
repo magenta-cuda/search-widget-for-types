@@ -418,8 +418,9 @@ EOD
 <input type="checkbox"
     id="<?php echo $this->get_field_id( 'use_backbone_model_view_presenter' ); ?>"
     name="<?php echo $this->get_field_name( 'use_backbone_model_view_presenter' ); ?>"
-    class="scpbcfw-admin-option-checkbox"
-    value="use backbone" <?php if ( isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) { echo 'checked'; } ?>>
+    class="scpbcfw-admin-option-checkbox scpbcfw-enable-use-backbone-option scpbcfw-search-table-width"
+    value="use backbone" <?php if ( isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) { echo 'checked'; } ?>
+    <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>>
 <?php _e( 'Use Backbone.js Model-View-Presenter for search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
@@ -427,8 +428,9 @@ EOD
 <input type="checkbox"
     id="<?php echo $this->get_field_id( 'use_bootstrap' ); ?>"
     name="<?php echo $this->get_field_name( 'use_bootstrap' ); ?>"
-    class="scpbcfw-admin-option-checkbox"
-    value="use bootstrap" <?php if ( !empty( $instance[ 'use_bootstrap' ] ) ) { echo 'checked'; } ?>>
+    class="scpbcfw-admin-option-checkbox scpbcfw-enable-use-bootstrap-option scpbcfw-search-table-width"
+    value="use bootstrap" <?php if ( !empty( $instance[ 'use_bootstrap' ] ) ) { echo 'checked'; } ?>
+    <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>>
 <?php _e( 'Use Twitter Bootstrap for search results:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>

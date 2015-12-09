@@ -15,9 +15,14 @@ function stcfwInitialize(target){
         return false;
     });
     jQuery(target).find("input[type='checkbox'].scpbcfw-enable-table-view-option").change(function(event){
-        jQuery("input[type='number'].scpbcfw-search-table-width").prop("disabled",!jQuery(this)
-            .prop("checked"));
+        jQuery("input[type='number'].scpbcfw-search-table-width, input[type='checkbox'].scpbcfw-search-table-width")
+            .prop("disabled",!jQuery(this).prop("checked"));
+        jQuery(target).find("input[type='checkbox'].scpbcfw-enable-use-backbone-option").change();    
         jQuery("input[type='checkbox'].scpbcfw-select-content-macro-display-field").prop("disabled",!jQuery(this).prop("checked"));
+    });
+    jQuery(target).find("input[type='checkbox'].scpbcfw-enable-use-backbone-option").change(function(event){
+        jQuery(target).find("input[type='checkbox'].scpbcfw-enable-use-bootstrap-option")
+            .prop("disabled",jQuery(this).prop("disabled")||!jQuery(this).prop("checked"));
     });
     // set background of div to indicate whether post type has been selected for searching or not
     jQuery(target).find("div.scpbcfw-search-field-values").each(function(){
