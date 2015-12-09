@@ -80,7 +80,7 @@ EOD
                 continue;
             }      
             $labels = get_post_type_object( $name )->labels;
-            $label  = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
+            $label  = !empty( $labels->singular_name ) ? $labels->singular_name : $labels->name;
             $label  = self::value_filter( $label, 'post_type', $name );            
 ?>      
     <option class="real_post_type" value="<?php echo $name; ?>"><?php echo "$label($result->count)"; ?></option>
@@ -102,7 +102,7 @@ EOD
 </div>
 <?php
         if ( ( array_key_exists( 'enable_table_view_option', $instance ) && $instance[ 'enable_table_view_option' ] === 'table view option enabled' )
-            || isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) {
+            || !empty( $instance[ 'use_backbone_model_view_presenter' ] ) ) {
 ?>
 <hr>
 <div class="scpbcfw-search-fields-checkbox-box" style="clear:both;">
@@ -110,7 +110,7 @@ EOD
 <input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use wordpress" checked>
     <?php _e( 'WordPress format:', self::LANGUAGE_DOMAIN ); ?><br>
 <?php
-            if ( !isset( $instance[ 'use_backbone_model_view_presenter' ] ) ) {
+            if ( empty( $instance[ 'use_backbone_model_view_presenter' ] ) ) {
 ?>
 <input type="radio" name="search_types_custom_fields_show_using_macro" class="scpbcfw-search-fields-checkbox" value="use table">
     <?php _e( 'table format:', self::LANGUAGE_DOMAIN ); ?><br>
@@ -313,7 +313,7 @@ EOD
         class="scpbcfw-select-content-macro-display-field"
         value="<?php echo $tax_name; ?>"
         <?php if ( $show_selected && in_array( $tax_name, $show_selected ) ) { echo ' checked'; } ?>
-        <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>>
+        <?php if ( empty( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>>
     <?php echo "{$wp_taxonomy->label}{$tax_label} ($db_taxonomy->count)"; ?>
 <?php
                 } else {   # if ( substr_compare( $field_name, 'tax-tag-', 0, 8 ) ==0 || substr_compare( $field_name, 'tax-cat-', 0, 8 ) == 0 ) {
@@ -332,7 +332,7 @@ EOD
         name="<?php echo $this->get_field_name( 'scpbcfw-show-' . $name ); ?>[]"
         <?php if ( empty( $field->large ) ) { echo 'class="scpbcfw-select-content-macro-display-field"'; } ?>
         value="<?php echo $meta_key; ?>" <?php if ( $show_selected && in_array( $meta_key, $show_selected ) ) { echo ' checked'; } ?>
-        <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) || !empty( $field->large ) ) { echo 'disabled'; } ?>>
+        <?php if ( empty( $instance['enable_table_view_option'] ) || !empty( $field->large ) ) { echo 'disabled'; } ?>>
     <?php echo "$field->label ($field->count)"; ?>
 <?php
                 }   # else {
@@ -367,7 +367,7 @@ EOD
     id="<?php echo $this->get_field_id( 'set_is_search' ); ?>"
     name="<?php echo $this->get_field_name( 'set_is_search' ); ?>"
     class="scpbcfw-admin-option-checkbox"
-    value="is search" <?php if ( isset( $instance['set_is_search'] ) ) { echo 'checked'; } ?>>
+    value="is search" <?php if ( !empty( $instance['set_is_search'] ) ) { echo 'checked'; } ?>>
 <?php _e( 'Display search results using excerpts (if it is supported by your theme):', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
@@ -376,7 +376,7 @@ EOD
     id="<?php echo $this->get_field_id( 'use_simplified_labels_for_select' ); ?>"
     name="<?php echo $this->get_field_name( 'use_simplified_labels_for_select' ); ?>"
     class="scpbcfw-admin-option-checkbox"
-    value="use simplified labels" <?php if ( isset( $instance[ 'use_simplified_labels_for_select' ] ) ) { echo 'checked'; } ?>>
+    value="use simplified labels" <?php if ( !empty( $instance[ 'use_simplified_labels_for_select' ] ) ) { echo 'checked'; } ?>>
 <?php _e( 'Use simplified labels for the values of select, checkboxes and radio button fields:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
@@ -386,7 +386,7 @@ EOD
     name="<?php echo $this->get_field_name( 'enable_table_view_option' ); ?>"
     class="scpbcfw-admin-option-checkbox scpbcfw-enable-table-view-option"
     value="table view option enabled"
-    <?php if ( !$instance || isset( $instance['enable_table_view_option'] ) ) { echo 'checked'; } ?>>
+    <?php if ( !empty( $instance['enable_table_view_option'] ) ) { echo 'checked'; } ?>>
 <?php _e( 'Enable option to display search results using a table of posts or gallery of featured images:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
@@ -396,7 +396,7 @@ EOD
     name="<?php echo $this->get_field_name( 'search_table_width' ); ?>"
     class="scpbcfw-admin-option-number scpbcfw-search-table-width"
     <?php if ( !empty( $instance['search_table_width'] ) ) { echo "value=\"$instance[search_table_width]\""; } ?>
-    <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>
+    <?php if ( empty( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>
     placeholder="<?php _e( 'from css', self::LANGUAGE_DOMAIN ); ?>"
     size="5">
 <?php _e( 'Width in pixels of the table of search results:', self::LANGUAGE_DOMAIN ); ?>
@@ -408,7 +408,7 @@ EOD
     name="<?php echo $this->get_field_name( 'search_gallery_columns' ); ?>"
     class="scpbcfw-admin-option-number scpbcfw-search-table-width"
     <?php if ( !empty( $instance['search_gallery_columns'] ) ) { echo "value=\"$instance[search_gallery_columns]\""; } ?>
-    <?php if ( $instance && !isset( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>
+    <?php if ( empty( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>
     placeholder="<?php _e( '5', self::LANGUAGE_DOMAIN ); ?>"
     size="5">
 <?php _e( 'Number of columns for the gallery of search results:', self::LANGUAGE_DOMAIN ); ?>
@@ -1239,7 +1239,6 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
         if ( !$query->is_main_query() || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
             return;
         }
-        error_log( 'filter:parse_query():$query=' . print_r( $query, true ) );
         $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] );
         $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
         if ( isset( $option[ $number ][ 'set_is_search' ] ) ) {
@@ -1253,7 +1252,6 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
         if ( !$query->is_main_query( ) || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
             return $where;
         }
-        error_log( 'filter:posts_where():$where=' . $where );
         # this is a Types search request so modify the SQL where clause
         $and_or = $_REQUEST['search_types_custom_fields_and_or'] == 'and' ? 'AND' : 'OR';
         # first get taxonomy name to term_taxonomy_id transalation table in case we need the translations
@@ -2020,7 +2018,8 @@ EOD
                 die;
             } );   # add_action( 'template_redirect', function( ) use ( $option ) {
         } );   # add_action( 'after_setup_theme', function( ) use ( $option ) {
-        add_action( 'wp_enqueue_scripts', function( ) use ( $option, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
+        add_action( 'wp_enqueue_scripts', function( )
+            use ( $option, $search_types_custom_fields_show_using_macro, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
             global $wp_query;
             # enqueue CSS
             if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
@@ -2091,10 +2090,8 @@ EOD
     }   # if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro !== 'use wordpress' ) {
     if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro === 'use wordpress' ) {
         add_filter( 'get_search_query', function( $query ) {
-            error_log( 'filter:get_search_query():$query=' . $query );
             $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
             $label  = isset( $labels->singular_name ) ? $labels->singular_name : $labels->name;
-            error_log( 'filter:get_search_query():$label=' . $label );
             return $label;
         } );
     }
