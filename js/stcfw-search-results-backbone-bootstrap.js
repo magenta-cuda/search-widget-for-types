@@ -179,6 +179,7 @@ jQuery( document ).ready( function( ) {
         } else if ( li.id === "st_iv-carousel" ) {
             stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
             jQuery( "button.st_iv-bs-carousel_close_btn" ).click( function( e ) {
+                jQuery( "div#st_iv-nav_images li" ).removeClass( "active" );
                 jQuery( "div#st_iv-nav_images li" ).first( ).addClass( "active" );
                 stcfw.renderGallery( container, stcfw.posts );
             } );          

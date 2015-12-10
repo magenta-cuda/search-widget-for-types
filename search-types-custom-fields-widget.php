@@ -590,7 +590,7 @@ EOD
                     }
                     if ( array_key_exists( $post, $thumbnails ) ) {
                         $thumbnail = $thumbnails[ $post ];
-                        $href = wp_get_attachment_image_src( $thumbnail, 'medium' );
+                        $href = wp_get_attachment_image_src( $thumbnail, 'full' );
                         if ( $href ) {
                             $href = $href[0];
                         } else {
