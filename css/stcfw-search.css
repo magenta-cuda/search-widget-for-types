@@ -115,3 +115,12 @@ input#scpbcfw-search-fields-submit{
     border:2px solid black;
     border-radius:7px;
 }
+
+div#stcfw-inline-search-results {
+  display: none;
+  background-color: #e8e8e8;
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 7px;
+  margin: 10px;
+}

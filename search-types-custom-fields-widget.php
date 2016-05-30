@@ -31,8 +31,8 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     const OPTIONAL_TEXT_VALUE_SUFFIX = '-stcfw-optional-text-value';   # suffix to append to optional text input for a search field
     const OPTIONAL_MINIMUM_VALUE_SUFFIX = '-stcfw-minimum-value';      # suffix to append to optional minimum/maximum value text 
     const OPTIONAL_MAXIMUM_VALUE_SUFFIX = '-stcfw-maximum-value';      #     inputs for a numeric search field
-    const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';
-    const GET_POSTS = 'stcfw_get_posts';
+    const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';           # AJAX action for getting the search form for a post type
+    const GET_POSTS = 'stcfw_get_posts';                               # AJAX action for getting the posts satisfying a search criteria
     const LANGUAGE_DOMAIN = 'search-types-custom-fields-widget';       # for .pot file
     const VALUE_FILTER_NAME = 'stcfw_display_value';                   # filter to apply to field values before they are displayed
     
