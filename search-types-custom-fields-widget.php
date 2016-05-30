@@ -810,7 +810,9 @@ EOD
     }   # public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
-    
+
+# Global Actions and Filters
+
 add_action( 'plugins_loaded', function( ) {
     load_plugin_textdomain( Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 } );
@@ -824,9 +826,11 @@ add_filter( 'posts_where', function( $where, $query ) {
     error_log( 'FILTER::posts_where():where=' . $where );
     error_log( 'FILTER::posts_where():$_REQUEST=' . print_r( $_REQUEST, true ) );
     error_log( 'FILTER::posts_where():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );        
-    if ( !$query->is_main_query( ) || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
+    if ( ( !$query->is_main_query( ) && ( empty( $_REQUEST[ 'action' ] ) || $_REQUEST[ 'action' ] !== 'stcfw_get_posts' ) )
+        || empty( $_REQUEST[ 'search_types_custom_fields_form' ] ) ) {
         return $where;
     }
+    unset( $_REQUEST[ 'action' ] );
     # this is a Types search request so modify the SQL where clause
     $and_or = $_REQUEST['search_types_custom_fields_and_or'] == 'and' ? 'AND' : 'OR';
     # first get taxonomy name to term_taxonomy_id transalation table in case we need the translations
@@ -1121,6 +1125,8 @@ EOD
 }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 
 if ( is_admin( ) ) {
+    # Admin and AJAX Actions and Filters
+
     add_action( 'admin_enqueue_scripts', function( ) {
         wp_enqueue_style(  'stcfw-admin', plugins_url( 'css/stcfw-admin.css', __FILE__ ) );
         wp_enqueue_script( 'stcfw-admin', plugins_url( 'js/stcfw-admin.js',  __FILE__ ), [ 'jquery' ]  );
@@ -1543,6 +1549,7 @@ EOD
         }
     } );
 } else {   # if ( is_admin() ) {
+    # Frontend Actions and Filters
     
     add_action( 'wp_head', function( ) {
 ?>
