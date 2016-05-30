@@ -16,7 +16,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
         <div class="col-sm-6 col-md-4 col-lg-3">
             <figure class="img-rounded st_iv-gallery_item">
                 <figcaption><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></figcaption>
-                <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="blank">
+                <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="_blank">
                     <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
                 </a>
             </figure>

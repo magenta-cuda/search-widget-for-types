@@ -818,6 +818,307 @@ add_action( 'plugins_loaded', function( ) {
 add_action( 'widgets_init', function( ) {
     register_widget( 'Search_Types_Custom_Fields_Widget' );
 } );
+  
+add_filter( 'posts_where', function( $where, $query ) {
+    global $wpdb;
+    error_log( 'FILTER::posts_where():where=' . $where );
+    error_log( 'FILTER::posts_where():$_REQUEST=' . print_r( $_REQUEST, true ) );
+    error_log( 'FILTER::posts_where():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );        
+    if ( !$query->is_main_query( ) || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
+        return $where;
+    }
+    # this is a Types search request so modify the SQL where clause
+    $and_or = $_REQUEST['search_types_custom_fields_and_or'] == 'and' ? 'AND' : 'OR';
+    # first get taxonomy name to term_taxonomy_id transalation table in case we need the translations
+    $results = $wpdb->get_results( <<<EOD
+SELECT x.taxonomy, t.name, x.term_taxonomy_id FROM $wpdb->term_taxonomy x, $wpdb->terms t WHERE x.term_id = t.term_id
+EOD
+        , OBJECT );
+    $term_taxonomy_ids = [ ];
+    foreach ( $results as $result ) {
+        $term_taxonomy_ids[ $result->taxonomy ][ strtolower( $result->name) ] = $result->term_taxonomy_id;
+    }
+    # merge optional text values into the checkboxes array
+    $suffix_len = strlen( Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX );
+    foreach ( $_REQUEST as $index => &$request ) {
+        if ( $request && substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX, -$suffix_len ) === 0 ) {
+            $index = substr( $index, 0, strlen( $index ) - $suffix_len );
+            if ( is_array( $_REQUEST[$index] ) || !array_key_exists( $index, $_REQUEST ) ) {
+                if ( substr_compare( $index, 'tax-', 0, 4 ) === 0 ) {
+                    # for taxonomy values must replace the value with the corresponding term_taxonomy_id
+                    $tax_name = substr( $index, 8 );
+                    if ( !array_key_exists( $tax_name, $term_taxonomy_ids )
+                        || !array_key_exists( strtolower( $request ), $term_taxonomy_ids[$tax_name] ) ) {
+                        # kill the original request
+                        $request = NULL;
+                        continue;
+                    }
+                    $request = $term_taxonomy_ids[ $tax_name ][ strtolower( $request ) ];
+                }
+                $_REQUEST[ $index ][ ] = $request;
+            }
+            # kill the original request
+            $request = NULL;
+        }
+    }   # foreach ( $_REQUEST as $index => &$request ) {
+    unset( $request );
+    # merge optional min/max values for numeric custom fields into the checkboxes array
+    $suffix_len = strlen( Search_Types_Custom_Fields_Widget::OPTIONAL_MINIMUM_VALUE_SUFFIX );
+    foreach ( $_REQUEST as $index => &$request ) {
+        if ( $request && ( ( $is_min
+            = substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_MINIMUM_VALUE_SUFFIX, -$suffix_len ) === 0 )
+            || substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_MAXIMUM_VALUE_SUFFIX, -$suffix_len ) === 0
+        ) ) {
+            $index = substr( $index, 0, strlen( $index ) - $suffix_len );
+            if ( !array_key_exists( $index, $_REQUEST ) || is_array( $_REQUEST[$index] ) ) {
+                $_REQUEST[$index][] = [ 'operator' => $is_min ? 'minimum' : 'maximum', 'value' => $request ];
+            }
+            # kill the original request
+            $request = NULL;
+        }
+    }
+    unset( $request );
+    $wpcf_fields = get_option( 'wpcf-fields', [ ] );    
+    $non_field_keys = [ 'search_types_custom_fields_form', 'search_types_custom_fields_widget_option', 'search_types_custom_fields_widget_number',
+                          'search_types_custom_fields_and_or', 'search_types_custom_fields_show_using_macro', 'post_type', 'paged' ];
+    $sql = '';
+    foreach ( $_REQUEST as $key => $values ) {
+        # here only searches on the table $wpdb->postmeta are processed; everything is done later.
+        if ( in_array( $key, $non_field_keys ) ) {
+            continue;
+        }
+        $prefix = substr( $key, 0, 8 );
+        if ( $prefix === 'tax-cat-' || $prefix === 'tax-tag-' || $prefix === 'pst-std-' ) {
+            continue;
+        }
+        if ( !is_array( $values) ) {
+            if ( $values ) {
+                $values = [ $values ];
+            } else {
+                continue;
+            }
+        }
+        $sql2 = '';   # holds meta_value = sql
+        $sql3 = '';   # holds meta_value min/max sql
+        foreach ( $values as $value ) {
+            if ( $sql2 ) {
+                $sql2 .= ' OR ';
+            }
+            if ( strpos( $key, 'inverse_' ) === 0 ) {
+                # parent of is the inverse of child of so ...
+                if ( !$value ) {
+                    continue;
+                }
+                $sql2 .= '( w.meta_key = "' . substr( $key, strpos( $key, '_wpcf_belongs_' ) ) . "\" AND w.post_id = $value )";
+            } else if ( strpos( $key, '_wpcf_belongs_' ) === 0 ) {
+                # child of is like a custom field except the name is special so ...
+                if ( !$value ) {
+                    continue;
+                }
+                $sql2 .= "( w.meta_key = '$key' AND w.meta_value = $value )";
+            } else {
+                $wpcf_field = $wpcf_fields[ substr( $key, 5 ) ];
+                $wpcf_field_type = $wpcf_field[ 'type' ];
+                if ( is_array( $value ) ) {
+                    if ( $sql2 ) {
+                        $sql2 = substr( $sql2, 0, -4 );
+                    }
+                    # check for minimum/maximum operation
+                    if ( ( $is_min = $value[ 'operator' ] === 'minimum' ) || ( $is_max = $value[ 'operator' ] === 'maximum' ) ) {
+                        if ( $wpcf_field_type === 'date' ) {
+                            # for dates convert to timestamp range
+                            list( $t0, $t1 ) = Search_Types_Custom_Fields_Widget::get_timestamp_from_string( $value[ 'value' ] );
+                            if ( $is_min ) {
+                                # for minimum use start of range
+                                $value[ 'value' ] = $t0;
+                            } else {
+                                # for maximum use end of range
+                                $value[ 'value' ] = $t1;
+                            }
+                        }
+                        if ( $sql3 ) {
+                            $sql3 .= ' AND ';
+                        }
+                        if ( $is_min ) {
+                            $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d )", $key, $value[ 'value' ] );
+                        } else if ( $is_max ) {
+                            $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value <= %d )", $key, $value[ 'value' ] );
+                        }
+                    }
+                } else if ( $wpcf_field_type !== 'checkbox' && !$value ) {
+                    # skip false values except for single checkbox
+                } else if ( $wpcf_field_type === 'date' ) {
+                    # date can be tricky if user did not enter a complete - to the second - timestamp
+                    # need to search on range in that case
+                    if ( is_numeric( $value ) ) {
+                        $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value = %d )", $key, $value );
+                    } else {
+                        list( $t0, $t1 ) = Search_Types_Custom_Fields_Widget::get_timestamp_from_string( $value );    
+                        if ( $t1 != $t0 ) {
+                            $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d AND w.meta_value <= %d )",
+                                $key, $t0, $t1 );
+                        } else {
+                            $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value = %d )", $key, $t0 );
+                        }
+                    }
+                } else {
+                    $wpcf_field_data = $wpcf_field[ 'data' ];
+                    if ( $wpcf_field_type === 'radio' || $wpcf_field_type === 'select' ) {
+                        # for radio and select change value from option key to its value
+                        $value = $wpcf_field_data[ 'options' ][ $value ][ 'value' ];
+                    } else if ( $wpcf_field_type === 'checkboxes' ) {
+                        # checkboxes are tricky since the value bound to 0 means unchecked so must also check the bound value
+                        $options_value_set_value = $wpcf_field_data[ 'options' ][ $value ][ 'set_value' ];
+                        $value = 's:' . strlen( $value ) .':"' .$value . '";a:1:{i:0;s:' . strlen( $options_value_set_value ) . ':"'
+                            . $options_value_set_value . '";}';
+                    } else if ( $wpcf_field_type === 'checkbox' ) {
+                        # checkbox is tricky since the value bound to 0 means unchecked so must also check the bound value
+                        if ( $value ) {
+                            $value = $wpcf_field_data[ 'set_value' ];
+                        }
+                    }
+                    # TODO: LIKE may match more than we want on serialized array of numeric values - false match on numeric indices
+                    $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value LIKE %s )", $key, "%%$value%%" );
+                }
+            }
+        }   # foreach ( $values as $value ) {
+        if ( $sql3 ) {
+            # merge in min/max conditions
+            if ( $sql2 ) {
+                $sql2 .= " OR ( $sql3 ) ";
+            } else {
+                $sql2 = $sql3;
+            }
+        }
+        if ( strpos( $key, 'inverse_' ) === 0 ) {
+            # parent of is the inverse of child of so ...
+            $sql2 = "( $sql2 ) AND w.meta_value = p.ID";
+        } else {
+            $sql2 = "( $sql2 ) AND w.post_id = p.ID";
+        }
+        if ( $sql ) {
+            $sql .= " $and_or ";
+        }
+        $sql .= " EXISTS ( SELECT * FROM $wpdb->postmeta w WHERE $sql2 ) ";
+    }   # foreach ( $_REQUEST as $key => $values ) {
+    if ( $sql ) {
+        $ids0 = $wpdb->get_col( $wpdb->prepare( "SELECT p.ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql )", $_REQUEST['post_type'] ) );
+        if ( $and_or === 'AND' && !$ids0 ) {
+            return ' AND 1 = 2 ';
+        }
+    } else {
+        $ids0 = FALSE;
+    }
+    $sql = '';
+    foreach ( $_REQUEST as $key => $values ) {
+        # here only taxonomies are processed
+        if ( in_array( $key, $non_field_keys ) ) {
+            continue;
+        }
+        $prefix = substr( $key, 0, 8 );
+        if ( $prefix !== 'tax-cat-' && $prefix !== 'tax-tag-' ) {
+            continue;
+        }
+        if ( !is_array( $values) ) {
+            if ( $values ) {
+                $values = [ $values ];
+            } else {
+                continue;
+            }
+        }
+        $values = array_filter( $values ); 
+        if ( !$values ) {
+            continue;
+        }
+        $taxonomy = substr( $key, 8 );
+        if ( $sql ) {
+            $sql .= " $and_or ";
+        }
+        $sql .= " EXISTS ( SELECT * FROM $wpdb->term_relationships WHERE ( ";
+        foreach ( $values as $value ) {
+            if ( $value !== $values[0] ) {
+                $sql .= ' OR ';
+            }
+            $sql .= $wpdb->prepare( 'term_taxonomy_id = %d', $value ); 
+        }
+        $sql .= ') AND object_id = p.ID )';
+    }   # foreach ( $_REQUEST as $key => $values ) {
+    if ( $sql ) {
+        $ids1 = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql ) ", $_REQUEST['post_type'] ) );
+        if ( $and_or === 'AND' && !$ids1 ) {
+            return ' AND 1 = 2 ';
+        }
+   } else {
+        $ids1 = FALSE;
+    }
+    $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids0, $ids1 );
+    if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
+        return ' AND 1 = 2 ';
+    }
+    # do post attachments
+    if ( array_key_exists( 'pst-std-attachment', $_REQUEST ) && $_REQUEST['pst-std-attachment'] ) {
+        $post_attachments = implode( ',', array_map( function( $attachment ) {
+            global $wpdb;
+            return $wpdb->prepare( '%d', $attachment );
+        }, $_REQUEST['pst-std-attachment'] ) );
+        $ids2 = $wpdb->get_col( "SELECT post_parent FROM $wpdb->posts WHERE ID IN ( $post_attachments )" );
+        if ( $and_or === 'AND' && !$ids2 ) {
+            return ' AND 1 = 2 ';
+        }
+    } else {
+        $ids2 = FALSE;
+    }
+    $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids2 );
+    if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
+        return ' AND 1 = 2 ';
+    }
+    # handle post_content - post_title and post_excerpt are included in the search of post_content
+    if ( array_key_exists( 'pst-std-post_content', $_REQUEST ) && $_REQUEST['pst-std-post_content'] ) {
+        $sql = $wpdb->prepare( <<<EOD
+SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = "publish" AND ( post_content LIKE %s OR post_title LIKE %s OR post_excerpt LIKE %s )
+EOD
+            , $_REQUEST[ 'post_type' ], "%{$_REQUEST['pst-std-post_content']}%", "%{$_REQUEST['pst-std-post_content']}%",
+            "%{$_REQUEST['pst-std-post_content']}%" );
+        $ids3 = $wpdb->get_col( $sql );
+        if ( $and_or === 'AND' && !$ids3 ) {
+            return ' AND 1 = 2 ';
+        }
+    } else {
+        $ids3 = FALSE;
+    }
+    $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids3 );
+    if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
+        return ' AND 1 = 2 ';
+    }
+    # filter on post_author
+    if ( array_key_exists( 'pst-std-post_author', $_REQUEST ) && $_REQUEST['pst-std-post_author'] ) {
+        $post_authors = implode( ',', array_map( function( $author ) {
+            global $wpdb;
+            return $wpdb->prepare( "%d", $author );
+        }, $_REQUEST['pst-std-post_author'] ) );
+        $ids4 = $wpdb->get_col( $wpdb->prepare( <<<EOD
+SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish' AND post_author IN ( $post_authors )
+EOD
+            , $_REQUEST[ 'post_type' ] ) );
+        if ( $and_or === 'AND' && !$ids4 ) {
+            return ' AND 1 = 2 ';
+        }
+    } else {
+        $ids4 = FALSE;
+    }
+    $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids4 );
+    if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
+        return ' AND 1 = 2 ';
+    }        
+    if ( $ids ) {
+        $ids = implode( ', ', $ids );
+        $where = " AND ID IN ( $ids ) ";
+    } else {
+        #$where = " AND post_type = "$_REQUEST[post_type]" AND post_status = 'publish' ";
+        $where = ' AND 1 = 2 ';
+    }
+    return $where;
+}, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 
 if ( is_admin( ) ) {
     add_action( 'admin_enqueue_scripts', function( ) {
@@ -1232,9 +1533,9 @@ EOD
     } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
         error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '():$_REQUEST=' . print_r( $_REQUEST, true ) );
-        $query = new WP_Query( );
+        $query = new WP_Query( [ 's' => 'X' ] );
         #$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
-        if ( $posts ) {
+        if ( $query->posts ) {
             $posts = array_filter( $query->posts );
             wp_send_json_success( $posts );
         } else {
@@ -1271,305 +1572,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
             $query->is_search = true;
         }
     } );
-    
-    add_filter( 'posts_where', function( $where, $query ) {
-        global $wpdb;
-        error_log( 'FILTER::posts_where():where=' . $where );
-        if ( !$query->is_main_query( ) || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
-            return $where;
-        }
-        # this is a Types search request so modify the SQL where clause
-        $and_or = $_REQUEST['search_types_custom_fields_and_or'] == 'and' ? 'AND' : 'OR';
-        # first get taxonomy name to term_taxonomy_id transalation table in case we need the translations
-        $results = $wpdb->get_results( <<<EOD
-SELECT x.taxonomy, t.name, x.term_taxonomy_id FROM $wpdb->term_taxonomy x, $wpdb->terms t WHERE x.term_id = t.term_id
-EOD
-            , OBJECT );
-        $term_taxonomy_ids = [ ];
-        foreach ( $results as $result ) {
-            $term_taxonomy_ids[ $result->taxonomy ][ strtolower( $result->name) ] = $result->term_taxonomy_id;
-        }
-        # merge optional text values into the checkboxes array
-        $suffix_len = strlen( Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX );
-        foreach ( $_REQUEST as $index => &$request ) {
-            if ( $request && substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_TEXT_VALUE_SUFFIX, -$suffix_len ) === 0 ) {
-                $index = substr( $index, 0, strlen( $index ) - $suffix_len );
-                if ( is_array( $_REQUEST[$index] ) || !array_key_exists( $index, $_REQUEST ) ) {
-                    if ( substr_compare( $index, 'tax-', 0, 4 ) === 0 ) {
-                        # for taxonomy values must replace the value with the corresponding term_taxonomy_id
-                        $tax_name = substr( $index, 8 );
-                        if ( !array_key_exists( $tax_name, $term_taxonomy_ids )
-                            || !array_key_exists( strtolower( $request ), $term_taxonomy_ids[$tax_name] ) ) {
-                            # kill the original request
-                            $request = NULL;
-                            continue;
-                        }
-                        $request = $term_taxonomy_ids[ $tax_name ][ strtolower( $request ) ];
-                    }
-                    $_REQUEST[ $index ][ ] = $request;
-                }
-                # kill the original request
-                $request = NULL;
-            }
-        }   # foreach ( $_REQUEST as $index => &$request ) {
-        unset( $request );
-        # merge optional min/max values for numeric custom fields into the checkboxes array
-        $suffix_len = strlen( Search_Types_Custom_Fields_Widget::OPTIONAL_MINIMUM_VALUE_SUFFIX );
-        foreach ( $_REQUEST as $index => &$request ) {
-            if ( $request && ( ( $is_min
-                = substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_MINIMUM_VALUE_SUFFIX, -$suffix_len ) === 0 )
-                || substr_compare( $index, Search_Types_Custom_Fields_Widget::OPTIONAL_MAXIMUM_VALUE_SUFFIX, -$suffix_len ) === 0
-            ) ) {
-                $index = substr( $index, 0, strlen( $index ) - $suffix_len );
-                if ( !array_key_exists( $index, $_REQUEST ) || is_array( $_REQUEST[$index] ) ) {
-                    $_REQUEST[$index][] = [ 'operator' => $is_min ? 'minimum' : 'maximum', 'value' => $request ];
-                }
-                # kill the original request
-                $request = NULL;
-            }
-        }
-        unset( $request );
-        $wpcf_fields = get_option( 'wpcf-fields', [ ] );    
-        $non_field_keys = [ 'search_types_custom_fields_form', 'search_types_custom_fields_widget_option', 'search_types_custom_fields_widget_number',
-                              'search_types_custom_fields_and_or', 'search_types_custom_fields_show_using_macro', 'post_type', 'paged' ];
-        $sql = '';
-        foreach ( $_REQUEST as $key => $values ) {
-            # here only searches on the table $wpdb->postmeta are processed; everything is done later.
-            if ( in_array( $key, $non_field_keys ) ) {
-                continue;
-            }
-            $prefix = substr( $key, 0, 8 );
-            if ( $prefix === 'tax-cat-' || $prefix === 'tax-tag-' || $prefix === 'pst-std-' ) {
-                continue;
-            }
-            if ( !is_array( $values) ) {
-                if ( $values ) {
-                    $values = [ $values ];
-                } else {
-                    continue;
-                }
-            }
-            $sql2 = '';   # holds meta_value = sql
-            $sql3 = '';   # holds meta_value min/max sql
-            foreach ( $values as $value ) {
-                if ( $sql2 ) {
-                    $sql2 .= ' OR ';
-                }
-                if ( strpos( $key, 'inverse_' ) === 0 ) {
-                    # parent of is the inverse of child of so ...
-                    if ( !$value ) {
-                        continue;
-                    }
-                    $sql2 .= '( w.meta_key = "' . substr( $key, strpos( $key, '_wpcf_belongs_' ) ) . "\" AND w.post_id = $value )";
-                } else if ( strpos( $key, '_wpcf_belongs_' ) === 0 ) {
-                    # child of is like a custom field except the name is special so ...
-                    if ( !$value ) {
-                        continue;
-                    }
-                    $sql2 .= "( w.meta_key = '$key' AND w.meta_value = $value )";
-                } else {
-                    $wpcf_field = $wpcf_fields[ substr( $key, 5 ) ];
-                    $wpcf_field_type = $wpcf_field[ 'type' ];
-                    if ( is_array( $value ) ) {
-                        if ( $sql2 ) {
-                            $sql2 = substr( $sql2, 0, -4 );
-                        }
-                        # check for minimum/maximum operation
-                        if ( ( $is_min = $value[ 'operator' ] === 'minimum' ) || ( $is_max = $value[ 'operator' ] === 'maximum' ) ) {
-                            if ( $wpcf_field_type === 'date' ) {
-                                # for dates convert to timestamp range
-                                list( $t0, $t1 ) = Search_Types_Custom_Fields_Widget::get_timestamp_from_string( $value[ 'value' ] );
-                                if ( $is_min ) {
-                                    # for minimum use start of range
-                                    $value[ 'value' ] = $t0;
-                                } else {
-                                    # for maximum use end of range
-                                    $value[ 'value' ] = $t1;
-                                }
-                            }
-                            if ( $sql3 ) {
-                                $sql3 .= ' AND ';
-                            }
-                            if ( $is_min ) {
-                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d )", $key, $value[ 'value' ] );
-                            } else if ( $is_max ) {
-                                $sql3 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value <= %d )", $key, $value[ 'value' ] );
-                            }
-                        }
-                    } else if ( $wpcf_field_type !== 'checkbox' && !$value ) {
-                        # skip false values except for single checkbox
-                    } else if ( $wpcf_field_type === 'date' ) {
-                        # date can be tricky if user did not enter a complete - to the second - timestamp
-                        # need to search on range in that case
-                        if ( is_numeric( $value ) ) {
-                            $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value = %d )", $key, $value );
-                        } else {
-                            list( $t0, $t1 ) = Search_Types_Custom_Fields_Widget::get_timestamp_from_string( $value );    
-                            if ( $t1 != $t0 ) {
-                                $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value >= %d AND w.meta_value <= %d )",
-                                    $key, $t0, $t1 );
-                            } else {
-                                $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value = %d )", $key, $t0 );
-                            }
-                        }
-                    } else {
-                        $wpcf_field_data = $wpcf_field[ 'data' ];
-                        if ( $wpcf_field_type === 'radio' || $wpcf_field_type === 'select' ) {
-                            # for radio and select change value from option key to its value
-                            $value = $wpcf_field_data[ 'options' ][ $value ][ 'value' ];
-                        } else if ( $wpcf_field_type === 'checkboxes' ) {
-                            # checkboxes are tricky since the value bound to 0 means unchecked so must also check the bound value
-                            $options_value_set_value = $wpcf_field_data[ 'options' ][ $value ][ 'set_value' ];
-                            $value = 's:' . strlen( $value ) .':"' .$value . '";a:1:{i:0;s:' . strlen( $options_value_set_value ) . ':"'
-                                . $options_value_set_value . '";}';
-                        } else if ( $wpcf_field_type === 'checkbox' ) {
-                            # checkbox is tricky since the value bound to 0 means unchecked so must also check the bound value
-                            if ( $value ) {
-                                $value = $wpcf_field_data[ 'set_value' ];
-                            }
-                        }
-                        # TODO: LIKE may match more than we want on serialized array of numeric values - false match on numeric indices
-                        $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value LIKE %s )", $key, "%%$value%%" );
-                    }
-                }
-            }   # foreach ( $values as $value ) {
-            if ( $sql3 ) {
-                # merge in min/max conditions
-                if ( $sql2 ) {
-                    $sql2 .= " OR ( $sql3 ) ";
-                } else {
-                    $sql2 = $sql3;
-                }
-            }
-            if ( strpos( $key, 'inverse_' ) === 0 ) {
-                # parent of is the inverse of child of so ...
-                $sql2 = "( $sql2 ) AND w.meta_value = p.ID";
-            } else {
-                $sql2 = "( $sql2 ) AND w.post_id = p.ID";
-            }
-            if ( $sql ) {
-                $sql .= " $and_or ";
-            }
-            $sql .= " EXISTS ( SELECT * FROM $wpdb->postmeta w WHERE $sql2 ) ";
-        }   # foreach ( $_REQUEST as $key => $values ) {
-        if ( $sql ) {
-            $ids0 = $wpdb->get_col( $wpdb->prepare( "SELECT p.ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql )", $_REQUEST['post_type'] ) );
-            if ( $and_or === 'AND' && !$ids0 ) {
-                return ' AND 1 = 2 ';
-            }
-        } else {
-            $ids0 = FALSE;
-        }
-        $sql = '';
-        foreach ( $_REQUEST as $key => $values ) {
-            # here only taxonomies are processed
-            if ( in_array( $key, $non_field_keys ) ) {
-                continue;
-            }
-            $prefix = substr( $key, 0, 8 );
-            if ( $prefix !== 'tax-cat-' && $prefix !== 'tax-tag-' ) {
-                continue;
-            }
-            if ( !is_array( $values) ) {
-                if ( $values ) {
-                    $values = [ $values ];
-                } else {
-                    continue;
-                }
-            }
-            $values = array_filter( $values ); 
-            if ( !$values ) {
-                continue;
-            }
-            $taxonomy = substr( $key, 8 );
-            if ( $sql ) {
-                $sql .= " $and_or ";
-            }
-            $sql .= " EXISTS ( SELECT * FROM $wpdb->term_relationships WHERE ( ";
-            foreach ( $values as $value ) {
-                if ( $value !== $values[0] ) {
-                    $sql .= ' OR ';
-                }
-                $sql .= $wpdb->prepare( 'term_taxonomy_id = %d', $value ); 
-            }
-            $sql .= ') AND object_id = p.ID )';
-        }   # foreach ( $_REQUEST as $key => $values ) {
-        if ( $sql ) {
-            $ids1 = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts p WHERE p.post_type = %s AND ( $sql ) ", $_REQUEST['post_type'] ) );
-            if ( $and_or === 'AND' && !$ids1 ) {
-                return ' AND 1 = 2 ';
-            }
-       } else {
-            $ids1 = FALSE;
-        }
-        $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids0, $ids1 );
-        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
-            return ' AND 1 = 2 ';
-        }
-        # do post attachments
-        if ( array_key_exists( 'pst-std-attachment', $_REQUEST ) && $_REQUEST['pst-std-attachment'] ) {
-            $post_attachments = implode( ',', array_map( function( $attachment ) {
-                global $wpdb;
-                return $wpdb->prepare( '%d', $attachment );
-            }, $_REQUEST['pst-std-attachment'] ) );
-            $ids2 = $wpdb->get_col( "SELECT post_parent FROM $wpdb->posts WHERE ID IN ( $post_attachments )" );
-            if ( $and_or === 'AND' && !$ids2 ) {
-                return ' AND 1 = 2 ';
-            }
-        } else {
-            $ids2 = FALSE;
-        }
-        $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids2 );
-        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
-            return ' AND 1 = 2 ';
-        }
-        # handle post_content - post_title and post_excerpt are included in the search of post_content
-        if ( array_key_exists( 'pst-std-post_content', $_REQUEST ) && $_REQUEST['pst-std-post_content'] ) {
-            $sql = $wpdb->prepare( <<<EOD
-SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = "publish" AND ( post_content LIKE %s OR post_title LIKE %s OR post_excerpt LIKE %s )
-EOD
-                , $_REQUEST[ 'post_type' ], "%{$_REQUEST['pst-std-post_content']}%", "%{$_REQUEST['pst-std-post_content']}%",
-                "%{$_REQUEST['pst-std-post_content']}%" );
-            $ids3 = $wpdb->get_col( $sql );
-            if ( $and_or === 'AND' && !$ids3 ) {
-                return ' AND 1 = 2 ';
-            }
-        } else {
-            $ids3 = FALSE;
-        }
-        $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids3 );
-        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
-            return ' AND 1 = 2 ';
-        }
-        # filter on post_author
-        if ( array_key_exists( 'pst-std-post_author', $_REQUEST ) && $_REQUEST['pst-std-post_author'] ) {
-            $post_authors = implode( ',', array_map( function( $author ) {
-                global $wpdb;
-                return $wpdb->prepare( "%d", $author );
-            }, $_REQUEST['pst-std-post_author'] ) );
-            $ids4 = $wpdb->get_col( $wpdb->prepare( <<<EOD
-SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish' AND post_author IN ( $post_authors )
-EOD
-                , $_REQUEST[ 'post_type' ] ) );
-            if ( $and_or === 'AND' && !$ids4 ) {
-                return ' AND 1 = 2 ';
-            }
-        } else {
-            $ids4 = FALSE;
-        }
-        $ids = Search_Types_Custom_Fields_Widget::join_arrays( $and_or, $ids, $ids4 );
-        if ( $and_or === 'AND' && $ids !== FALSE && !$ids ) {
-            return ' AND 1 = 2 ';
-        }        
-        if ( $ids ) {
-            $ids = implode( ', ', $ids );
-            $where = " AND ID IN ( $ids ) ";
-        } else {
-            #$where = " AND post_type = "$_REQUEST[post_type]" AND post_status = 'publish' ";
-            $where = ' AND 1 = 2 ';
-        }
-        return $where;
-    }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
+
 
     $search_types_custom_fields_show_using_macro = array_key_exists( 'search_types_custom_fields_show_using_macro', $_REQUEST )
                                                        ? $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] : NULL;

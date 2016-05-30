@@ -74,10 +74,11 @@ jQuery(document).ready(function(){
             jQuery.get(ajaxurl,query,function(r){
                 console.log("input#scpbcfw-search-fields-submit::post():r=",r);
                 if(r.success){
+                    div.text(r.data);
                 }else{
                     div.text(r.data);
-                    div.show();
                 }
+                div.show();
             });
             e.preventDefault();
         }
