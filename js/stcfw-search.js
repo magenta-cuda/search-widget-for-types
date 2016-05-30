@@ -66,4 +66,14 @@ jQuery(document).ready(function(){
         jQuery(this).parents("div.scpbcfw-search-fields").css("background-color",checked?"transparent":"lightgray");
     });
     */
+    jQuery("input#scpbcfw-search-fields-submit").click(function(e){
+        if(jQuery("div#stcfw-inline-search-results").length){
+            var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
+            console.log("input#scpbcfw-search-fields-submit::click():query=",query);
+            jQuery.get(ajaxurl,query,function(r){
+                console.log("input#scpbcfw-search-fields-submit::post():r=",r);
+            });
+            e.preventDefault();
+        }
+    });
 });

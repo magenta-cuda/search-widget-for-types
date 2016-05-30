@@ -55,8 +55,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
         global $wpdb;
         extract( $args );
 ?>
-<form id="search-types-custom-fields-widget-<?php echo $this->number; ?>" class="scpbcfw-search-fields-form" method="get"
-    action="<?php echo esc_url( home_url( '/' ) ); ?>">
+<form id="search-types-custom-fields-widget-<?php echo $this->number; ?>" class="scpbcfw-search-fields-form" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 <input id="search_types_custom_fields_form" name="search_types_custom_fields_form" type="hidden" value="types-fields-search">
 <input id="search_types_custom_fields_widget_option" name="search_types_custom_fields_widget_option" type="hidden" value="<?php echo $this->option_name; ?>">
 <input id="search_types_custom_fields_widget_number" name="search_types_custom_fields_widget_number" type="hidden" value="<?php echo $this->number; ?>">
