@@ -14,6 +14,9 @@
 <!-- The function should be defined as a property of window.stcfwTemplateFunctions with name like -->
 <!-- "stcfw-template-function-" . $post_type . $view_name.                                        -->
 
+<!-- To define templates styled by the Twitter Bootstrap stylesheet use the file                  -->
+<!-- .../stcfw-search-results-bootstrap-template.php                                              -->
+
 <!-- This is a starter table template.                                                            -->
 <!-- You should create a post type specific template and add specific fields for that post type.  -->
 

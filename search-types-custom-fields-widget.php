@@ -32,6 +32,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     const OPTIONAL_MINIMUM_VALUE_SUFFIX = '-stcfw-minimum-value';      # suffix to append to optional minimum/maximum value text 
     const OPTIONAL_MAXIMUM_VALUE_SUFFIX = '-stcfw-maximum-value';      #     inputs for a numeric search field
     const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';
+    const GET_POSTS = 'stcfw_get_posts';
     const LANGUAGE_DOMAIN = 'search-types-custom-fields-widget';       # for .pot file
     const VALUE_FILTER_NAME = 'stcfw_display_value';                   # filter to apply to field values before they are displayed
     
@@ -508,6 +509,13 @@ EOD
     
     public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
         global $wpdb;
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$_SERVER=' . print_r( $_SERVER, true ) );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$_REQUEST=' . print_r( $_REQUEST, true ) );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$post_type=' . print_r( $post_type, true ) );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$posts_imploded=' . print_r( $posts_imploded, true ) );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$option=' . print_r( $option, true ) );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$post_titles=' . print_r( $post_titles, true ) );
         $models = [ ];
         foreach ( $posts as $post_obj ) {
             $post_obj->guid        = get_permalink( $post_obj->ID );
@@ -798,8 +806,9 @@ EOD
                 }
             }   # foreach ( $fields as $field ) {
         }   # foreach ( $posts as $post ) 
+        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$models=' . print_r( $models, true ) );
         return json_encode( $models );
-    }   # public static function get_backbone_collection( $posts, $fields, $post_type ) {
+    }   # public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
@@ -828,6 +837,9 @@ if ( is_admin( ) ) {
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function( ) {
         # build the search form for the post type in the AJAX request
         global $wpdb;
+        error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . '():$_SERVER=' . print_r( $_SERVER, true ) );
+        error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . '():$_REQUEST=' . print_r( $_REQUEST, true ) );
+        
         if ( !isset( $_POST[ 'stcfw_get_form_nonce' ] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
             Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
             error_log( '##### action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
@@ -1216,6 +1228,13 @@ EOD
         }   # foreach ( $selected as $selection ) {
         die;
     } );   # add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function() {
+    add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
+        error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '():$_REQUEST=' . print_r( $_REQUEST, true ) );
+        $query = new WP_Query( );
+        #$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
+        $posts = array_filter( $query->$posts );
+        wp_send_json_success( $posts );
+    } );
 } else {   # if ( is_admin() ) {
     
     add_action( 'wp_head', function( ) {
@@ -1236,7 +1255,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
     } );
     
     add_action( 'parse_query', function( &$query ) {
-        if ( !$query->is_main_query() || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
+        if ( !$query->is_main_query( ) || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
             return;
         }
         $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] );
@@ -2086,7 +2105,7 @@ EOD
                 # Classic Table mode
                 wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
             }
-        } );
+        } );   # add_action( 'wp_enqueue_scripts', function( )
     }   # if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro !== 'use wordpress' ) {
     if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro === 'use wordpress' ) {
         add_filter( 'get_search_query', function( $query ) {
