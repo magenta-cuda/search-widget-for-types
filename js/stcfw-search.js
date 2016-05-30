@@ -67,11 +67,17 @@ jQuery(document).ready(function(){
     });
     */
     jQuery("input#scpbcfw-search-fields-submit").click(function(e){
-        if(jQuery("div#stcfw-inline-search-results").length){
+        var div=jQuery("div#stcfw-inline-search-results");
+        if(div.length){
             var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
             console.log("input#scpbcfw-search-fields-submit::click():query=",query);
             jQuery.get(ajaxurl,query,function(r){
                 console.log("input#scpbcfw-search-fields-submit::post():r=",r);
+                if(r.success){
+                }else{
+                    div.text(r.data);
+                    div.show();
+                }
             });
             e.preventDefault();
         }

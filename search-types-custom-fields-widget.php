@@ -1227,12 +1227,19 @@ EOD
         }   # foreach ( $selected as $selection ) {
         die;
     } );   # add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function() {
+    add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
+        do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS );
+    } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
         error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '():$_REQUEST=' . print_r( $_REQUEST, true ) );
         $query = new WP_Query( );
         #$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
-        $posts = array_filter( $query->$posts );
-        wp_send_json_success( $posts );
+        if ( $posts ) {
+            $posts = array_filter( $query->posts );
+            wp_send_json_success( $posts );
+        } else {
+            wp_send_json_error( 'Nothing Found!' );
+        }
     } );
 } else {   # if ( is_admin() ) {
     
@@ -1267,6 +1274,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
     
     add_filter( 'posts_where', function( $where, $query ) {
         global $wpdb;
+        error_log( 'FILTER::posts_where():where=' . $where );
         if ( !$query->is_main_query( ) || !array_key_exists( 'search_types_custom_fields_form', $_REQUEST ) ) {
             return $where;
         }
