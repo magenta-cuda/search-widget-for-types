@@ -74,7 +74,9 @@ jQuery(document).ready(function(){
             jQuery.get(ajaxurl,query,function(r){
                 console.log("input#scpbcfw-search-fields-submit::post():r=",r);
                 if(r.success){
-                    div.text(r.data);
+                    var data=JSON.parse(r.data);
+                    console.log("input#scpbcfw-search-fields-submit::post():data=",data);
+                    div.text(data);
                 }else{
                     div.text(r.data);
                 }

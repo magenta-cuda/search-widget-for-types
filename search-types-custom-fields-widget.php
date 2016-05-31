@@ -501,6 +501,30 @@ EOD
         return apply_filters( self::VALUE_FILTER_NAME, $value, $field, $post_type );
     }
     
+    #  get_auxiliary_data() initializes some data structures - $fields, $posts_imploded, $wpcf_fields, $post_titles - that the widget will need to do the search
+    
+    public static function get_auxiliary_data( $posts, $option, &$fields, &$posts_imploded, &$wpcf_fields, &$post_titles  ) {
+        global $wpdb;
+        # get the list of posts
+        $posts_imploded = implode( ', ', array_map( function( $post ) {
+            return $post->ID;
+        }, $posts ) );
+        # get the applicable fields from the options for this widget
+        if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
+            # display fields explicitly specified for post type
+            $fields = $option[ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
+        } else {
+            # display fields not explicitly specified so just use the search fields for post type
+            $fields = $option[ $_REQUEST[ 'post_type' ] ];
+        }
+        $wpcf_fields = get_option( 'wpcf-fields', [ ] );
+        $post_titles = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
+        # do not trust the guid field - it may be obsolete!
+        array_walk( $post_titles, function( &$value, $key ) {
+            $value->guid = get_permalink( $key );
+        } );
+    }
+
     # get_backbone_collection() is used to generate a collection of models that may be used to populate the Backbone.js collection of posts.
     # Since, this code was derived from code used to generate an HTML table of the selected posts the value of the fields are the contents of the
     # corresponding <td> HTML element of the table. These are not raw values but values that have been processed for display as HTML. In particular
@@ -811,7 +835,7 @@ EOD
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
 
-# Global Actions and Filters
+# Global Actions and Filters - install for both backend and frontend
 
 add_action( 'plugins_loaded', function( ) {
     load_plugin_textdomain( Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
@@ -1543,7 +1567,10 @@ EOD
         #$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
         if ( $query->posts ) {
             $posts = array_filter( $query->posts );
-            wp_send_json_success( $posts );
+            $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $_REQUEST[ 'search_types_custom_fields_widget_number' ] ];
+            Search_Types_Custom_Fields_Widget::get_auxiliary_data( $posts, $option, $fields, $posts_imploded, $wpcf_fields, $post_titles  );
+            $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $posts, $fields, $_REQUEST[ 'post_type' ], $posts_imploded, $option, $wpcf_fields, $post_titles );
+            wp_send_json_success( $collection );
         } else {
             wp_send_json_error( 'Nothing Found!' );
         }
@@ -1584,8 +1611,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
     $search_types_custom_fields_show_using_macro = array_key_exists( 'search_types_custom_fields_show_using_macro', $_REQUEST )
                                                        ? $_REQUEST[ 'search_types_custom_fields_show_using_macro' ] : NULL;
     if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro !== 'use wordpress' ) {
-        $number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
-        $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $number ];
+        $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $_REQUEST[ 'search_types_custom_fields_widget_number' ] ];
         # for alternate output format do not page output
         add_filter( 'post_limits', function( $limit, &$query ) {
             if ( !$query->is_main_query( ) ) {
@@ -1600,6 +1626,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
                 use ( $option, $search_types_custom_fields_show_using_macro, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
                 global $wp_query;
                 global $wpdb;
+                # TODO: replace with call to get_auxiliary_data()
                 # get the list of posts
                 $posts = array_map( function( $post ) {
                     return $post->ID;
