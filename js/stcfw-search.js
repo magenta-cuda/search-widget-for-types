@@ -76,7 +76,7 @@ jQuery(document).ready(function(){
                 if(r.success){
                     var data=JSON.parse(r.data);
                     console.log("input#scpbcfw-search-fields-submit::post():data=",data);
-                    div.find("div.stcfw-inner_envelope").text(data);
+                    div.find("div#st_iv-container").text(data);
                 }else{
                     div.text(r.data);
                 }

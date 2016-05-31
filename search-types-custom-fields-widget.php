@@ -2178,9 +2178,16 @@ EOD
     <button class="stcfw-close_inner_envelope">X</button>
     <h3 class="stcfw-envelope_heading">Search Results</h3>
     <div class="stcfw-inner_envelope">
+EOD;
+        ob_start( );
+        require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
+        Search_Types_Custom_Fields_Widget::emit_backbone_bootstrap_search_results_html( );
+        $output .= ob_get_flush( );
+        $output .= <<<EOD
     </div>
 </div>
 EOD;
+        error_log( 'SHORTCODE:stcfw_inline_search_results():$output=' . $output );
         return $output;
     } );
 }   # } else {   # if ( is_admin() ) {
