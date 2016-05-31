@@ -835,7 +835,9 @@ EOD
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
 
-# Global Actions and Filters - install for both backend and frontend
+########################################################################################################################
+# Global Actions and Filters - installed for both backend and frontend                                                 #
+########################################################################################################################
 
 add_action( 'plugins_loaded', function( ) {
     load_plugin_textdomain( Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
@@ -1149,7 +1151,10 @@ EOD
 }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 
 if ( is_admin( ) ) {
-    # Admin and AJAX Actions and Filters
+
+########################################################################################################################
+# Admin and AJAX Actions and Filters                                                                                   #
+########################################################################################################################
 
     add_action( 'admin_enqueue_scripts', function( ) {
         wp_enqueue_style(  'stcfw-admin', plugins_url( 'css/stcfw-admin.css', __FILE__ ) );
@@ -1575,8 +1580,12 @@ EOD
             wp_send_json_error( 'Nothing Found!' );
         }
     } );
+
 } else {   # if ( is_admin() ) {
-    # Frontend Actions and Filters
+  
+########################################################################################################################
+# Frontend Actions and Filters                                                                                         #
+########################################################################################################################
     
     add_action( 'wp_head', function( ) {
 ?>
@@ -2158,6 +2167,17 @@ EOD
             return $label;
         } );
     }
+    add_shortcode( 'stcfw_inline_search_results', function( ) {
+        $output = <<<EOD
+<div id="stcfw-inline_search_results" class="stcfw-outer_envelope">
+    <button class="stcfw-close_inner_envelope">X</button>
+    <h3 class="stcfw-envelope_heading">Search Results</h3>
+    <div class="stcfw-inner_envelope">
+    </div>
+</div>
+EOD;
+        return $output;
+    } );
 }   # } else {   # if ( is_admin() ) {
 
 # example of a custom field display value filter - the filter is applied to the custom field value before it is displayed

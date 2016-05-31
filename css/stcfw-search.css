@@ -116,11 +116,19 @@ input#scpbcfw-search-fields-submit{
     border-radius:7px;
 }
 
-div#stcfw-inline-search-results {
+div.stcfw-outer_envelope {
   display: none;
   background-color: #e8e8e8;
   padding: 10px;
   border: 2px solid black;
   border-radius: 7px;
   margin: 10px;
+}
+
+h3.stcfw-envelope_heading {
+  display:inline;
+}
+
+button.stcfw-close_inner_envelope {
+  float:right;
 }

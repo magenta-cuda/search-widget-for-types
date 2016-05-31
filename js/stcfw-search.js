@@ -67,7 +67,7 @@ jQuery(document).ready(function(){
     });
     */
     jQuery("input#scpbcfw-search-fields-submit").click(function(e){
-        var div=jQuery("div#stcfw-inline-search-results");
+        var div=jQuery("div#stcfw-inline_search_results");
         if(div.length){
             var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
             console.log("input#scpbcfw-search-fields-submit::click():query=",query);
@@ -76,7 +76,7 @@ jQuery(document).ready(function(){
                 if(r.success){
                     var data=JSON.parse(r.data);
                     console.log("input#scpbcfw-search-fields-submit::post():data=",data);
-                    div.text(data);
+                    div.find("div.stcfw-inner_envelope").text(data);
                 }else{
                     div.text(r.data);
                 }
@@ -84,5 +84,8 @@ jQuery(document).ready(function(){
             });
             e.preventDefault();
         }
+    });
+    jQuery("button.stcfw-close_inner_envelope").click(function(e){
+        jQuery(this).parents("div.stcfw-outer_envelope").find("div.stcfw-inner_envelope").toggle();
     });
 });
