@@ -832,6 +832,33 @@ EOD
         error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$models=' . print_r( $models, true ) );
         return json_encode( $models );
     }   # public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
+      
+    public static function emit_backbone_bootstrap_search_results_html( ) {
+?>
+<div id="st_iv-bootstrap1"><div id="st_iv-bootstrap2">
+    <!-- responsive Bootstrap navbar for view selection -->
+    <nav role="navigation" class="navbar navbar-inverse">
+        <div class="navbar-header">
+            <button type="button" data-target="#st_iv-nav_images" data-toggle="collapse" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span><span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div id="st_iv-nav_images" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li id="st_iv-gallery" class="active"><a href="#">Gallery</a></li>
+                <li id="st_iv-carousel"><a href="#">Carousel</a></li>
+                <li id="st_iv-tabs"><a href="#">Tabs</a></li>
+                <li id="st_iv-table"><a href="#">Table</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div id="st_iv-container"></div>
+</div></div>
+<?php      
+    }   # public static function emit_backbone_bootstrap_search_results_html( ) {
+     
     
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
 
@@ -1661,29 +1688,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
                     if ( !empty( $option[ 'use_bootstrap' ] ) ) {
                         # Backbone with Bootstrap mode
                         require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
-?>
-<div id="st_iv-bootstrap1"><div id="st_iv-bootstrap2">
-    <!-- responsive Bootstrap navbar for view selection -->
-    <nav role="navigation" class="navbar navbar-inverse">
-        <div class="navbar-header">
-            <button type="button" data-target="#st_iv-nav_images" data-toggle="collapse" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span><span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-        </div>
-        <div id="st_iv-nav_images" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li id="st_iv-gallery" class="active"><a href="#">Gallery</a></li>
-                <li id="st_iv-carousel"><a href="#">Carousel</a></li>
-                <li id="st_iv-tabs"><a href="#">Tabs</a></li>
-                <li id="st_iv-table"><a href="#">Table</a></li>
-            </ul>
-        </div>
-    </nav>
-    <div id="st_iv-container"></div>
-</div></div>
-<?php                        
+                        Search_Types_Custom_Fields_Widget::emit_backbone_bootstrap_search_results_html( );
                     } else {
                         # Backbone no Bootstrap mode
 ?>
