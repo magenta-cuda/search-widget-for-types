@@ -66,6 +66,7 @@ jQuery(document).ready(function(){
         jQuery(this).parents("div.scpbcfw-search-fields").css("background-color",checked?"transparent":"lightgray");
     });
     */
+    // TODO: the code below should be moved to stcfw-search-results-backbone-bootstrap.js
     jQuery("input#scpbcfw-search-fields-submit").click(function(e){
         var div=jQuery("div#stcfw-inline_search_results");
         if(div.length){
@@ -74,9 +75,14 @@ jQuery(document).ready(function(){
             jQuery.get(ajaxurl,query,function(r){
                 console.log("input#scpbcfw-search-fields-submit::post():r=",r);
                 if(r.success){
-                    var data=JSON.parse(r.data);
-                    console.log("input#scpbcfw-search-fields-submit::post():data=",data);
-                    div.find("div#st_iv-container").text(data);
+                    stcfw.posts=new stcfw.Posts();
+                    try{
+                        stcfw.posts.reset(JSON.parse(r.data));
+                    }catch(e){
+                        console.log( "e=", e );
+                    }
+                    stcfw.renderGallery(div.find("div#st_iv-container"),stcfw.posts);
+                    console.log("input#scpbcfw-search-fields-submit::post():stcfw.posts=",stcfw.posts);
                 }else{
                     div.text(r.data);
                 }

@@ -18,6 +18,14 @@
 
 /*
     Project IV: Search Types Custom Fields
+
+    There are 3 modes that this widget can be run in:
+    Classic mode                    - the search results HTML is generated entirely by the PHP backend server, no longer being developed, retained for backward compatibility.
+    Backbone.js mode                - the search results HTML is generated  by the PHP backend server populating Backbone.js collections which the Javascript frontend client
+                                    - uses to render Backbone.js templates, no longer being developed, retained for backward compatibility.
+    Backbone.js with Bootstrap mode - Backbone.js mode styled with Twitter Bootstrap 3 CSS, extended to support generic (i.e., not just search results) Backbone.js web pages,
+                                    - under active development, the focus of current development is to provide additional (not by search) ways to populate Backbone.js collections
+                                    - and render those collections using Backbone.js templates, i.e., a generic Backbone.js framework for displaying Types custom fields.
  */
  
 class Search_Types_Custom_Fields_Widget extends WP_Widget {
@@ -39,19 +47,23 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     public static $PARENT_OF = 'For ';                                 # label for parent of relationship
     public static $CHILD_OF = 'Of ';                                   # label for child of relationship
     
-	public function __construct( ) {
-		parent::__construct(
-            'search_types_custom_fields_widget',
-            __( 'Search Types Custom Fields', self::LANGUAGE_DOMAIN ),
-            [ 'classname' => 'search_types_custom_fields_widget', 'description' => __( "Search Types Custom Fields", self::LANGUAGE_DOMAIN ) ]
+########################################################################################################################
+# WP_Widget Interface Functions - implements the WordPress WP_Widget interface                                         #
+########################################################################################################################
+
+    public function __construct( ) {
+        parent::__construct(
+                'search_types_custom_fields_widget',
+                __( 'Search Types Custom Fields', self::LANGUAGE_DOMAIN ),
+                [ 'classname' => 'search_types_custom_fields_widget', 'description' => __( "Search Types Custom Fields", self::LANGUAGE_DOMAIN ) ]
         );
         self::$PARENT_OF = __( 'For ', self::LANGUAGE_DOMAIN );
         self::$CHILD_OF  = __( 'Of ',  self::LANGUAGE_DOMAIN );
-	}
+    }
 
     # widget() emits a form to select a post type which sends an AJAX request for the search form for the selected post type
     
-	public function widget( $args, $instance ) {
+    public function widget( $args, $instance ) {
         global $wpdb;
         extract( $args );
 ?>
@@ -136,7 +148,7 @@ EOD
 </div>
 </form>
 <?php
-	}   # public function widget( $args, $instance ) {
+    }   # public function widget( $args, $instance ) {
 
     public function update( $new, $old ) {
         return array_map( function( $values ) {
@@ -438,7 +450,9 @@ EOD
 <?php
     }   # public function form( $instance ) {
 
-    # helper functions
+########################################################################################################################
+# Auxiliary Functions - implements common functionality used by the widget methods                                     #
+########################################################################################################################
     
     public static function search_wpcf_field_options( &$options, $option, $value ) {
         foreach ( $options as $k => $v ) {
@@ -1629,6 +1643,11 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
             'open'  => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
             'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
         ] );
+        if ( true ) {
+            wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
+            wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
+            wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
+        }
     } );
     
     add_action( 'parse_query', function( &$query ) {
@@ -2182,7 +2201,8 @@ EOD;
         ob_start( );
         require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
         Search_Types_Custom_Fields_Widget::emit_backbone_bootstrap_search_results_html( );
-        $output .= ob_get_flush( );
+        $output .= ob_get_contents( );
+        ob_end_clean( );
         $output .= <<<EOD
     </div>
 </div>
