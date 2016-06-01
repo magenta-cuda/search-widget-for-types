@@ -531,6 +531,21 @@ EOD
             # display fields not explicitly specified so just use the search fields for post type
             $fields = $option[ $_REQUEST[ 'post_type' ] ];
         }
+        if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
+            # Backbone mode
+            // always include post excerpt and thumbnail
+            if ( !in_array( 'pst-std-post_content', $fields ) ) {
+                $fields[ ] = 'pst-std-post_content';
+            }
+            if ( !in_array( 'pst-std-thumbnail', $fields ) ) {
+                $fields[ ] = 'pst-std-thumbnail';
+            }
+        } else if ( array_key_exists( 'search_types_custom_fields_show_using_macro', $_REQUEST ) ) {
+            # Classic Gallery mode
+            if ( !in_array( 'pst-std-post_content', $fields ) ) {
+                $fields[ ] = 'pst-std-post_content';
+            }
+        }
         $wpcf_fields = get_option( 'wpcf-fields', [ ] );
         $post_titles = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
         # do not trust the guid field - it may be obsolete!
@@ -1614,6 +1629,7 @@ EOD
         if ( $query->posts ) {
             $posts = array_filter( $query->posts );
             $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $_REQUEST[ 'search_types_custom_fields_widget_number' ] ];
+            error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '():$option=' . print_r( $option, true ) );
             Search_Types_Custom_Fields_Widget::get_auxiliary_data( $posts, $option, $fields, $posts_imploded, $wpcf_fields, $post_titles  );
             $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $posts, $fields, $_REQUEST[ 'post_type' ], $posts_imploded, $option, $wpcf_fields, $post_titles );
             wp_send_json_success( $collection );
@@ -2142,6 +2158,7 @@ EOD
             # enqueue JavaScript
             if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
                 # Backbone mode
+                // TODO: remove - see get_auxiliary_data()
                 // always include post excerpt and thumbnail
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {
                     $fields[ ] = 'pst-std-post_content';
@@ -2169,6 +2186,7 @@ EOD
                 # Classic Gallery mode
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'js/stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ],
                                    FALSE, TRUE );
+                // TODO: remove - see get_auxiliary_data()
                 if ( !in_array( 'pst-std-post_content', $fields ) ) {
                     $fields[ ] = 'pst-std-post_content';
                 }
