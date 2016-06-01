@@ -1,3 +1,16 @@
+/* uncomment below to restore obsolete full viewport carousel */
+
+/*
+div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide.st_iv-overlay {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000000;
+}
+*/
+
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
   .st_iv-gallery .st_iv-gallery_item {
     overflow: hidden;
@@ -20,20 +33,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
   }
   
   div.carousel.slide {
-    position: fixed;
-    left: 0px;
-    top: 0px;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1000000;
+    position: relative;
+    width: 100%;
+    height: 66.7vh;
+    z-index: auto;
     background-color: white;
-    
-    &.st_iv-inline {
-      position: relative;
-      width: 100%;
-      height: 70vh;
-      z-index: auto;
-    }
     
     button.st_iv-bs-carousel_close_btn {
       position: absolute;
@@ -43,8 +47,18 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       color: #fff;
       background-color: transparent;
     }
-  }
 
+    &.st_iv-inline {
+      position: relative;
+      width: 100%;
+      height: 66.7vh;
+      z-index: auto;
+      button.st_iv-bs-carousel_close_btn {
+        display: none;
+      }
+    }
+  }
+  
   .carousel-inner {
     height: 100%;
 
@@ -88,6 +102,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       }
     }
   }
+
+  .carousel-control {
+    width: 10%;
+  }
+
   .carousel-indicators {
     bottom: 12%;
 

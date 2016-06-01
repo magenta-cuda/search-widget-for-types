@@ -89,7 +89,7 @@ jQuery( document ).ready( function( ) {
         if ( jQuery( "div#stcfw-inline_search_results" ).length ) {
             var cssClass = "st_iv-inline";
         } else {
-            var cssClass = "";
+            var cssClass = "st_iv-overlay";
         }
         container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ).addClass( cssClass ) );
     }
@@ -154,6 +154,7 @@ jQuery( document ).ready( function( ) {
     // extractHrefAndLabelFromLink() returns an object with properties href and label 
     // The main application of extractHrefAndLabelFromLink() is in evaluate expressions in templates,
     // e.g. '<# print(extractHrefAndLabelFromLink(data.alpha).label); #>'
+
     stcfw.extractHrefAndLabelFromLink=function(link){
         var ret={};
         if(!link){

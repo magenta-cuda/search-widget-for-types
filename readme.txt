@@ -2,8 +2,8 @@
 Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
-Tested up to: 4.4
-Stable tag: 1.2
+Tested up to: 4.5
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -11,11 +11,11 @@ Search Types custom posts for posts that have user specified values for Types cu
 
 == Description ==
 
-This [search widget](http://alttypes.wordpress.com/search-types-custom-fields-widget/) can search for [Types](http://wordpress.org/plugins/types/) custom posts, WordPress posts and pages by the value of Types custom fields, WordPress taxonomies and post content. It is designed to be used with the Types plugin only and makes use of Types' proprietary database format to generate user friendly field names and field values. The widget uses user friendly substitutions for the actual values in the database when appropriate, e.g. post title is substituted for post id in parent/child fields. The selected posts can be displayed as a standard WordPress list of posts, a spreadsheet of posts with their custom fields or a gallery of featured images.
+This [search widget](http://alttypes.wordpress.com/search-types-custom-fields-widget/) can search for [Toolset Types](http://wordpress.org/plugins/types/) custom posts, WordPress posts and pages by the value of Toolset Types custom fields, WordPress taxonomies and post content. It is designed to be used with the Toolset Types plugin only and makes use of Toolset Types' proprietary database format to generate user friendly field names and field values. The widget uses user friendly substitutions for the actual values in the database when appropriate, e.g. post title is substituted for post id in parent/child fields. The selected posts can be displayed as a standard WordPress list of posts, a spreadsheet of posts with their custom fields or a gallery of featured images.
 
 Version 1.0 can optionally display the search results using a [Backbone.js](http://backbonejs.org/) model-view-presenter with [Underscore.js templates](http://underscorejs.org/#template). Since, the Underscore.js templates are instantiated on the client side the user can instantaneously (i.e. without doing a HTTP request) switch between multiple views of the search results. Of course you can provide your own Underscore.js templates.
 
-Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Types 1.8.11 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
+Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Toolset Types 2.0.1 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
 
 == Installation ==
 1. Upload the folder "search-types-custom-fields-widget" to the "/wp-content/plugins/" directory.
@@ -38,6 +38,10 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 6. A Sample Table of Post
 
 == Changelog ==
+
+= 1.3 =
+* optionally dynamically load (via AJAX) the search results into the current page instead of loading a new page
+* bug fixes and css enhancements
 
 = 1.2 =
 * Added option to show the search results using a responsive Twitter Bootstrap stylesheet.
@@ -116,6 +120,9 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 * Initial release.
 
 == Upgrade Notice ==
+= 1.3 =
+* optionally dynamically load (via AJAX) the search results into the current page instead of loading a new page
+* bug fixes and css enhancements
 = 1.2 =
 * Added option to show the search results using a responsive Twitter Bootstrap stylesheet.
 = 1.1.1.1 =
