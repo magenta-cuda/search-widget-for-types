@@ -26,7 +26,7 @@ jQuery( document ).ready( function( ) {
     
     stcfw.ContainerView = Backbone.View.extend( {
         render: function( ) {
-            var html = this.template( this.attributes );
+            var html = this.template( this.model.attributes );
             console.log( "html=", html );
             this.$el.html( html );
             return this;
@@ -52,8 +52,10 @@ jQuery( document ).ready( function( ) {
             }
         } );
         var containerView = new stcfw.ContainerView( {
-            attributes: {
-                items: modelsHtml
+            model: {
+                attributes: {
+                    items: modelsHtml
+                }
             }
         } );
         containerView.template = _.template( jQuery( "script#st_iv-bs-template_gallery" ).html( ), null, stcfw.templateOptions );
@@ -74,16 +76,22 @@ jQuery( document ).ready( function( ) {
             htmlItems      += modelView.render( true );
         } );
         var viewContainer = new stcfw.ContainerView( {
-            attributes: {
-                id:      id,
-                bullets: htmlBullets,
-                items:   htmlItems
+            model: {
+                attributes: {
+                    id:      id,
+                    bullets: htmlBullets,
+                    items:   htmlItems
+                }
             }
         } );
         viewContainer.template = _.template( jQuery( "script#st_iv-bs-template_carousel" ).html( ), null, stcfw.templateOptions );
         container.empty( );
-        //container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ) );
-        container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ).css( { position:"fixed", left:"0px", top:"0px", zIndex:"1000000" } ) );
+        if ( jQuery( "div#stcfw-inline_search_results" ).length ) {
+            var cssClass = "st_iv-inline";
+        } else {
+            var cssClass = "";
+        }
+        container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ).addClass( cssClass ) );
     }
 
     stcfw.renderTabs = function( container, collection ) {
@@ -100,9 +108,11 @@ jQuery( document ).ready( function( ) {
             htmlItems                     += itemView.render( true );
         } );
         var viewContainer = new stcfw.ContainerView( {
-            attributes: {
-                tabs:  htmlTabs,
-                items: htmlItems
+            model: {
+                attributes: {
+                    tabs:  htmlTabs,
+                    items: htmlItems
+                }
             }
         } );
         viewContainer.template = _.template( stcfw.getTemplate( "st_iv-bs-template_tabs", stcfw.post_type ).html( ), null, stcfw.templateOptions );
@@ -119,8 +129,10 @@ jQuery( document ).ready( function( ) {
             htmlItems     += itemView.render( true );
         } );
         var viewContainer = new stcfw.ContainerView( {
-            attributes: {
-                items: htmlItems
+            model: {
+                attributes: {
+                    items: htmlItems
+                }
             }
         } );
         viewContainer.template = _.template( stcfw.getTemplate( "st_iv-bs-template_table", stcfw.post_type ).html( ), null, stcfw.templateOptions );

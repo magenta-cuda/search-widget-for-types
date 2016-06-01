@@ -14,9 +14,18 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 .st_iv-gallery .st_iv-gallery_item {
     font-size: 3vh;
     background-color: cyan; }
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide {
+  position: fixed;
+  left: 0px;
+  top: 0px;
   width: 100vw;
   height: 100vh;
+  z-index: 1000000;
   background-color: white; }
+  div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide.st_iv-inline {
+    position: relative;
+    width: 100%;
+    height: 70vh;
+    z-index: auto; }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide button.st_iv-bs-carousel_close_btn {
     position: absolute;
     top: 2%;

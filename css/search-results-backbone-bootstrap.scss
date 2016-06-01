@@ -20,9 +20,20 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
   }
   
   div.carousel.slide {
+    position: fixed;
+    left: 0px;
+    top: 0px;
     width: 100vw;
     height: 100vh;
+    z-index: 1000000;
     background-color: white;
+    
+    &.st_iv-inline {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      z-index: auto;
+    }
     
     button.st_iv-bs-carousel_close_btn {
       position: absolute;
@@ -33,6 +44,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       background-color: transparent;
     }
   }
+
   .carousel-inner {
     height: 100%;
 
