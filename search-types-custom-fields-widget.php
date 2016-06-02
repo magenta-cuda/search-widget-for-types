@@ -521,9 +521,10 @@ EOD
     public static function get_auxiliary_data( $posts, $option, &$fields, &$posts_imploded, &$wpcf_fields, &$post_titles  ) {
         global $wpdb;
         # get the list of posts
-        $posts_imploded = implode( ', ', array_map( function( $post ) {
+        $posts = array_map( function( $post ) {
             return $post->ID;
-        }, $posts ) );
+        }, $posts );
+        $posts_imploded = implode( ', ', $posts );
         # get the applicable fields from the options for this widget
         if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
             # display fields explicitly specified for post type
@@ -553,6 +554,7 @@ EOD
         array_walk( $post_titles, function( &$value, $key ) {
             $value->guid = get_permalink( $key );
         } );
+        return $posts;
     }
 
     # get_backbone_collection() is used to generate a collection of models that may be used to populate the Backbone.js collection of posts.
@@ -1235,6 +1237,7 @@ if ( is_admin( ) ) {
         if ( !isset( $_POST[ 'stcfw_get_form_nonce' ] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
             Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
             error_log( '##### action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
+            error_log( '##### action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . print_r( $_POST, TRUE ) );
             die;
         }
         if ( $_REQUEST[ 'post_type' ] === 'no-selection' ) {
@@ -1699,26 +1702,7 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
                 use ( $option, $search_types_custom_fields_show_using_macro, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
                 global $wp_query;
                 global $wpdb;
-                # TODO: replace with call to get_auxiliary_data()
-                # get the list of posts
-                $posts = array_map( function( $post ) {
-                    return $post->ID;
-                }, $wp_query->posts );
-                $posts_imploded = implode( ', ', $posts );
-                # get the applicable fields from the options for this widget
-                if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
-                    # display fields explicitly specified for post type
-                    $fields = $option[ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
-                } else {
-                    # display fields not explicitly specified so just use the search fields for post type
-                    $fields = $option[ $_REQUEST[ 'post_type' ] ];
-                }
-                $wpcf_fields = get_option( 'wpcf-fields', [ ] );
-                $post_titles = $wpdb->get_results( "SELECT ID, post_title, guid, post_type FROM $wpdb->posts ORDER BY ID", OBJECT_K );
-                # do not trust the guid field - it may be obsolete!
-                array_walk( $post_titles, function( &$value, $key ) {
-                    $value->guid = get_permalink( $key );
-                } );
+                $posts = Search_Types_Custom_Fields_Widget::get_auxiliary_data( $wp_query->posts, $option, $fields, $posts_imploded, $wpcf_fields, $post_titles );
                 if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
                     # Backbone mode
                     get_header( );
@@ -1794,7 +1778,7 @@ Change View: <select id="stcfw-select-views"></select>
                     if ( $error ) {
                         error_log( 'search types custom fields widget error: gallery format failed to relink, error code = ' . $error );
                     }
-                    echo "<div id=\"stcfw-gallery-container\" style=\"position:relative;\">$html</div>";
+                    echo "<h1 style=\"text-align:center\">Search Results</h1><div id=\"stcfw-gallery-container\" style=\"position:relative;\">$html</div>";
                     require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                     get_footer( );
                     die;
@@ -2160,14 +2144,6 @@ EOD
             # enqueue JavaScript
             if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
                 # Backbone mode
-                // TODO: remove - see get_auxiliary_data()
-                // always include post excerpt and thumbnail
-                if ( !in_array( 'pst-std-post_content', $fields ) ) {
-                    $fields[ ] = 'pst-std-post_content';
-                }
-                if ( !in_array( 'pst-std-thumbnail', $fields ) ) {
-                    $fields[ ] = 'pst-std-thumbnail';
-                }
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
                                                                                           $posts_imploded, $option, $wpcf_fields, $post_titles );
                 if ( !empty( $option[ 'use_bootstrap' ] ) ) {
@@ -2188,10 +2164,6 @@ EOD
                 # Classic Gallery mode
                 wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'js/stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ],
                                    FALSE, TRUE );
-                // TODO: remove - see get_auxiliary_data()
-                if ( !in_array( 'pst-std-post_content', $fields ) ) {
-                    $fields[ ] = 'pst-std-post_content';
-                }
                 #$collection = str_replace( '\"', '\\\\"', Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts,
                 #    [ 'pst-std-post_content' ], $_REQUEST[ 'post_type' ], $posts_imploded ) );
                 $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $wp_query->posts, $fields, $_REQUEST[ 'post_type' ],
@@ -2212,21 +2184,29 @@ EOD
         } );
     }
     add_shortcode( 'stcfw_inline_search_results', function( ) {
-        $output = <<<EOD
+        if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) && !empty( $option[ 'use_bootstrap' ] ) ) {
+            $output = <<<EOD
 <div id="stcfw-inline_search_results" class="stcfw-outer_envelope">
     <button class="stcfw-close_inner_envelope">X</button>
     <h3 class="stcfw-envelope_heading">Search Results</h3>
     <div class="stcfw-inner_envelope">
 EOD;
-        ob_start( );
-        require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
-        Search_Types_Custom_Fields_Widget::emit_backbone_bootstrap_search_results_html( );
-        $output .= ob_get_contents( );
-        ob_end_clean( );
-        $output .= <<<EOD
+            ob_start( );
+            require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
+            Search_Types_Custom_Fields_Widget::emit_backbone_bootstrap_search_results_html( );
+            $output .= ob_get_contents( );
+            ob_end_clean( );
+            $output .= <<<EOD
     </div>
 </div>
 EOD;
+        } else {
+            $output = <<<EOD
+<div style="border:2px solid red;padding:10px;">
+The shortcode 'stcfw_inline_search_results' is only valid in Backbone.js with Bootstrap mode.
+</div>
+EOD;
+        }
         error_log( 'SHORTCODE:stcfw_inline_search_results():$output=' . $output );
         return $output;
     } );

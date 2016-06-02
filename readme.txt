@@ -41,6 +41,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 = 1.3 =
 * optionally dynamically load (via AJAX) the search results into the current page instead of loading a new page
+* replace ugly full viewport carousel view with an inline embedded carousel view
 * bug fixes and css enhancements
 
 = 1.2 =
@@ -122,6 +123,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 == Upgrade Notice ==
 = 1.3 =
 * optionally dynamically load (via AJAX) the search results into the current page instead of loading a new page
+* replace ugly full viewport carousel view with an inline embedded carousel view
 * bug fixes and css enhancements
 = 1.2 =
 * Added option to show the search results using a responsive Twitter Bootstrap stylesheet.
