@@ -1663,12 +1663,6 @@ var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
             'open'  => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
             'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
         ] );
-        if ( true ) {
-            wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
-            wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
-            wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
-            wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
-        }
     } );
     
     add_action( 'parse_query', function( &$query ) {
@@ -2116,6 +2110,7 @@ EOD
                 die;
             } );   # add_action( 'template_redirect', function( ) use ( $option ) {
         } );   # add_action( 'after_setup_theme', function( ) use ( $option ) {
+
         add_action( 'wp_enqueue_scripts', function( )
             use ( $option, $search_types_custom_fields_show_using_macro, &$fields, &$post, &$posts_imploded, &$wpcf_fields, &$post_titles ) {
             global $wp_query;
@@ -2183,8 +2178,16 @@ EOD
             return $label;
         } );
     }
-    add_shortcode( 'stcfw_inline_search_results', function( ) {
-        if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) && !empty( $option[ 'use_bootstrap' ] ) ) {
+
+    if ( empty( $search_types_custom_fields_show_using_macro ) ) {
+        # page is not a search result page and may have a 'stcfw_inline_search_results' shortcode
+        add_action( 'wp_enqueue_scripts', function( ) {
+            wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
+            wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
+            wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
+            wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
+        } );
+        add_shortcode( 'stcfw_inline_search_results', function( ) {
             $output = <<<EOD
 <div id="stcfw-inline_search_results" class="stcfw-outer_envelope">
     <button class="stcfw-close_inner_envelope">X</button>
@@ -2200,16 +2203,15 @@ EOD;
     </div>
 </div>
 EOD;
-        } else {
-            $output = <<<EOD
-<div style="border:2px solid red;padding:10px;">
+            $output .= <<<EOD
+<div style="border:2px solid red;padding:10px;display:none;">
 The shortcode 'stcfw_inline_search_results' is only valid in Backbone.js with Bootstrap mode.
 </div>
 EOD;
-        }
-        error_log( 'SHORTCODE:stcfw_inline_search_results():$output=' . $output );
-        return $output;
-    } );
+            error_log( 'SHORTCODE:stcfw_inline_search_results():$output=' . $output );
+            return $output;
+        } );
+    }   # if ( empty( $search_types_custom_fields_show_using_macro ) ) {
 }   # } else {   # if ( is_admin() ) {
 
 # example of a custom field display value filter - the filter is applied to the custom field value before it is displayed

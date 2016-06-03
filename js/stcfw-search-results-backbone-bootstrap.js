@@ -175,6 +175,8 @@ jQuery( document ).ready( function( ) {
         return ret;
     };
 
+    var container = jQuery( "div#st_iv-container" );
+
     if ( stcfw.collection ) {
         // the page was statically initialized with a Backbone.js collection so render it otherwise the collection will be dynamically loaded
         stcfw.posts=new stcfw.Posts( );
@@ -184,7 +186,6 @@ jQuery( document ).ready( function( ) {
             console.log( "e=", e );
         }
         
-        var container = jQuery( "div#st_iv-container" );
         stcfw.renderGallery( container, stcfw.posts );
         //stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
         //stcfw.renderTabs( container, stcfw.posts );
