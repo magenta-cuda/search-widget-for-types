@@ -36,7 +36,11 @@ jQuery( document ).ready( function( ) {
     stcfw.renderGallery = function( container, collection ) {
         var modelView = new stcfw.ModelView( );
         // attach template to imageView not ImageView.prototype since template is specific to imageView
-        modelView.template = _.template( jQuery( "script#st_iv-bs-template_gallery_item" ).html( ), null, stcfw.templateOptions );
+        try {
+            modelView.template = _.template( jQuery( "script#st_iv-bs-template_gallery_item" ).html( ), null, stcfw.templateOptions );
+        } catch ( e ) {
+            console.log( "e=", e );
+        }
         var modelsHtml  = "";
         collection.forEach( function( model, index ) {
             modelView.model = model;
@@ -171,19 +175,22 @@ jQuery( document ).ready( function( ) {
         return ret;
     };
 
-    stcfw.posts=new stcfw.Posts( );
-    try {
-        stcfw.posts.reset( JSON.parse( stcfw.collection ) );
-    }catch( e ) {
-        console.log( "e=", e );
+    if ( stcfw.collection ) {
+        // the page was statically initialized with a Backbone.js collection so render it otherwise the collection will be dynamically loaded
+        stcfw.posts=new stcfw.Posts( );
+        try {
+            stcfw.posts.reset( JSON.parse( stcfw.collection ) );
+        } catch ( e ) {
+            console.log( "e=", e );
+        }
+        
+        var container = jQuery( "div#st_iv-container" );
+        stcfw.renderGallery( container, stcfw.posts );
+        //stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
+        //stcfw.renderTabs( container, stcfw.posts );
+        //stcfw.renderTable( container, stcfw.posts );
     }
-    
-    var container = jQuery( "div#st_iv-container" );
-    stcfw.renderGallery( container, stcfw.posts );
-    //stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
-    //stcfw.renderTabs( container, stcfw.posts );
-    //stcfw.renderTable( container, stcfw.posts );
-    
+
     jQuery( "div#st_iv-nav_images li a" ).click( function( e ) {
         jQuery( "div#st_iv-nav_images li" ).removeClass( "active" );
         var li = jQuery( this.parentNode ).addClass( "active" )[0];

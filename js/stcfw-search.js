@@ -4,6 +4,7 @@ jQuery(document).ready(function(){
     select.change(function(){
         var id=jQuery(this).parents("form.scpbcfw-search-fields-form")[0].id.match(/-(\d+)$/)[1];
         var form=jQuery("form#search-types-custom-fields-widget-"+id);
+        form.find("div#search-types-custom-fields-parameters").html('<div class="st_iv-search_form_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>');
         jQuery.post(
             ajaxurl,{
                 action:"get_form_for_post_type",
