@@ -212,10 +212,16 @@ jQuery( document ).ready( function( ) {
         e.preventDefault( );
     } );
 
-    if ( jQuery( "div#stcfw-inline_search_results" ).length ) {
+    var searchResults = jQuery( "div#stcfw-inline_search_results" );
+    if ( searchResults.length ) {
         var widget = jQuery( "form.scpbcfw-search-fields-form" );
         if ( widget.length ) {
             widget.find( "div.scpbcfw-search-fields-checkbox-box" ).hide( ).siblings( "hr" ).hide( );
+        } else {
+            searchResults.html(
+                '<div style="border:3px solid red;padding:10px;">Error: '
+                + 'The shortcode stcfw_inline_search_results requires that the "Search Types Custom Fields" widget be activated.</div>'
+            ).show(); 
         }
     }
 
