@@ -216,8 +216,10 @@ jQuery( document ).ready( function( ) {
     if ( searchResults.length ) {
         var widget = jQuery( "form.scpbcfw-search-fields-form" );
         if ( widget.length ) {
+            // Hide irrelevant HTML elements when in inline search results mode
             widget.find( "div.scpbcfw-search-fields-checkbox-box" ).hide( ).siblings( "hr" ).hide( );
         } else {
+            // "Search Types Custom Fields" widget not activated
             searchResults.html(
                 '<div style="border:3px solid red;padding:10px;">Error: '
                 + 'The shortcode stcfw_inline_search_results requires that the "Search Types Custom Fields" widget be activated.</div>'
@@ -225,4 +227,31 @@ jQuery( document ).ready( function( ) {
         }
     }
 
+    jQuery("input#scpbcfw-search-fields-submit").click(function(e){
+        var div=jQuery("div#stcfw-inline_search_results");
+        if(div.length){
+            var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
+            console.log("input#scpbcfw-search-fields-submit::click():query=",query);
+            jQuery.get(ajaxurl,query,function(r){
+                console.log("input#scpbcfw-search-fields-submit::post():r=",r);
+                if(r.success){
+                    stcfw.posts=new stcfw.Posts();
+                    try{
+                        stcfw.posts.reset(JSON.parse(r.data));
+                    }catch(e){
+                        console.log( "e=", e );
+                    }
+                    stcfw.renderGallery(div.find("div#st_iv-container"),stcfw.posts);
+                    console.log("input#scpbcfw-search-fields-submit::post():stcfw.posts=",stcfw.posts);
+                }else{
+                    div.text(r.data);
+                }
+                div.show();
+            });
+            e.preventDefault();
+        }
+    });
+    jQuery("button.stcfw-close_inner_envelope").click(function(e){
+        jQuery(this).parents("div.stcfw-outer_envelope").find("div.stcfw-inner_envelope").toggle();
+    });
 } );

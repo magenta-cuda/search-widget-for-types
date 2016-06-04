@@ -67,32 +67,4 @@ jQuery(document).ready(function(){
         jQuery(this).parents("div.scpbcfw-search-fields").css("background-color",checked?"transparent":"lightgray");
     });
     */
-    // TODO: the code below should be moved to stcfw-search-results-backbone-bootstrap.js
-    jQuery("input#scpbcfw-search-fields-submit").click(function(e){
-        var div=jQuery("div#stcfw-inline_search_results");
-        if(div.length){
-            var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
-            console.log("input#scpbcfw-search-fields-submit::click():query=",query);
-            jQuery.get(ajaxurl,query,function(r){
-                console.log("input#scpbcfw-search-fields-submit::post():r=",r);
-                if(r.success){
-                    stcfw.posts=new stcfw.Posts();
-                    try{
-                        stcfw.posts.reset(JSON.parse(r.data));
-                    }catch(e){
-                        console.log( "e=", e );
-                    }
-                    stcfw.renderGallery(div.find("div#st_iv-container"),stcfw.posts);
-                    console.log("input#scpbcfw-search-fields-submit::post():stcfw.posts=",stcfw.posts);
-                }else{
-                    div.text(r.data);
-                }
-                div.show();
-            });
-            e.preventDefault();
-        }
-    });
-    jQuery("button.stcfw-close_inner_envelope").click(function(e){
-        jQuery(this).parents("div.stcfw-outer_envelope").find("div.stcfw-inner_envelope").toggle();
-    });
 });

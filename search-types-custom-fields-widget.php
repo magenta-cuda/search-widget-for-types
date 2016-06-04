@@ -73,6 +73,22 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
 <input id="search_types_custom_fields_form" name="search_types_custom_fields_form" type="hidden" value="types-fields-search">
 <input id="search_types_custom_fields_widget_option" name="search_types_custom_fields_widget_option" type="hidden" value="<?php echo $this->option_name; ?>">
 <input id="search_types_custom_fields_widget_number" name="search_types_custom_fields_widget_number" type="hidden" value="<?php echo $this->number; ?>">
+<?php
+        if ( !empty( $instance[ 'enable_table_view_option' ] ) && $instance[ 'enable_table_view_option' ] === 'table view option enabled' ) {
+            if ( !empty( $instance[ 'use_backbone_model_view_presenter' ] ) && $instance[ 'use_backbone_model_view_presenter' ] === 'use backbone' ) {
+                if ( !empty( $instance[ 'use_bootstrap' ] ) && $instance[ 'use_bootstrap' ] === 'use bootstrap' ) {
+                    $mode = 'backbone-bootstrap';
+                } else {
+                    $mode = 'backbone';
+                }
+            } else {
+                $mode = 'classic';
+            }
+        } else {
+            $mode = 'wordpress';
+        }
+?>
+<input id="search_types_custom_fields_widget_mode" name="search_types_custom_fields_widget_mode" type="hidden" value="<?php echo $mode; ?>">
 <h2><?php _e( 'Search:', self::LANGUAGE_DOMAIN ); ?></h2>
 <div class="scpbcfw-search-post-type">
 <h3><?php _e( 'post type:', self::LANGUAGE_DOMAIN ); ?></h3>
@@ -970,7 +986,7 @@ EOD
     unset( $request );
     $wpcf_fields = get_option( 'wpcf-fields', [ ] );    
     $non_field_keys = [ 'search_types_custom_fields_form', 'search_types_custom_fields_widget_option', 'search_types_custom_fields_widget_number',
-                          'search_types_custom_fields_and_or', 'search_types_custom_fields_show_using_macro', 'post_type', 'paged' ];
+                        'search_types_custom_fields_widget_mode', 'search_types_custom_fields_and_or', 'search_types_custom_fields_show_using_macro', 'post_type', 'paged' ];
     $sql = '';
     foreach ( $_REQUEST as $key => $values ) {
         # here only searches on the table $wpdb->postmeta are processed; everything is done later.
