@@ -231,6 +231,7 @@ jQuery( document ).ready( function( ) {
         if(div.length){
             div.find( "div#st_iv-container" ).html( '<div class="st_iv-search_results_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>' );
             div.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
+            div.find("div.stcfw-inner_envelope").show();
             var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
             console.log("input#scpbcfw-search-fields-submit::click():query=",query);
             jQuery.get(ajaxurl,query,function(r){

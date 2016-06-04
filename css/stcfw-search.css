@@ -124,8 +124,10 @@ div.st_iv-search_form_loading {
     margin: 10px 5px;
 }
 
+/* TODO: move below to search-results-backbone-bootstrap.scss */
+
 div.stcfw-outer_envelope {
-  display: none;
+  display: block;
   background-color: #e8e8e8;
   padding: 10px;
   border: 2px solid black;
@@ -139,4 +141,8 @@ h3.stcfw-envelope_heading {
 
 button.stcfw-close_inner_envelope {
   float:right;
+}
+
+div.stcfw-inner_envelope {
+  display: none;
 }

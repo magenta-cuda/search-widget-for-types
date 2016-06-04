@@ -2210,6 +2210,7 @@ EOD
     <button class="stcfw-close_inner_envelope">X</button>
     <h3 class="stcfw-envelope_heading">Search Results</h3>
     <div class="stcfw-inner_envelope">
+This pane shows the results of the Search widget in the sidebar.
 EOD;
             ob_start( );
             require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
