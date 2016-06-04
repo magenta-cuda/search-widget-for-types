@@ -12,9 +12,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide.st_iv-overlay {
 */
 
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
+  font-size: 3vh;
+
   .st_iv-gallery .st_iv-gallery_item {
     overflow: hidden;
-    border: 1px solid black;
+    border: 2px solid black;
     margin-bottom: 20px;
 
     > a > img {
@@ -23,11 +25,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       height: auto;
       margin: auto;
     }
-    > figcaption {
+    > a > figcaption {
       height: 5%;
       padding: 0.5%;
       text-align: center;
-      font-size: 3vh;
+      font-size: 2vh;
       background-color: cyan;
     }
   }
