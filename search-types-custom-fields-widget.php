@@ -2205,11 +2205,12 @@ EOD
             wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
         } );
         add_shortcode( 'stcfw_inline_search_results', function( ) {
+            $open = __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN );
             $output = <<<EOD
-<div id="stcfw-inline_search_results" class="stcfw-outer_envelope">
-    <button class="stcfw-close_inner_envelope">X</button>
-    <h3 class="stcfw-envelope_heading">Search Results</h3>
-    <div class="stcfw-inner_envelope">
+<div id="stcfw-inline_search_results" class="st_iv-outer_envelope">
+    <div class="scpbcfw-display-button st_iv-close_inner_envelope">$open</div>
+    <h3 class="st_iv-envelope_heading">Search Results</h3>
+    <div class="st_iv-inner_envelope">
 This pane shows the results of the Search widget in the sidebar.
 EOD;
             ob_start( );

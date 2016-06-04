@@ -126,7 +126,7 @@ div.st_iv-search_form_loading {
 
 /* TODO: move below to search-results-backbone-bootstrap.scss */
 
-div.stcfw-outer_envelope {
+div.st_iv-outer_envelope {
   display: block;
   background-color: #e8e8e8;
   padding: 10px;
@@ -135,14 +135,10 @@ div.stcfw-outer_envelope {
   margin: 10px;
 }
 
-h3.stcfw-envelope_heading {
+h3.st_iv-envelope_heading {
   display:inline;
 }
 
-button.stcfw-close_inner_envelope {
-  float:right;
-}
-
-div.stcfw-inner_envelope {
+div.st_iv-inner_envelope {
   display: none;
 }

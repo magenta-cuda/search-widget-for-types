@@ -231,7 +231,8 @@ jQuery( document ).ready( function( ) {
         if(div.length){
             div.find( "div#st_iv-container" ).html( '<div class="st_iv-search_results_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>' );
             div.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
-            div.find("div.stcfw-inner_envelope").show();
+            div.find("div.st_iv-inner_envelope").show();
+            jQuery("div.st_iv-close_inner_envelope").text(stcfwSearchTranslations.close);
             var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
             console.log("input#scpbcfw-search-fields-submit::click():query=",query);
             jQuery.get(ajaxurl,query,function(r){
@@ -253,7 +254,13 @@ jQuery( document ).ready( function( ) {
             e.preventDefault();
         }
     });
-    jQuery("button.stcfw-close_inner_envelope").click(function(e){
-        jQuery(this).parents("div.stcfw-outer_envelope").find("div.stcfw-inner_envelope").toggle();
+    jQuery("div.st_iv-close_inner_envelope").click(function(e){
+        if(jQuery(this).text()==stcfwSearchTranslations.open){
+            jQuery(this).text(stcfwSearchTranslations.close);
+            jQuery(this).parents("div.st_iv-outer_envelope").find("div.st_iv-inner_envelope").show();
+        }else{
+            jQuery(this).text(stcfwSearchTranslations.open);
+            jQuery(this).parents("div.st_iv-outer_envelope").find("div.st_iv-inner_envelope").hide();
+        }
     });
 } );
