@@ -66,6 +66,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
     public function widget( $args, $instance ) {
         global $wpdb;
+        error_log( 'Search_Types_Custom_Fields_Widget::widget():$instance=' . print_r( $instance, true ) );
         extract( $args );
 ?>
 <form id="search-types-custom-fields-widget-<?php echo $this->number; ?>" class="scpbcfw-search-fields-form" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">

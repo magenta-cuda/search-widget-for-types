@@ -212,4 +212,11 @@ jQuery( document ).ready( function( ) {
         e.preventDefault( );
     } );
 
+    if ( jQuery( "div#stcfw-inline_search_results" ).length ) {
+        var widget = jQuery( "form.scpbcfw-search-fields-form" );
+        if ( widget.length ) {
+            widget.find( "div.scpbcfw-search-fields-checkbox-box" ).hide( ).siblings( "hr" ).hide( );
+        }
+    }
+
 } );
