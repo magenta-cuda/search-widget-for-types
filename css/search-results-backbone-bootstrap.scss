@@ -146,4 +146,12 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       }
     }
   }
+
+  div.st_iv-search_results_loading {
+    font-weight: bold;
+    padding: 10px;
+    border: 3px solid yellow;
+    border-radius: 7px;
+    margin: 10px;
+  }
 }

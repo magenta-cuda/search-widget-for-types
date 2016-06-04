@@ -200,8 +200,7 @@ jQuery( document ).ready( function( ) {
         } else if ( li.id === "st_iv-carousel" ) {
             stcfw.renderCarousel( container, stcfw.posts, "st_iv-bootstrap_carousel_1" );
             jQuery( "button.st_iv-bs-carousel_close_btn" ).click( function( e ) {
-                jQuery( "div#st_iv-nav_images li" ).removeClass( "active" );
-                jQuery( "div#st_iv-nav_images li" ).first( ).addClass( "active" );
+                jQuery( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
                 stcfw.renderGallery( container, stcfw.posts );
             } );          
         } else if ( li.id === "st_iv-tabs" ) {
@@ -230,6 +229,8 @@ jQuery( document ).ready( function( ) {
     jQuery("input#scpbcfw-search-fields-submit").click(function(e){
         var div=jQuery("div#stcfw-inline_search_results");
         if(div.length){
+            div.find( "div#st_iv-container" ).html( '<div class="st_iv-search_results_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>' );
+            div.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
             var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
             console.log("input#scpbcfw-search-fields-submit::click():query=",query);
             jQuery.get(ajaxurl,query,function(r){
