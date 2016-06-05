@@ -263,4 +263,15 @@ jQuery( document ).ready( function( ) {
             jQuery(this).parents("div.st_iv-outer_envelope").find("div.st_iv-inner_envelope").hide();
         }
     });
+    // wireup mobile swipe events
+    jQuery( window ).on( "swipe", function( e ) {
+        var carousel = jQuery( "div#st_iv-container div.carousel.slide" );
+        if ( carousel.length ) {
+            if ( e.swipestop.coords[0] > e.swipestart.coords[0] ) {
+                carousel.find( "a.left.carousel-control" ).click( );
+            }else{
+                carousel.find( "a.right.carousel-control" ).click( );
+            }
+        }
+    } );
 } );
