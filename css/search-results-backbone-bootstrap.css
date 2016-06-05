@@ -25,6 +25,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       padding: 0.5%;
       text-align: center;
       font-size: 2vh;
+      color: blue;
       background-color: cyan; }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide {
     position: relative;
@@ -32,6 +33,9 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     height: 66.7vh;
     z-index: auto;
     background-color: white; }
+    @media (max-aspect-ratio: 1 / 1) {
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide {
+        height: 50vh; } }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide button.st_iv-bs-carousel_close_btn {
       position: absolute;
       top: 2%;
@@ -46,6 +50,9 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       z-index: auto; }
       div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide.st_iv-inline button.st_iv-bs-carousel_close_btn {
         display: none; }
+      @media (max-aspect-ratio: 1 / 1) {
+        div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide.st_iv-inline {
+          height: 50vh; } }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-inner {
     height: 100%; }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-inner > .item {
@@ -85,6 +92,9 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     position: relative;
     height: 80vh;
     overflow: hidden; }
+    @media (max-aspect-ratio: 1 / 1) {
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure {
+        height: 50vh; } }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
       position: absolute;
       left: 50%;

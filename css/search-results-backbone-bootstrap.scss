@@ -30,6 +30,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       padding: 0.5%;
       text-align: center;
       font-size: 2vh;
+      color: blue;
       background-color: cyan;
     }
   }
@@ -40,7 +41,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     height: 66.7vh;
     z-index: auto;
     background-color: white;
-    
+
+    @media ( max-aspect-ratio: 1 / 1 ) {
+      height: 50vh;
+    }
+
     button.st_iv-bs-carousel_close_btn {
       position: absolute;
       top: 2%;
@@ -57,6 +62,10 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       z-index: auto;
       button.st_iv-bs-carousel_close_btn {
         display: none;
+      }
+
+      @media ( max-aspect-ratio: 1 / 1 ) {
+        height: 50vh;
       }
     }
   }
@@ -123,6 +132,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       position: relative;
       height: 80vh;
       overflow: hidden;
+
+      @media ( max-aspect-ratio: 1 / 1 ) {
+          height: 50vh;
+      }
+
       img {
         position: absolute;
         left: 50%;
@@ -137,6 +151,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
           object-fit: contain;
         }
       }
+
       figcaption {
         position: absolute;
         left: 50%;
