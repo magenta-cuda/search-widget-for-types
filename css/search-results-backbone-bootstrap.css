@@ -83,6 +83,8 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       object-fit: contain; } }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control {
     width: 10%; }
+    div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon {
+      top: 45%; }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators {
     bottom: 12%; }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators li {
@@ -98,7 +100,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li {
         margin-bottom: 0; }
         div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li > a {
-          padding: 5px;
+          padding: 2px 5px 1px 5px;
           border-width: 2px 2px 0 2px;
           border-style: solid;
           border-color: gray;
@@ -139,5 +141,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     border: 3px solid yellow;
     border-radius: 7px;
     margin: 10px; }
+  div#st_iv-bootstrap1 div#st_iv-bootstrap2 .st_iv-error {
+    color: red;
+    font-weight: bold;
+    padding: 10px;
+    border: 2px solid red;
+    border-radius: 7px; }
 
 /*# sourceMappingURL=search-results-backbone-bootstrap.css.map */

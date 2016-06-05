@@ -112,8 +112,13 @@ div.scpbcfw-search-fields-submit-box{
 
 input#scpbcfw-search-fields-submit{
     color:black;
+    background-color:#ccc;
     border:2px solid black;
     border-radius:7px;
+}
+
+input#scpbcfw-search-fields-submit:hover{
+    background-color:white;
 }
 
 div.st_iv-search_form_loading {

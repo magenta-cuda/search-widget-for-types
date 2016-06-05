@@ -247,7 +247,7 @@ jQuery( document ).ready( function( ) {
                     stcfw.renderGallery(div.find("div#st_iv-container"),stcfw.posts);
                     console.log("input#scpbcfw-search-fields-submit::post():stcfw.posts=",stcfw.posts);
                 }else{
-                    div.text(r.data);
+                    div.find( "div#st_iv-container" ).html( '<div class="st_iv-error">' + r.data + '</div>' );
                 }
                 div.show();
             });

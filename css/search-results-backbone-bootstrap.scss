@@ -116,6 +116,9 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
 
   .carousel-control {
     width: 10%;
+    span.glyphicon {
+      top: 45%;
+    }
   }
 
   .carousel-indicators {
@@ -141,7 +144,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       ul.nav-tabs > li {
         margin-bottom: 0;
         > a {
-          padding: 5px;
+          padding: 2px 5px 1px 5px;
           border-width: 2px 2px 0 2px;
           border-style: solid;
           border-color: gray;
@@ -195,5 +198,13 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     border: 3px solid yellow;
     border-radius: 7px;
     margin: 10px;
+  }
+
+  .st_iv-error {
+    color: red;
+    font-weight: bold;
+    padding: 10px;
+    border: 2px solid red;
+    border-radius: 7px;
   }
 }
