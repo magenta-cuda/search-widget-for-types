@@ -88,34 +88,42 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators li {
       border: 1px solid black;
       background-color: gray; }
-  div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure {
-    position: relative;
-    height: 80vh;
-    overflow: hidden; }
-    @media (max-aspect-ratio: 1 / 1) {
-      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure {
-        height: 50vh; } }
-    div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
-      position: absolute;
-      left: 50%;
-      top: 0px;
-      transform: translate(-50%, 0px);
-      display: block;
-      height: 90%;
-      max-width: none;
-      padding: 1%; }
-      @supports (object-fit: contain) {
-        div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
-          width: 100%;
-          object-fit: contain; } }
-    div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure figcaption {
-      position: absolute;
-      left: 50%;
-      bottom: 0px;
-      transform: translate(-50%, 0px);
-      height: 10%;
-      width: 100%;
-      text-align: center; }
+  div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container {
+    font-size: 2vh;
+    font-weight: bold; }
+    div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar {
+      min-height: 0;
+      margin-bottom: 0; }
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li > a {
+        padding: 5px; }
+    div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure {
+      position: relative;
+      height: 70vh;
+      overflow: hidden; }
+      @media (max-aspect-ratio: 1 / 1) {
+        div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure {
+          height: 50vh; } }
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
+        position: absolute;
+        left: 50%;
+        top: 0px;
+        transform: translate(-50%, 0px);
+        display: block;
+        height: 90%;
+        max-width: none;
+        padding: 1%; }
+        @supports (object-fit: contain) {
+          div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure img {
+            width: 100%;
+            object-fit: contain; } }
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure figcaption {
+        position: absolute;
+        left: 50%;
+        bottom: 0px;
+        transform: translate(-50%, 0px);
+        height: 10%;
+        width: 100%;
+        text-align: center; }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-search_results_loading {
     font-weight: bold;
     padding: 10px;
