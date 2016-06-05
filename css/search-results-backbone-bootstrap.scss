@@ -133,16 +133,29 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
 
     nav.navbar {
       min-height: 0;
-      margin-bottom: 0;
 
-      ul.nav-tabs > li > a {
+      > div.collapse {
+        padding: 3px 3px 0 3px;
+      }
+
+      ul.nav-tabs > li {
+        margin-bottom: 0;
+        > a {
           padding: 5px;
+          border-width: 2px 2px 0 2px;
+          border-style: solid;
+          border-color: gray;
+          border-radius: 7px 7px 0 0;
+        }
+        &.active > a {
+          background-color: cyan;
+        }
       }
     }
 
     div.tab-content figure {
       position: relative;
-      height: 70vh;
+      height: 66.7vh;
       overflow: hidden;
 
       @media ( max-aspect-ratio: 1 / 1 ) {
