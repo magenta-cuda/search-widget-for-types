@@ -68,6 +68,12 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
         height: 50vh;
       }
     }
+
+    &.st_iv-overlay {
+      @media ( min-aspect-ratio: 1 / 1 ) {
+        height: 75vh;
+      }
+    }
   }
   
   .carousel-inner {

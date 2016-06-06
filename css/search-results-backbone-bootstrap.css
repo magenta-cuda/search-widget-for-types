@@ -53,6 +53,9 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       @media (max-aspect-ratio: 1 / 1) {
         div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide.st_iv-inline {
           height: 50vh; } }
+    @media (min-aspect-ratio: 1 / 1) {
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide.st_iv-overlay {
+        height: 75vh; } }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-inner {
     height: 100%; }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-inner > .item {
