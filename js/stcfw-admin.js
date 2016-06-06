@@ -65,11 +65,14 @@ function stcfwInitialize(target){
 jQuery(document).ready(function(){
     // run only on widgets admin page
     if(location.pathname.indexOf("/widgets.php")===-1){return;}
-    jQuery("div.widget-content").has("div.scpbcfw-admin-button").each(function(){stcfwInitialize(this);});
+    jQuery("div.widget-content,div.widget-inside").has("div.scpbcfw-admin-button").each(function(){stcfwInitialize(this);});
     // handle AJAX refresh of the search form
     var container=jQuery("div.widgets-sortables");
+    if ( !container.length ) {
+        container = jQuery( "div.editwidget" );
+    }
     // What if WordPress changes the classname of the widget container? The plugin will need to be upgraded
     if(!container.length){window.alert("Search Types Custom Fields Widget:Error - widget container not found, please report this to the developer as this plugin needs to be upgraded.");}
-    var observer=new MutationObserver(function(){container.find("div.widget-content").has("div.scpbcfw-admin-button").each(function(){stcfwInitialize(this);})});
+    var observer=new MutationObserver(function(){container.find("div.widget-content,div.widget-inside").has("div.scpbcfw-admin-button").each(function(){stcfwInitialize(this);})});
     container.each(function(){observer.observe(this,{childList:true,subtree:true});});
 });
