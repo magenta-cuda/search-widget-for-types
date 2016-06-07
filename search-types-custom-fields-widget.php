@@ -66,7 +66,6 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
     public function widget( $args, $instance ) {
         global $wpdb;
-        error_log( 'Search_Types_Custom_Fields_Widget::widget():$instance=' . print_r( $instance, true ) );
         extract( $args );
 ?>
 <form id="search-types-custom-fields-widget-<?php echo $this->number; ?>" class="scpbcfw-search-fields-form" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
@@ -581,13 +580,6 @@ EOD
     
     public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
         global $wpdb;
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$_SERVER=' . print_r( $_SERVER, true ) );
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$_REQUEST=' . print_r( $_REQUEST, true ) );
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$post_type=' . print_r( $post_type, true ) );
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$posts_imploded=' . print_r( $posts_imploded, true ) );
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$option=' . print_r( $option, true ) );
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$post_titles=' . print_r( $post_titles, true ) );
         $models = [ ];
         foreach ( $posts as $post_obj ) {
             $post_obj->guid        = get_permalink( $post_obj->ID );
@@ -878,7 +870,6 @@ EOD
                 }
             }   # foreach ( $fields as $field ) {
         }   # foreach ( $posts as $post ) 
-        error_log( 'Search_Types_Custom_Fields_Widget::get_backbone_collection():$models=' . print_r( $models, true ) );
         return json_encode( $models );
     }   # public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
       
@@ -925,9 +916,6 @@ add_action( 'widgets_init', function( ) {
   
 add_filter( 'posts_where', function( $where, $query ) {
     global $wpdb;
-    error_log( 'FILTER::posts_where():where=' . $where );
-    error_log( 'FILTER::posts_where():$_REQUEST=' . print_r( $_REQUEST, true ) );
-    error_log( 'FILTER::posts_where():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );        
     if ( ( !$query->is_main_query( ) && ( empty( $_REQUEST[ 'action' ] ) || $_REQUEST[ 'action' ] !== 'stcfw_get_posts' ) )
         || empty( $_REQUEST[ 'search_types_custom_fields_form' ] ) ) {
         return $where;
@@ -1247,14 +1235,10 @@ if ( is_admin( ) ) {
     } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function( ) {
         # build the search form for the post type in the AJAX request
-        global $wpdb;
-        error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . '():$_SERVER=' . print_r( $_SERVER, true ) );
-        error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . '():$_REQUEST=' . print_r( $_REQUEST, true ) );
-        
+        global $wpdb;        
         if ( !isset( $_POST[ 'stcfw_get_form_nonce' ] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
             Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
             error_log( '##### action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
-            error_log( '##### action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . print_r( $_POST, TRUE ) );
             die;
         }
         if ( $_REQUEST[ 'post_type' ] === 'no-selection' ) {
@@ -1644,13 +1628,11 @@ EOD
         do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS );
     } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
-        error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '():$_REQUEST=' . print_r( $_REQUEST, true ) );
         $query = new WP_Query( [ 's' => 'X' ] );
         #$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
         if ( $query->posts ) {
             $posts = array_filter( $query->posts );
             $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $_REQUEST[ 'search_types_custom_fields_widget_number' ] ];
-            error_log( 'ACTION::wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '():$option=' . print_r( $option, true ) );
             Search_Types_Custom_Fields_Widget::get_auxiliary_data( $posts, $option, $fields, $posts_imploded, $wpcf_fields, $post_titles  );
             $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $posts, $fields, $_REQUEST[ 'post_type' ], $posts_imploded, $option, $wpcf_fields, $post_titles );
             wp_send_json_success( $collection );
@@ -2229,7 +2211,6 @@ EOD;
 The shortcode 'stcfw_inline_search_results' is only valid in Backbone.js with Bootstrap mode.
 </div>
 EOD;
-            error_log( 'SHORTCODE:stcfw_inline_search_results():$output=' . $output );
             return $output;
         } );
     }   # if ( empty( $search_types_custom_fields_show_using_macro ) ) {
