@@ -15,7 +15,6 @@ jQuery( document ).ready( function( ) {
     stcfw.ModelView = Backbone.View.extend( {
         render: function( srcOnly ) {
             var html = this.template( this.model.attributes );
-            console.log( "html=", html );
             if ( srcOnly ) {
                 return html;
             }
@@ -27,7 +26,6 @@ jQuery( document ).ready( function( ) {
     stcfw.ContainerView = Backbone.View.extend( {
         render: function( ) {
             var html = this.template( this.model.attributes );
-            console.log( "html=", html );
             this.$el.html( html );
             return this;
         }
@@ -36,11 +34,7 @@ jQuery( document ).ready( function( ) {
     stcfw.renderGallery = function( container, collection ) {
         var modelView = new stcfw.ModelView( );
         // attach template to imageView not ImageView.prototype since template is specific to imageView
-        try {
-            modelView.template = _.template( jQuery( "script#st_iv-bs-template_gallery_item" ).html( ), null, stcfw.templateOptions );
-        } catch ( e ) {
-            console.log( "e=", e );
-        }
+        modelView.template = _.template( jQuery( "script#st_iv-bs-template_gallery_item" ).html( ), null, stcfw.templateOptions );
         var modelsHtml  = "";
         collection.forEach( function( model, index ) {
             modelView.model = model;
@@ -234,9 +228,7 @@ jQuery( document ).ready( function( ) {
             div.find("div.st_iv-inner_envelope").show();
             jQuery("div.st_iv-close_inner_envelope").text(stcfwSearchTranslations.close);
             var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
-            console.log("input#scpbcfw-search-fields-submit::click():query=",query);
             jQuery.get(ajaxurl,query,function(r){
-                console.log("input#scpbcfw-search-fields-submit::post():r=",r);
                 if(r.success){
                     stcfw.posts=new stcfw.Posts();
                     try{
@@ -245,7 +237,6 @@ jQuery( document ).ready( function( ) {
                         console.log( "e=", e );
                     }
                     stcfw.renderGallery(div.find("div#st_iv-container"),stcfw.posts);
-                    console.log("input#scpbcfw-search-fields-submit::post():stcfw.posts=",stcfw.posts);
                 }else{
                     div.find( "div#st_iv-container" ).html( '<div class="st_iv-error">' + r.data + '</div>' );
                 }
