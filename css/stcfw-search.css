@@ -14,6 +14,7 @@ form.scpbcfw-search-fields-form{
     border:2px solid black;
     border-radius:7px;
     background-color:#e8e8e8;
+    color:black;
 }
 
 select.scpbcfw-search-select-post-type{
@@ -35,6 +36,7 @@ div.scpbcfw-search-post-type,div.scpbcfw-search-fields{
 div#scpbcfw-search-fields-help{
     font-size:10px;
     font-weight:bold;
+    color:black;
     background-color:#c0c0c0;
     width:5em;
     float:right;
@@ -43,6 +45,12 @@ div#scpbcfw-search-fields-help{
     border-radius:7px;
     text-align:center;
     margin:5px;
+}
+div#scpbcfw-search-fields-help a{
+    color:black;
+}
+div#scpbcfw-search-fields-help a:hover{
+    color:black;
 }
 
 h4.scpbcfw-search-fields-title{
@@ -58,9 +66,13 @@ div#scpbcfw-search-fields-help, div#scpbcfw-search-fields-help a{
 }
 
 span.scpbcfw-search-fields-field-label{
-    font-size=16px;
     font-weight:bold;
     float:left;
+    color:black;
+}
+
+div.scpbcfw-search-field-values{
+    color:black;
 }
 
 div.scpbcfw-display-button{
