@@ -13,7 +13,7 @@ Search Types custom posts for posts that have user specified values for Types cu
 
 This [search widget](http://alttypes.wordpress.com/search-types-custom-fields-widget/) can search for [Toolset Types](http://wordpress.org/plugins/types/) custom posts, WordPress posts and pages by the value of Toolset Types custom fields, WordPress taxonomies and post content. It is designed to be used with the Toolset Types plugin only and makes use of Toolset Types' proprietary database format to generate user friendly field names and field values. The widget uses user friendly substitutions for the actual values in the database when appropriate, e.g. post title is substituted for post id in parent/child fields. The selected posts can be displayed as a standard WordPress list of posts, a spreadsheet of posts with their custom fields or a gallery of featured images.
 
-Version 1.0 can optionally display the search results using a [Backbone.js](http://backbonejs.org/) model-view-presenter with [Underscore.js templates](http://underscorejs.org/#template). Since, the Underscore.js templates are instantiated on the client side the user can instantaneously (i.e. without doing a HTTP request) switch between multiple views of the search results. Of course you can provide your own Underscore.js templates.
+Version 1.3 optionally supports a [single-page application mode](https://alttypes.wordpress.com/#spa) where the search results returned by an interactive AJAX request populates a [Backbone.js](http://backbonejs.org/) collection of models which can be rendered using [Underscore.js](http://underscorejs.org/#template) templates and the [Bootstrap](http://getbootstrap.com/) framework.
 
 Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Toolset Types 2.0.1 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
 
@@ -30,17 +30,12 @@ Yes.
 http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Screenshots ==
-1. The Adminstrator's Interface for Field Selection.
-2. The Adminstrator's Interface for Settings.
-3. The User's Interface for Post Type Selection.
-4. The User's Interface for Searching Posts of the Selected Type.
-5. The User's Interface for Settings.
-6. A Sample Table of Post
+1. The "Search Widget" interactively loads the "Search Results Pane".
 
 == Changelog ==
 
 = 1.3 =
-* optionally dynamically load (via AJAX) the search results into the current page instead of loading a new page
+* supports dynamically loading via AJAX the search results into the current page instead of loading a new page, i.e. supports the single-page application paradigm.
 * replace ugly full viewport carousel view with an inline embedded carousel view
 * add mobile swipe to carousel view
 * bug fixes and css enhancements
@@ -126,7 +121,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Upgrade Notice ==
 = 1.3 =
-* optionally dynamically load (via AJAX) the search results into the current page instead of loading a new page
+* supports dynamically loading via AJAX the search results into the current page instead of loading a new page, i.e. supports the single-page application paradigm.
 * replace ugly full viewport carousel view with an inline embedded carousel view
 * add mobile swipe to carousel view
 * bug fixes and css enhancements
