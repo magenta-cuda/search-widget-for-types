@@ -147,17 +147,21 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
         padding: 3px 3px 0 3px;
       }
 
-      ul.nav-tabs > li {
-        margin-bottom: 0;
-        > a {
-          padding: 2px 5px 1px 5px;
-          border-width: 2px 2px 0 2px;
-          border-style: solid;
-          border-color: gray;
-          border-radius: 7px 7px 0 0;
-        }
-        &.active > a {
-          background-color: cyan;
+      ul.nav-tabs {
+        margin: 0;
+
+        > li {
+          margin-bottom: 0;
+          > a {
+            padding: 2px 5px 1px 5px;
+            border-width: 2px 2px 0 2px;
+            border-style: solid;
+            border-color: gray;
+            border-radius: 7px 7px 0 0;
+          }
+          &.active > a {
+            background-color: cyan;
+          }
         }
       }
     }

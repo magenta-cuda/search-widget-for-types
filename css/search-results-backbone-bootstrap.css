@@ -100,16 +100,18 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
       min-height: 0; }
       div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar > div.collapse {
         padding: 3px 3px 0 3px; }
-      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li {
-        margin-bottom: 0; }
-        div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li > a {
-          padding: 2px 5px 1px 5px;
-          border-width: 2px 2px 0 2px;
-          border-style: solid;
-          border-color: gray;
-          border-radius: 7px 7px 0 0; }
-        div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li.active > a {
-          background-color: cyan; }
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs {
+        margin: 0; }
+        div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li {
+          margin-bottom: 0; }
+          div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li > a {
+            padding: 2px 5px 1px 5px;
+            border-width: 2px 2px 0 2px;
+            border-style: solid;
+            border-color: gray;
+            border-radius: 7px 7px 0 0; }
+          div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container nav.navbar ul.nav-tabs > li.active > a {
+            background-color: cyan; }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-bs-template_tabs_container div.tab-content figure {
       position: relative;
       height: 66.7vh;
