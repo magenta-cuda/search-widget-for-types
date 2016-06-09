@@ -11,6 +11,18 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.carousel.slide.st_iv-overlay {
 */
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
   font-size: 3vh; }
+  div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-navbar_label {
+    width: 10em;
+    float: left;
+    color: #333;
+    font-size: 3vh;
+    margin-top: 8px;
+    margin-left: 15px; }
+    @media (min-width: 768px) {
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-navbar_label {
+        display: none; } }
+  div#st_iv-bootstrap1 div#st_iv-bootstrap2 nav.navbar.navbar-inverse div.st_iv-navbar_label {
+    color: white; }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .st_iv-gallery .st_iv-gallery_item {
     overflow: hidden;
     border: 2px solid black;

@@ -62,6 +62,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
   <!-- Tabs -->
   <nav role="navigation" class="navbar navbar-default">
     <div class="navbar-header">
+      <div class="st_iv-navbar_label">Tabs Menu</div>
       <button type="button" data-target="#tabbarCollapse" data-toggle="collapse" class="navbar-toggle">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
