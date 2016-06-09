@@ -879,6 +879,7 @@ EOD
     <!-- responsive Bootstrap navbar for view selection -->
     <nav role="navigation" class="navbar navbar-inverse">
         <div class="navbar-header">
+            <div class="st_iv-navbar_label">View Menu</div>
             <button type="button" data-target="#st_iv-nav_images" data-toggle="collapse" class="navbar-toggle">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span><span class="icon-bar"></span>
@@ -2147,7 +2148,7 @@ EOD
                     wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ),
                                        [ 'backbone' ], FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw',
-                                        [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone' ] );
+                                        [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone+bootstrap' ] );
                 } else {
                     # Backbone and no Bootstrap mode
                     wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'js/stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ],
@@ -2187,6 +2188,7 @@ EOD
             wp_enqueue_script( 'jquery-mobile', plugins_url( '/js/jquery-mobile.js' , __FILE__ ), [ 'jquery' ] );
             wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
             wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
+            wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw', [ 'mode' => 'backbone+bootstrap' ] );
         } );
         add_shortcode( 'stcfw_inline_search_results', function( ) {
             $open = __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN );

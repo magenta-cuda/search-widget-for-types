@@ -208,21 +208,22 @@ jQuery( document ).ready( function( ) {
     var searchResults = jQuery( "div#stcfw-inline_search_results" );
     if ( searchResults.length ) {
         var widget = jQuery( "form.scpbcfw-search-fields-form" );
-        if ( widget.length ) {
+        if ( widget.length && stcfw.mode === 'backbone+bootstrap' ) {
             // Hide irrelevant HTML elements when in inline search results mode
             widget.find( "div.scpbcfw-search-fields-checkbox-box" ).hide( ).siblings( "hr" ).hide( );
         } else {
-            // "Search Types Custom Fields" widget not activated
+            // "Search Types Custom Fields" widget not activated or not in backbone with bootstrap mode
             searchResults.html(
                 '<div style="border:3px solid red;padding:10px;">Error: '
-                + 'The shortcode stcfw_inline_search_results requires that the "Search Types Custom Fields" widget be activated.</div>'
+                + 'The shortcode stcfw_inline_search_results requires that the "Search Types Custom Fields" widget be activated in "Backbone with Bootstrap" mode.</div>'
             ).show(); 
         }
     }
 
     jQuery("input#scpbcfw-search-fields-submit").click(function(e){
         var div=jQuery("div#stcfw-inline_search_results");
-        if(div.length){
+        if( div.length && stcfw.mode === 'backbone+bootstrap' ) {
+            // this is in single-page application mode
             div.find( "div#st_iv-container" ).html( '<div class="st_iv-search_results_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>' );
             div.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
             div.find("div.st_iv-inner_envelope").show();
