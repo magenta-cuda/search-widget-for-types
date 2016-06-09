@@ -140,23 +140,3 @@ div.st_iv-search_form_loading {
     border-radius: 7px;
     margin: 10px 5px;
 }
-
-/* TODO: move below to search-results-backbone-bootstrap.scss */
-
-div.st_iv-outer_envelope {
-  display: block;
-  background-color: #e8e8e8;
-  padding: 10px;
-  border: 2px solid black;
-  border-radius: 7px;
-  margin: 10px;
-}
-
-h3.st_iv-envelope_heading {
-  display:inline;
-}
-
-div.st_iv-inner_envelope {
-  display: none;
-  font-size: 2vh;
-}
