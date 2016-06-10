@@ -100,6 +100,20 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     width: 10%; }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon {
       top: 45%; }
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon.glyphicon-pause {
+        position: absolute;
+        z-index: 5;
+        display: inline-block;
+        left: 50%;
+        top: 67.5%;
+        margin-left: -10px; }
+        @media screen and (min-width: 768px) {
+          div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon.glyphicon-pause {
+            width: 30px;
+            height: 30px;
+            margin-top: -10px;
+            font-size: 30px;
+            margin-left: -10px; } }
   div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators {
     bottom: 12%; }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-indicators li {
