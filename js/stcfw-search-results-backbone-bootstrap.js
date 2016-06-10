@@ -90,6 +90,20 @@ jQuery( document ).ready( function( ) {
             var cssClass = "st_iv-overlay";
         }
         container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ).addClass( cssClass ) );
+        container.find( "span.st_iv-pause_play" ).click( function( e ) {
+            var span = jQuery( this );
+            var carousel = span.parents( "div.carousel" );
+            if ( span.hasClass( "glyphicon-pause" ) ) {
+                span.removeClass( "glyphicon-pause" ).addClass( "glyphicon-play" );
+                carousel.carousel( "pause" );
+            } else {
+                span.removeClass( "glyphicon-play" ).addClass( "glyphicon-pause" );
+                carousel.carousel( "next" );
+                carousel.carousel( "cycle" );
+            }
+            e.stopPropagation( );
+            e.preventDefault( );
+        } );
     }
 
     stcfw.renderTabs = function( container, collection ) {

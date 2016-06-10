@@ -140,7 +140,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     width: 10%;
     span.glyphicon {
       top: 45%;
-      &.glyphicon-pause {
+      &.glyphicon-pause, &.glyphicon-play {
         position: absolute;
         z-index: 5;
         display: inline-block;

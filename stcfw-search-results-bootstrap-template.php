@@ -40,7 +40,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
   <a class="left carousel-control" href="#{{{ data.id }}}" role="button" data-slide="prev">
     <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
     <span class="sr-only">Previous</span>
-    <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+    <span class="glyphicon glyphicon-pause st_iv-pause_play" aria-hidden="true"></span>
     <span class="sr-only">Pause</span>
   </a>
   <a class="right carousel-control" href="#{{{ data.id }}}" role="button" data-slide="next">

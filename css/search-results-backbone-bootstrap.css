@@ -100,7 +100,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
     width: 10%; }
     div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon {
       top: 45%; }
-      div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon.glyphicon-pause {
+      div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon.glyphicon-pause, div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon.glyphicon-play {
         position: absolute;
         z-index: 5;
         display: inline-block;
@@ -108,7 +108,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 {
         top: 67.5%;
         margin-left: -10px; }
         @media screen and (min-width: 768px) {
-          div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon.glyphicon-pause {
+          div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon.glyphicon-pause, div#st_iv-bootstrap1 div#st_iv-bootstrap2 .carousel-control span.glyphicon.glyphicon-play {
             width: 30px;
             height: 30px;
             margin-top: -10px;
