@@ -90,6 +90,9 @@ jQuery( document ).ready( function( ) {
             var cssClass = "st_iv-overlay";
         }
         container.append( viewContainer.render( ).$el.find( "div.carousel.slide" ).addClass( cssClass ) );
+        var carousel = container.find( "div.carousel" );
+        carousel.carousel( { interval: 2500, pause: false, wrap: true } );
+        carousel.carousel( "cycle" );
         container.find( "span.st_iv-pause_play" ).click( function( e ) {
             var span = jQuery( this );
             var carousel = span.parents( "div.carousel" );
@@ -252,6 +255,7 @@ jQuery( document ).ready( function( ) {
                         console.log( "e=", e );
                     }
                     stcfw.renderGallery(div.find("div#st_iv-container"),stcfw.posts);
+                    jQuery(window).scrollTop(div.offset().top-25);
                 }else{
                     div.find( "div#st_iv-container" ).html( '<div class="st_iv-error">' + r.data + '</div>' );
                 }
