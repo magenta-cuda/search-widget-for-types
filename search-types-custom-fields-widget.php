@@ -42,6 +42,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     const OPTIONAL_MAXIMUM_VALUE_SUFFIX = '-stcfw-maximum-value';      #     inputs for a numeric search field
     const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';           # AJAX action for getting the search form for a post type
     const GET_POSTS = 'stcfw_get_posts';                               # AJAX action for getting the posts satisfying a search criteria
+    const GET_POSTS_BY_ID = 'stcfw_get_posts_by_id';                   # AJAX action for getting the posts by id
     const LANGUAGE_DOMAIN = 'search-types-custom-fields-widget';       # for .pot file
     const VALUE_FILTER_NAME = 'stcfw_display_value';                   # filter to apply to field values before they are displayed
     
@@ -72,6 +73,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
 <input id="search_types_custom_fields_form" name="search_types_custom_fields_form" type="hidden" value="types-fields-search">
 <input id="search_types_custom_fields_widget_option" name="search_types_custom_fields_widget_option" type="hidden" value="<?php echo $this->option_name; ?>">
 <input id="search_types_custom_fields_widget_number" name="search_types_custom_fields_widget_number" type="hidden" value="<?php echo $this->number; ?>">
+<input id="st_iv-get_form_for_post_type_nonce" type="hidden" value="<?php echo wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ); ?>">
 <?php
         if ( !empty( $instance[ 'enable_table_view_option' ] ) && $instance[ 'enable_table_view_option' ] === 'table view option enabled' ) {
             if ( !empty( $instance[ 'use_backbone_model_view_presenter' ] ) && $instance[ 'use_backbone_model_view_presenter' ] === 'use backbone' ) {
@@ -159,7 +161,6 @@ EOD
 ?>
 </div>
 <div class="scpbcfw-search-fields-submit-box">
-<input id="scpbcfw-search-fields-nonce" type="hidden" value="<?php echo wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ); ?>">
 <input id="scpbcfw-search-fields-submit" type="submit" value="<?php _e( 'Start Search', self::LANGUAGE_DOMAIN ); ?>" disabled>&nbsp;&nbsp;
 </div>
 </div>
@@ -762,7 +763,7 @@ EOD
                                         $values = array_values( $unserialized );
                                     }
                                 } else {
-                                    error_log( '##### action:template_redirect()[UNEXPECTED!]:$unserialized=' . print_r( $unserialized, true ) );
+                                    error_log( '##### ERROR: Search Types Custom Fields Widget: action:template_redirect()[UNEXPECTED!]:$unserialized=' . print_r( $unserialized, true ) );
                                     $values = [ $unserialized ];
                                 }
                             } else {
@@ -974,7 +975,7 @@ EOD
     }
     unset( $request );
     $wpcf_fields = get_option( 'wpcf-fields', [ ] );    
-    $non_field_keys = [ 'search_types_custom_fields_form', 'search_types_custom_fields_widget_option', 'search_types_custom_fields_widget_number',
+    $non_field_keys = [ 'search_types_custom_fields_form', 'search_types_custom_fields_widget_option', 'search_types_custom_fields_widget_number', 'st_iv-get_posts_nonce',
                         'search_types_custom_fields_widget_mode', 'search_types_custom_fields_and_or', 'search_types_custom_fields_show_using_macro', 'post_type', 'paged' ];
     $sql = '';
     foreach ( $_REQUEST as $key => $values ) {
@@ -1239,8 +1240,8 @@ if ( is_admin( ) ) {
         global $wpdb;        
         if ( !isset( $_POST[ 'stcfw_get_form_nonce' ] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
             Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
-            error_log( '##### action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
-            die;
+            error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
+            exit( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ' nonce' );
         }
         if ( $_REQUEST[ 'post_type' ] === 'no-selection' ) {
             # this is the no selection place holder so do nothing
@@ -1256,6 +1257,7 @@ if ( is_admin( ) ) {
 <h4 class="scpbcfw-search-fields-title"><?php _e( 'Search Conditions:', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ); ?></h4>
 <br style="clear:both;">
 </div>
+<input id="st_iv-get_posts_nonce" name="st_iv-get_posts_nonce" type="hidden" value="<?php echo wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_POSTS ); ?>">
 <?php
         $widget_number = $_REQUEST[ 'search_types_custom_fields_widget_number' ];
         $option        = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $widget_number ];
@@ -1629,6 +1631,11 @@ EOD
         do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS );
     } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
+        error_log( 'ACTION:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '$_REQUEST=' . print_r( $_REQUEST, true ) );
+        if ( !isset( $_REQUEST[ 'st_iv-get_posts_nonce' ] ) || !wp_verify_nonce( $_REQUEST[ 'st_iv-get_posts_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS ) ) {
+            error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . ':nonce:die' );
+            wp_send_json_error( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ' nonce' );
+        }
         $query = new WP_Query( [ 's' => 'X' ] );
         #$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
         if ( $query->posts ) {
@@ -1640,7 +1647,32 @@ EOD
         } else {
             wp_send_json_error( 'Nothing Found!' );
         }
+    } );   # add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
+
+    add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID, function( ) {
+        do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID );
     } );
+    add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID, function( ) {
+        if ( !isset( $_POST[ 'st_iv-get_posts_by_id_nonce' ] ) || !wp_verify_nonce( $_POST[ 'st_iv-get_posts_by_id_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS ) ) {
+            error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ':nonce:die' );
+            wp_send_json_error( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ' nonce' );
+        }
+        $posts = get_posts( [
+            'post_type'      => $_POST[ 'st_iv-initial_post_type' ],
+            'include'        => $_POST[ 'st_iv-initial_ids' ],
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+            'posts_per_page' => 256
+        ] );
+        if ( $posts ) {
+            $option = get_option( $_POST[ 'search_types_custom_fields_widget_option' ] )[ $_POST[ 'search_types_custom_fields_widget_number' ] ];
+            Search_Types_Custom_Fields_Widget::get_auxiliary_data( $posts, $option, $fields, $posts_imploded, $wpcf_fields, $post_titles  );
+            $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $posts, $fields, $_REQUEST[ 'post_type' ], $posts_imploded, $option, $wpcf_fields, $post_titles );
+            wp_send_json_success( $collection );
+        } else {
+            wp_send_json_error( 'Nothing Found!' );
+        }
+    } );   # add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
 
 } else {   # if ( is_admin() ) {
   
@@ -1770,7 +1802,7 @@ Change View: <select id="stcfw-select-views"></select>
                         return $matches[0];
                     }, $html );
                     if ( $error ) {
-                        error_log( 'search types custom fields widget error: gallery format failed to relink, error code = ' . $error );
+                        error_log( '##### ERROR: Search Types Custom Fields Widget: gallery format failed to relink, error code = ' . $error );
                     }
                     echo "<h1 style=\"text-align:center\">Search Results</h1><div id=\"stcfw-gallery-container\" style=\"position:relative;\">$html</div>";
                     require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
@@ -1994,7 +2026,7 @@ EOD
                                                 $values = array_values( $unserialized );
                                             }
                                         } else {
-                                            error_log( '##### action:template_redirect()[UNEXPECTED!]:$unserialized=' . print_r( $unserialized, true ) );
+                                            error_log( '##### ERROR: Search Types Custom Fields Widget: action:template_redirect()[UNEXPECTED!]:$unserialized=' . print_r( $unserialized, true ) );
                                             $values = [ $unserialized ];
                                         }
                                     } else {
@@ -2190,7 +2222,15 @@ EOD
             wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
             wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw', [ 'mode' => 'backbone+bootstrap' ] );
         } );
-        add_shortcode( 'stcfw_inline_search_results', function( ) {
+        add_shortcode( 'stcfw_inline_search_results', function( $atts ) {
+            # shortcode attributes may specify an initial list of posts ids to load
+            $atts = shortcode_atts( [ 'post_type' => 'page', 'ids' => '' ], $atts, 'stcfw_inline_search_results' );
+            if ( $atts[ 'ids' ] ) {
+                # clean list of post ids
+                $ids = implode( ',', array_filter( explode( ',', $atts[ 'ids' ] ), function( $id ) {
+                    return is_numeric( $id ) && intval( $id ) == floatval( $id );
+                } ) );
+            }
             $open = __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN );
             $output = <<<EOD
 <div id="stcfw-inline_search_results" class="st_iv-outer_envelope">
@@ -2199,6 +2239,14 @@ EOD
     <div class="st_iv-inner_envelope">
 This pane shows the results of the Search widget in the sidebar.
 EOD;
+            if ( !empty( $ids ) ) {
+                # shortcode is initialized with preset collection of posts
+                $output = <<<EOD
+<input id="st_iv-get_posts_by_id_nonce" type="hidden" value="<?php echo wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID ); ?>">
+<input id="st_iv-initial_post_type" type="hidden" value="$atts[post_type]">
+<input id="st_iv-initial_post_ids" type="hidden" value="$ids">
+EOD;
+            }
             ob_start( );
             require_once dirname( __FILE__ ) . '/stcfw-search-results-bootstrap-template.php';
             Search_Types_Custom_Fields_Widget::emit_backbone_bootstrap_search_results_html( );

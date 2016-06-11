@@ -9,7 +9,7 @@ jQuery(document).ready(function(){
         jQuery.post(
             ajaxurl,{
                 action:"get_form_for_post_type",
-                stcfw_get_form_nonce:form.find("input#scpbcfw-search-fields-nonce").val(),
+                stcfw_get_form_nonce:form.find("input#st_iv-get_form_for_post_type_nonce").val(),
                 post_type:form.find("select#post_type option:selected").val(),
                 search_types_custom_fields_widget_option:form.find("input#search_types_custom_fields_widget_option").val(),
                 search_types_custom_fields_widget_number:form.find("input#search_types_custom_fields_widget_number").val()
