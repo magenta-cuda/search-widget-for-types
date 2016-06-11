@@ -1634,7 +1634,7 @@ EOD
         error_log( 'ACTION:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '$_REQUEST=' . print_r( $_REQUEST, true ) );
         if ( !isset( $_REQUEST[ 'st_iv-get_posts_nonce' ] ) || !wp_verify_nonce( $_REQUEST[ 'st_iv-get_posts_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS ) ) {
             error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . ':nonce:die' );
-            wp_send_json_error( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ' nonce' );
+            wp_send_json_error( 'Error: Invalid ' . Search_Types_Custom_Fields_Widget::GET_POSTS . ' nonce' );
         }
         $query = new WP_Query( [ 's' => 'X' ] );
         #$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
@@ -1653,21 +1653,24 @@ EOD
         do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID );
     } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID, function( ) {
-        if ( !isset( $_POST[ 'st_iv-get_posts_by_id_nonce' ] ) || !wp_verify_nonce( $_POST[ 'st_iv-get_posts_by_id_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS ) ) {
+        error_log( 'ACTION:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ':$_REQUEST=' . print_r( $_REQUEST, true ) );
+        if ( !isset( $_REQUEST[ 'st_iv-get_posts_by_id_nonce' ] )
+            || !wp_verify_nonce( $_REQUEST[ 'st_iv-get_posts_by_id_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID ) ) {
             error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ':nonce:die' );
-            wp_send_json_error( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ' nonce' );
+            wp_send_json_error( 'Error: Invalid ' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ' nonce' );
         }
         $posts = get_posts( [
-            'post_type'      => $_POST[ 'st_iv-initial_post_type' ],
-            'include'        => $_POST[ 'st_iv-initial_ids' ],
+            'post_type'      => $_REQUEST[ 'st_iv-initial_post_type' ],
+            'include'        => $_REQUEST[ 'st_iv-initial_post_ids' ],
             'orderby'        => 'title',
             'order'          => 'ASC',
             'posts_per_page' => 256
         ] );
         if ( $posts ) {
-            $option = get_option( $_POST[ 'search_types_custom_fields_widget_option' ] )[ $_POST[ 'search_types_custom_fields_widget_number' ] ];
+            $option = get_option( $_REQUEST[ 'search_types_custom_fields_widget_option' ] )[ $_REQUEST[ 'search_types_custom_fields_widget_number' ] ];
             Search_Types_Custom_Fields_Widget::get_auxiliary_data( $posts, $option, $fields, $posts_imploded, $wpcf_fields, $post_titles  );
-            $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $posts, $fields, $_REQUEST[ 'post_type' ], $posts_imploded, $option, $wpcf_fields, $post_titles );
+            $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( $posts, $fields, $_REQUEST[ 'st_iv-initial_post_type' ], $posts_imploded, $option,
+                                                                                      $wpcf_fields, $post_titles );
             wp_send_json_success( $collection );
         } else {
             wp_send_json_error( 'Nothing Found!' );
@@ -2241,8 +2244,9 @@ This pane shows the results of the Search widget in the sidebar.
 EOD;
             if ( !empty( $ids ) ) {
                 # shortcode is initialized with preset collection of posts
-                $output = <<<EOD
-<input id="st_iv-get_posts_by_id_nonce" type="hidden" value="<?php echo wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID ); ?>">
+                $nonce = wp_create_nonce( Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID );
+                $output .= <<<EOD
+<input id="st_iv-get_posts_by_id_nonce" type="hidden" value="$nonce">
 <input id="st_iv-initial_post_type" type="hidden" value="$atts[post_type]">
 <input id="st_iv-initial_post_ids" type="hidden" value="$ids">
 EOD;

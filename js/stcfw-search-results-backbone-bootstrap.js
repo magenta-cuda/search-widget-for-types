@@ -228,6 +228,35 @@ jQuery( document ).ready( function( ) {
         if ( widget.length && stcfw.mode === 'backbone+bootstrap' ) {
             // Hide irrelevant HTML elements when in inline search results mode
             widget.find( "div.scpbcfw-search-fields-checkbox-box" ).hide( ).siblings( "hr" ).hide( );
+            var ids = searchResults.find( "input#st_iv-initial_post_ids" );
+            if ( ids.length ) {
+                // search results have a preload specifier
+                jQuery.post(
+                    ajaxurl,
+                    {
+                        action:                                   "stcfw_get_posts_by_id",
+                        search_types_custom_fields_widget_option: widget.find( "input#search_types_custom_fields_widget_option" ).val( ),
+                        search_types_custom_fields_widget_number: widget.find( "input#search_types_custom_fields_widget_number" ).val( ),
+                        "st_iv-get_posts_by_id_nonce":            searchResults.find( "input#st_iv-get_posts_by_id_nonce" ).val( ),
+                        "st_iv-initial_post_type":                searchResults.find( "input#st_iv-initial_post_type" ).val( ),
+                        "st_iv-initial_post_ids":                 ids.val( )     
+                    },
+                    function( r ) {
+                        if ( r.success ) {
+                            stcfw.posts = new stcfw.Posts( );
+                            try {
+                                stcfw.posts.reset( JSON.parse( r.data ) );
+                            } catch( e ) {
+                                console.log( "e=", e );
+                            }
+                            stcfw.renderGallery( searchResults.find( "div#st_iv-container" ), stcfw.posts );
+                        }else{
+                            searchResults.find( "div#st_iv-container" ).html( '<div class="st_iv-error">' + r.data + '</div>' );
+                        }
+                        searchResults.show( );
+                    }
+                );
+            }
         } else {
             // "Search Types Custom Fields" widget not activated or not in backbone with bootstrap mode
             searchResults.html(
