@@ -231,6 +231,10 @@ jQuery( document ).ready( function( ) {
             var ids = searchResults.find( "input#st_iv-initial_post_ids" );
             if ( ids.length ) {
                 // search results have a preload specifier
+                searchResults.find( "div#st_iv-container" ).html( '<div class="st_iv-search_results_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>' );
+                searchResults.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
+                searchResults.find("div.st_iv-inner_envelope").show();
+                searchResults.find("div.st_iv-close_inner_envelope").text(stcfwSearchTranslations.close);
                 jQuery.post(
                     ajaxurl,
                     {
@@ -253,7 +257,6 @@ jQuery( document ).ready( function( ) {
                         }else{
                             searchResults.find( "div#st_iv-container" ).html( '<div class="st_iv-error">' + r.data + '</div>' );
                         }
-                        searchResults.show( );
                     }
                 );
             }
@@ -273,7 +276,7 @@ jQuery( document ).ready( function( ) {
             div.find( "div#st_iv-container" ).html( '<div class="st_iv-search_results_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>' );
             div.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
             div.find("div.st_iv-inner_envelope").show();
-            jQuery("div.st_iv-close_inner_envelope").text(stcfwSearchTranslations.close);
+            div.find("div.st_iv-close_inner_envelope").text(stcfwSearchTranslations.close);
             var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
             jQuery.get(ajaxurl,query,function(r){
                 if(r.success){
@@ -288,7 +291,6 @@ jQuery( document ).ready( function( ) {
                 }else{
                     div.find( "div#st_iv-container" ).html( '<div class="st_iv-error">' + r.data + '</div>' );
                 }
-                div.show();
             });
             e.preventDefault();
         }
