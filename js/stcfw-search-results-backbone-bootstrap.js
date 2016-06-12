@@ -133,6 +133,11 @@ jQuery( document ).ready( function( ) {
         viewContainer.template = _.template( stcfw.getTemplate( "st_iv-bs-template_tabs", stcfw.post_type ).html( ), null, stcfw.templateOptions );
         container.empty( );
         container.append( viewContainer.render( ).$el.find( "div.st_iv-bs-template_tabs_container" ) );
+        container.find( "nav.navbar div.st_iv-navbar_label" ).click( function( e ) {
+            e.stopPropagation( );
+            e.preventDefault( );
+            jQuery( this ).siblings( "button.navbar-toggle" ).click( );
+        } );
     }
 
     stcfw.renderTable = function( container, collection ) {
@@ -203,6 +208,12 @@ jQuery( document ).ready( function( ) {
         //stcfw.renderTable( container, stcfw.posts );
     }
 
+    jQuery( "nav.navbar div.st_iv-navbar_label" ).click( function( e ) {
+        e.stopPropagation( );
+        e.preventDefault( );
+        jQuery( this ).siblings( "button.navbar-toggle" ).click( );
+    } );
+
     jQuery( "div#st_iv-nav_images li a" ).click( function( e ) {
         jQuery( "div#st_iv-nav_images li" ).removeClass( "active" );
         var li = jQuery( this.parentNode ).addClass( "active" )[0];
@@ -225,7 +236,7 @@ jQuery( document ).ready( function( ) {
     var searchResults = jQuery( "div#stcfw-inline_search_results" );
     if ( searchResults.length ) {
         var widget = jQuery( "form.scpbcfw-search-fields-form" );
-        if ( widget.length && stcfw.mode === 'backbone+bootstrap' ) {
+        if ( widget.length && widget.find( "input#search_types_custom_fields_widget_mode" ).val( ) === 'backbone+bootstrap' ) {
             // Hide irrelevant HTML elements when in inline search results mode
             widget.find( "div.scpbcfw-search-fields-checkbox-box" ).hide( ).siblings( "hr" ).hide( );
             var ids = searchResults.find( "input#st_iv-initial_post_ids" );
@@ -271,7 +282,7 @@ jQuery( document ).ready( function( ) {
 
     jQuery("input#scpbcfw-search-fields-submit").click(function(e){
         var div=jQuery("div#stcfw-inline_search_results");
-        if( div.length && stcfw.mode === 'backbone+bootstrap' ) {
+        if( div.length && jQuery( "input#search_types_custom_fields_widget_mode" ).val( ) === 'backbone+bootstrap' ) {
             // this is in single-page application mode
             div.find( "div#st_iv-container" ).html( '<div class="st_iv-search_results_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>' );
             div.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );

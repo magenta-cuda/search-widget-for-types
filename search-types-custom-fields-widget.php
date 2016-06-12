@@ -78,7 +78,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
         if ( !empty( $instance[ 'enable_table_view_option' ] ) && $instance[ 'enable_table_view_option' ] === 'table view option enabled' ) {
             if ( !empty( $instance[ 'use_backbone_model_view_presenter' ] ) && $instance[ 'use_backbone_model_view_presenter' ] === 'use backbone' ) {
                 if ( !empty( $instance[ 'use_bootstrap' ] ) && $instance[ 'use_bootstrap' ] === 'use bootstrap' ) {
-                    $mode = 'backbone-bootstrap';
+                    $mode = 'backbone+bootstrap';
                 } else {
                     $mode = 'backbone';
                 }
@@ -2223,7 +2223,6 @@ EOD
             wp_enqueue_script( 'jquery-mobile', plugins_url( '/js/jquery-mobile.js' , __FILE__ ), [ 'jquery' ] );
             wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
             wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
-            wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw', [ 'mode' => 'backbone+bootstrap' ] );
         } );
         add_shortcode( 'stcfw_inline_search_results', function( $atts ) {
             # shortcode attributes may specify an initial list of posts ids to load
