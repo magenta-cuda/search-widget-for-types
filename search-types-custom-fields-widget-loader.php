@@ -4,7 +4,7 @@
 Plugin Name: Search Types Custom Fields Widget
 Plugin URI: http://alttypes.wordpress.com/
 Description: Widget for searching Types custom fields and custom taxonomies.
-Version: 1.3
+Version: 1.3.1
 Author: Magenta Cuda
 Author URI: https://alttypes.wordpress.com/
 License: GPL2

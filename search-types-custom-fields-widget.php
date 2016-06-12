@@ -1631,7 +1631,6 @@ EOD
         do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS );
     } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
-        error_log( 'ACTION:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . '$_REQUEST=' . print_r( $_REQUEST, true ) );
         if ( !isset( $_REQUEST[ 'st_iv-get_posts_nonce' ] ) || !wp_verify_nonce( $_REQUEST[ 'st_iv-get_posts_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS ) ) {
             error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . ':nonce:die' );
             wp_send_json_error( 'Error: Invalid ' . Search_Types_Custom_Fields_Widget::GET_POSTS . ' nonce' );
@@ -1653,7 +1652,6 @@ EOD
         do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID );
     } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID, function( ) {
-        error_log( 'ACTION:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ':$_REQUEST=' . print_r( $_REQUEST, true ) );
         if ( !isset( $_REQUEST[ 'st_iv-get_posts_by_id_nonce' ] )
             || !wp_verify_nonce( $_REQUEST[ 'st_iv-get_posts_by_id_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID ) ) {
             error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ':nonce:die' );
