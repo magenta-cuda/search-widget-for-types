@@ -52,7 +52,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
 <!-- Bootstrap Backbone Carousel Item Template -->
 <script type="text/html" id="st_iv-bs-template_carousel_item">
 <figure class="item ems_xii-item<# if ( data.index === 0 ) { #> active<# } #>">
-  <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="blank">
+  <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="_blank">
     <img src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
   </a>
   <figcaption><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></figcaption>
@@ -95,7 +95,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
 <!-- Bootstrap Tabs Backbone Item Template -->
 <script type="text/html" id="st_iv-bs-template_tabs_item">
 <figure id="st_iv-tab_pane{{{ data.index }}}" role="tabpanel" class="tab-pane<# if ( data.index === 0 ) { #> active<# } #>">
-  <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="blank">
+  <a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="_blank">
     <img class="img-rounded" src="<# print(stcfw.extractHrefAndLabelFromLink(data.thumbnail).href); #>">
   </a>
   <figcaption>{{{ data.post_content }}}</figcaption>
@@ -122,7 +122,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
 <!-- Bootstrap Table Backbone Item Template -->
 <script type="text/html" id="st_iv-bs-template_table_item">
     <tr>
-      <td>{{{ data.post_title }}}</td>
+      <td><a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="_blank"><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></</a></td>
       <td>{{{ data.post_content }}}</td>
     </tr>
 </script>
