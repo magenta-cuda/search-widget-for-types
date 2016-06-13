@@ -254,7 +254,8 @@ jQuery( document ).ready( function( ) {
                         search_types_custom_fields_widget_number: widget.find( "input#search_types_custom_fields_widget_number" ).val( ),
                         "st_iv-get_posts_by_id_nonce":            searchResults.find( "input#st_iv-get_posts_by_id_nonce" ).val( ),
                         "st_iv-initial_post_type":                searchResults.find( "input#st_iv-initial_post_type" ).val( ),
-                        "st_iv-initial_post_ids":                 ids.val( )     
+                        "st_iv-initial_post_ids":                 ids.val( ),
+                        "post_type":                              searchResults.find( "input#st_iv-initial_post_type" ).val( )
                     },
                     function( r ) {
                         if ( r.success ) {
@@ -298,10 +299,10 @@ jQuery( document ).ready( function( ) {
                         console.log( "e=", e );
                     }
                     stcfw.renderGallery(div.find("div#st_iv-container"),stcfw.posts);
-                    jQuery(window).scrollTop(div.offset().top-25);
                 }else{
                     div.find( "div#st_iv-container" ).html( '<div class="st_iv-error">' + r.data + '</div>' );
                 }
+                jQuery(window).scrollTop(div.offset().top-25);
             });
             e.preventDefault();
         }

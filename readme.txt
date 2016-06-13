@@ -3,7 +3,7 @@ Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
 Tested up to: 4.5
-Stable tag: 1.3
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,12 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 1. The "Search Widget" interactively loads the "Search Results Pane".
 
 == Changelog ==
+
+= 1.3.1 =
+* fix a security hole
+* support for preloading the search results pane
+* improved carousel
+* tweaks to the user interface
 
 = 1.3 =
 * supports dynamically loading via AJAX the search results into the current page instead of loading a new page, i.e. supports the single-page application paradigm.
@@ -120,6 +126,11 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 * Initial release.
 
 == Upgrade Notice ==
+= 1.3.1 =
+* fix a security hole
+* support for preloading the search results pane
+* improved carousel
+* tweaks to the user interface
 = 1.3 =
 * supports dynamically loading via AJAX the search results into the current page instead of loading a new page, i.e. supports the single-page application paradigm.
 * replace ugly full viewport carousel view with an inline embedded carousel view

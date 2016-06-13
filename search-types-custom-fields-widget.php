@@ -1241,7 +1241,7 @@ if ( is_admin( ) ) {
         if ( !isset( $_POST[ 'stcfw_get_form_nonce' ] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
             Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
             error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
-            exit( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ' nonce' );
+            exit( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ' nonce, Please retry.' );
         }
         if ( $_REQUEST[ 'post_type' ] === 'no-selection' ) {
             # this is the no selection place holder so do nothing
@@ -1633,7 +1633,7 @@ EOD
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS, function( ) {
         if ( !isset( $_REQUEST[ 'st_iv-get_posts_nonce' ] ) || !wp_verify_nonce( $_REQUEST[ 'st_iv-get_posts_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS ) ) {
             error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS . ':nonce:die' );
-            wp_send_json_error( 'Error: Invalid ' . Search_Types_Custom_Fields_Widget::GET_POSTS . ' nonce' );
+            wp_send_json_error( 'Error: Invalid ' . Search_Types_Custom_Fields_Widget::GET_POSTS . ' nonce, Please retry.' );
         }
         $query = new WP_Query( [ 's' => 'X' ] );
         #$posts = array_map( 'wp_prepare_attachment_for_js', $query->posts );
@@ -1655,7 +1655,7 @@ EOD
         if ( !isset( $_REQUEST[ 'st_iv-get_posts_by_id_nonce' ] )
             || !wp_verify_nonce( $_REQUEST[ 'st_iv-get_posts_by_id_nonce' ], Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID ) ) {
             error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ':nonce:die' );
-            wp_send_json_error( 'Error: Invalid ' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ' nonce' );
+            wp_send_json_error( 'Error: Invalid ' . Search_Types_Custom_Fields_Widget::GET_POSTS_BY_ID . ' nonce, Please retry.' );
         }
         $posts = get_posts( [
             'post_type'      => $_REQUEST[ 'st_iv-initial_post_type' ],
