@@ -2205,6 +2205,7 @@ EOD
             }
         } );   # add_action( 'wp_enqueue_scripts', function( )
     }   # if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro !== 'use wordpress' ) {
+
     if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro === 'use wordpress' ) {
         add_filter( 'get_search_query', function( $query ) {
             $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
@@ -2265,6 +2266,8 @@ EOD;
             return $output;
         } );
     }   # if ( empty( $search_types_custom_fields_show_using_macro ) ) {
+
+    include dirname( __FILE__ ) . '/types-wp-rest-api.php';
 }   # } else {   # if ( is_admin() ) {
 
 # example of a custom field display value filter - the filter is applied to the custom field value before it is displayed
