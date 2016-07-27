@@ -1,6 +1,34 @@
 <?php
 
-add_action( 'plugins_loaded', function( ) {
+# This is draft and probably won't even run
+
+class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
+
+    public function __construct( $post_type ) {
+        $this->post_type = $post_type;
+        $this->namespace = 'mcst/v1';
+        $obj = get_post_type_object( $post_type );
+        $this->rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
+    }
+
+    protected function prepare_items_query( $prepared_args = array(), $request = null ) {
+        $query_args = parent::prepare_items_query( $prepared_args, $request );
+        return $query_args;
+    }
+
+    public function get_items( $request ) {
+        $response = parent::get_items( $request );
+        return $response;
+    }
+
+    public function get_collection_params( ) {
+        $params = parent::get_collection_params( );
+        return $params;
+    }
+}
+
+add_action( 'rest_api_init', function( ) {
+    error_log( 'action::rest_api_init():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
     global $wp_post_types,$wpdb;
     # get Types custom fields for Types custom post types
     error_log( '$wp_post_types=' . print_r( $wp_post_types, true ) );
@@ -16,10 +44,7 @@ EOD
     error_log( '$results=' . print_r( $results, true ) );
     $fields_of = [ ];
     foreach ( $results as $result ) {
-        foreach ( explode( ',', $result->custom_types ) as $custom_type ) {
-            if ( !$custom_type ) {
-                continue;
-            }
+        foreach ( array_filter( explode( ',', $result->custom_types ) ) as $custom_type ) {
             if ( !isset( $fields_of[ $custom_type ] ) ) {
                 $fields_of[ $custom_type ] = [ ];
             }
@@ -29,10 +54,30 @@ EOD
     error_log( '$fields_of=' . print_r( $fields_of, true ) );
     foreach ( $fields_of as $custom_type => $fields ) {
         error_log( '$custom_type=' . $custom_type );
+        $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
         foreach ( $fields as $field ) {
             $wpcf_field = $wpcf_fields[ $field ];
             error_log( "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
+            register_rest_field( $custom_type, $field, [
+                'get_callback' => function( $object, $field_name, $request, $object_type ) {
+                    global $post;
+                    error_log( 'get_callback():$field_name=' . $field_name );
+                    error_log( 'get_callback():$object_type=' . $object_type );
+                    return 'TODO';
+                },
+                'update_callback' => null,
+                'schema' => [
+                    # TODO:
+                    'description' => __( 'The description for the resource.' ),
+                    'type'        => 'string',
+                    'context'     => [ 'view', 'edit' ],
+                    'arg_options' => [
+                        'sanitize_callback' => 'wp_filter_post_kses',
+                    ]
+                ]
+            ] );
         }
+        $controller->register_routes( );
     }
 } );
 
