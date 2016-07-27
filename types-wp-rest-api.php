@@ -2,6 +2,10 @@
 
 # This is draft and probably won't even run
 
+if ( !class_exists( 'WP_REST_Posts_Controller' ) ) {
+    return;
+}
+
 class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
     public function __construct( $post_type ) {
@@ -54,6 +58,11 @@ EOD
     error_log( '$fields_of=' . print_r( $fields_of, true ) );
     foreach ( $fields_of as $custom_type => $fields ) {
         error_log( '$custom_type=' . $custom_type );
+        if ( isset( $wp_post_types[ $custom_type ] ) ) {
+            $wp_post_types[ $custom_type ]->show_in_rest = true;
+            $wp_post_types[ $custom_type ]->rest_base = $custom_type;
+            $wp_post_types[ $custom_type ]->rest_controller_class = 'MCST_WP_REST_Posts_Controller';
+        }
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
         foreach ( $fields as $field ) {
             $wpcf_field = $wpcf_fields[ $field ];
