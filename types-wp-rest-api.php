@@ -27,6 +27,14 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
     public function get_collection_params( ) {
         $params = parent::get_collection_params( );
+        foreach ( $this->fields as $field ) {
+          $params[ $field ] = array(
+            'description'       => sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field ),
+            'type'              => 'array',
+            'sanitize_callback' => 'wp_parse_id_list',
+            'default'           => array(),
+          );
+        }
         return $params;
     }
 }
@@ -64,6 +72,7 @@ EOD
             $wp_post_types[ $custom_type ]->rest_controller_class = 'MCST_WP_REST_Posts_Controller';
         }
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
+        $controller->fields = [ ];
         foreach ( $fields as $field ) {
             $wpcf_field = $wpcf_fields[ $field ];
             error_log( "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
@@ -85,7 +94,9 @@ EOD
                     ]
                 ]
             ] );
+            $controller->fields[ ] = $field;
         }
+        error_log( 'ACTION:rest_api_init():$controller=' . print_r( $controller, true ) );
         $controller->register_routes( );
     }
 } );
