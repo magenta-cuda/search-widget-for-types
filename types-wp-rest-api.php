@@ -41,7 +41,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
 add_action( 'rest_api_init', function( ) {
     error_log( 'action::rest_api_init():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
-    global $wp_post_types,$wpdb;
+    global $wp_post_types,$wp_taxonomies,$wpdb;
     # get Types custom fields for Types custom post types
     error_log( '$wp_post_types=' . print_r( $wp_post_types, true ) );
     $wpcf_custom_types = get_option( 'wpcf-custom-types', [ ] );
@@ -98,6 +98,18 @@ EOD
         }
         error_log( 'ACTION:rest_api_init():$controller=' . print_r( $controller, true ) );
         $controller->register_routes( );
+        error_log( '$wp_taxonomies=' . print_r( $wp_taxonomies, true ) );
+        $wpcf_custom_taxonomies = get_option( 'wpcf-custom-taxonomies', [ ] );
+        error_log( '$wpcf_custom_taxonomies=' . print_r( $wpcf_custom_taxonomies, true ) );
+        foreach ( $wpcf_custom_taxonomies as $tax_slug => $taxonomy ) {
+            if ( !empty( $taxonomy[ '_builtin' ] ) ) {
+                continue;
+            }
+            $wp_taxonomies[ $tax_slug ]->show_in_rest = true;
+            $wp_taxonomies[ $tax_slug ]->rest_base = $tax_slug;
+            $wp_taxonomies[ $tax_slug ]->rest_controller_class = 'WP_REST_Terms_Controller';
+        }
+        error_log( '$wp_taxonomies=' . print_r( $wp_taxonomies, true ) );
     }
 } );
 
