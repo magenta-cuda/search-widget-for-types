@@ -21,6 +21,11 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
 
     public function get_items( $request ) {
+        add_filter( 'posts_clauses_request', function( $clauses, $query ) {
+            error_log( 'FILTER:posts_clauses_request():$clauses=' . print_r( $clauses, true ) );
+            # TODO: add clauses for Types custom fields here
+            return $clauses;
+        }, 10, 2 );
         $response = parent::get_items( $request );
         return $response;
     }
@@ -36,6 +41,15 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
           );
         }
         return $params;
+    }
+    
+    protected function _get_types_field( $object, $field_name, $request, $object_type ) {
+        global $post;
+        error_log( '_get_types_field():$post=' . print_r( $post, true ) );
+        error_log( '_get_types_field():$object=' . print_r( $object, true ) );
+        error_log( '_get_types_field():$field_name=' . $field_name );
+        error_log( '_get_types_field():$object_type=' . $object_type );
+        return 'TODO';
     }
 }
 
@@ -77,12 +91,7 @@ EOD
             $wpcf_field = $wpcf_fields[ $field ];
             error_log( "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
             register_rest_field( $custom_type, $field, [
-                'get_callback' => function( $object, $field_name, $request, $object_type ) {
-                    global $post;
-                    error_log( 'get_callback():$field_name=' . $field_name );
-                    error_log( 'get_callback():$object_type=' . $object_type );
-                    return 'TODO';
-                },
+                'get_callback' => [ $controller, '_get_types_field' ],
                 'update_callback' => null,
                 'schema' => [
                     # TODO:
