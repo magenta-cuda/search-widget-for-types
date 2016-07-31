@@ -21,11 +21,41 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
 
     public function get_items( $request ) {
-        add_filter( 'posts_clauses_request', function( $clauses, $query ) {
-            error_log( 'FILTER:posts_clauses_request():$clauses=' . print_r( $clauses, true ) );
-            # TODO: add clauses for Types custom fields here
-            return $clauses;
-        }, 10, 2 );
+        error_log( 'get_items():$request=' . print_r( $request, true ) );
+        $fields = [ ];
+        $params = $request->get_params( );
+        error_log( 'get_items():$params=' . print_r( $params, true ) );
+        foreach( $params as $field => $value ) {
+            if ( $value && in_array( $field, $this->fields ) ) {
+                $fields[ $field ] = $value;
+            }
+        }
+        if ( $fields ) {
+            $post_type = $this->post_type;
+            add_filter( 'posts_clauses_request', function( $clauses, $query ) use ( $fields, $post_type ) {
+                # TODO: Is the following specific enough to intercept only the main query of parent::get_items( )?
+                if ( empty( $query->query_vars[ 'post_type' ] ) || $query->query_vars[ 'post_type' ] !== $post_type ) {
+                    return $clauses;
+                }
+                error_log( 'FILTER:posts_clauses_request():$_REQUEST=' . print_r( $_REQUEST, true ) );
+                error_log( 'FILTER:posts_clauses_request():$clauses=' . print_r( $clauses, true ) );
+                $orig_request = $_REQUEST;
+                $_REQUEST = [ ];
+                foreach ( $fields as $field => $value ) {
+                    $_REQUEST[ "wpcf-$field" ] = $value;
+                }
+                $query = new WP_Query( [ 's' => 'XQ9Z5', 'fields' => 'ids', 'mcst' => true ] );
+                # TODO: add clauses for Types custom fields here
+                if ( $query->posts ) {
+                    $clauses[ 'where' ] .= ' AND ( wp_posts.ID IN ( ' . implode( ', ', $query->posts ) . ' ) ) ';
+                } else {
+                }
+                $_REQUEST = $orig_request;
+                error_log( 'FILTER:posts_clauses_request():$_REQUEST=' . print_r( $_REQUEST, true ) );
+                error_log( 'FILTER:posts_clauses_request():$clauses=' . print_r( $clauses, true ) );
+                return $clauses;
+            }, 10, 2 );
+        }
         $response = parent::get_items( $request );
         return $response;
     }
