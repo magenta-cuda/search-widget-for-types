@@ -41,12 +41,15 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 error_log( 'FILTER:posts_clauses_request():$clauses=' . print_r( $clauses, true ) );
                 $orig_request = $_REQUEST;
                 $_REQUEST = [ ];
+                $_REQUEST[ 'post_type' ] = $post_type;
+                $_REQUEST[ 'search_types_custom_fields_and_or' ] = 'and';
                 foreach ( $fields as $field => $value ) {
                     $_REQUEST[ "wpcf-$field" ] = $value;
                 }
                 $query = new WP_Query( [ 's' => 'XQ9Z5', 'fields' => 'ids', 'mcst' => true ] );
                 # TODO: add clauses for Types custom fields here
                 if ( $query->posts ) {
+                    error_log( 'FILTER:posts_clauses_request():$query->posts=' . print_r( $query->posts, true ) );
                     $clauses[ 'where' ] .= ' AND ( wp_posts.ID IN ( ' . implode( ', ', $query->posts ) . ' ) ) ';
                 } else {
                 }
@@ -66,7 +69,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
           $params[ $field ] = array(
             'description'       => sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field ),
             'type'              => 'array',
-            'sanitize_callback' => 'wp_parse_id_list',
+            'sanitize_callback' => null,   # 'sanitize_text_field',   # TODO: will this work for everything?
             'default'           => array(),
           );
         }
@@ -129,7 +132,7 @@ EOD
                     'type'        => 'string',
                     'context'     => [ 'view', 'edit' ],
                     'arg_options' => [
-                        'sanitize_callback' => 'wp_filter_post_kses',
+                        'sanitize_callback' => null,
                     ]
                 ]
             ] );

@@ -920,7 +920,6 @@ add_filter( 'posts_where', function( $where, $query ) {
     global $wpdb;
     if ( !empty( $query->query_vars[ 'mcst' ] ) ) {
         error_log( 'FILTER:posts_where():$_REQUEST=' . print_r( $_REQUEST, true ) );
-        return $where;
     } else if ( ( !$query->is_main_query( ) && ( empty( $_REQUEST[ 'action' ] ) || $_REQUEST[ 'action' ] !== 'stcfw_get_posts' ) )
         || empty( $_REQUEST[ 'search_types_custom_fields_form' ] ) ) {
         return $where;
@@ -999,6 +998,7 @@ EOD
         }
         $sql2 = '';   # holds meta_value = sql
         $sql3 = '';   # holds meta_value min/max sql
+        error_log( 'FILTER:posts_where():$values=' . print_r( $values, true ) );
         foreach ( $values as $value ) {
             if ( $sql2 ) {
                 $sql2 .= ' OR ';
@@ -1216,6 +1216,7 @@ EOD
         #$where = " AND post_type = "$_REQUEST[post_type]" AND post_status = 'publish' ";
         $where = ' AND 1 = 2 ';
     }
+    error_log( 'FILTER:posts_where():$where=' . $where );
     return $where;
 }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 
