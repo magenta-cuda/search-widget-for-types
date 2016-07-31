@@ -21,7 +21,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
 
     public function get_items( $request ) {
-        error_log( 'get_items():$request=' . print_r( $request, true ) );
+        error_log( 'MCST_WP_REST_Posts_Controller::get_items():$request=' . print_r( $request, true ) );
         $fields = [ ];
         $params = $request->get_params( );
         error_log( 'get_items():$params=' . print_r( $params, true ) );
@@ -78,10 +78,15 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     
     protected function _get_types_field( $object, $field_name, $request, $object_type ) {
         global $post;
+        static $collections = [ ];
         error_log( '_get_types_field():$post=' . print_r( $post, true ) );
         error_log( '_get_types_field():$object=' . print_r( $object, true ) );
         error_log( '_get_types_field():$field_name=' . $field_name );
         error_log( '_get_types_field():$object_type=' . $object_type );
+        if ( empty( $collections[ $post->ID ] ) ) {
+            $collections[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post );
+        }
+        $collection = $collections[ $post->ID ];
         return 'TODO';
     }
 }

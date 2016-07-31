@@ -900,8 +900,39 @@ EOD
 </div></div>
 <?php      
     }   # public static function emit_backbone_bootstrap_search_results_html( ) {
-     
-    
+
+    public static function get_items_for_post( $post ) {
+        global $wp_registered_widgets;
+        $sidebars_widgets = wp_get_sidebars_widgets( );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$sidebars_widgets=' . print_r( $sidebars_widgets, true ) );
+        foreach( $sidebars_widgets as $sidebar => $widgets ) {
+            if ( $sidebar === 'wp_inactive_widgets' ) {
+                continue;
+            }
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widgets=' . print_r( $widgets, true ) );
+            foreach( $widgets as $id ) {
+                if ( strpos( $id, 'search_types_custom_fields_widget' ) === 0 ) {
+                    error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$sidebar=' . $sidebar );
+                    error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$id=' . $id );
+                    error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$wp_registered_widgets=' . print_r( $wp_registered_widgets, true ) );
+                    $widget = $wp_registered_widgets[ $id ];
+                    break 2;
+                }
+            }
+        }
+        if ( !empty( $widget ) ) {
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget=' . print_r( $widget, true ) );
+            $widget = $widget[ 'callback' ][ 0 ];
+            # TODO: ids seem inconsistent across these two representations of $widget
+            $instances = $widget->get_settings( );
+            $instance = $instances[ $widget->number ];
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget=' . print_r( $widget, true ) );
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$instances=' . print_r( $instances, true ) );
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$instance=' . print_r( $instance, true ) );
+        }
+        return true;
+    }
+
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
 
 ########################################################################################################################
