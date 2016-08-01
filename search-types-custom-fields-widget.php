@@ -67,6 +67,10 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
     public function widget( $args, $instance ) {
         global $wpdb;
+        error_log( 'widget():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
+        error_log( 'widget():$instance=' . print_r( $instance, true ) );
+        error_log( 'widget():$this=' . print_r( $this, true ) );
+        
         extract( $args );
 ?>
 <form id="search-types-custom-fields-widget-<?php echo $this->number; ?>" class="scpbcfw-search-fields-form" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
@@ -922,10 +926,9 @@ EOD
         }
         if ( !empty( $widget ) ) {
             error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget=' . print_r( $widget, true ) );
-            $widget = $widget[ 'callback' ][ 0 ];
-            # TODO: ids seem inconsistent across these two representations of $widget
-            $instances = $widget->get_settings( );
-            $instance = $instances[ $widget->number ];
+            # the following adapted from dynamic_sidebar() and WP_Widget::display_callback() 
+            $instances = $widget[ 'callback' ][ 0 ]->get_settings( );
+            $instance = $instances[ $widget[ 'params' ][ 0 ][ 'number' ] ];
             error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget=' . print_r( $widget, true ) );
             error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$instances=' . print_r( $instances, true ) );
             error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$instance=' . print_r( $instance, true ) );
