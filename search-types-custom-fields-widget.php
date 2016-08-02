@@ -539,20 +539,23 @@ EOD
     
     #  get_auxiliary_data() initializes some data structures - $fields, $posts_imploded, $wpcf_fields, $post_titles - that the widget will need to do the search
     
-    public static function get_auxiliary_data( $posts, $option, &$fields, &$posts_imploded, &$wpcf_fields, &$post_titles  ) {
+    public static function get_auxiliary_data( $posts, $option, &$fields, &$posts_imploded, &$wpcf_fields, &$post_titles, $post_type = NULL  ) {
         global $wpdb;
+        if ( !$post_type ) {
+            $post_type = $_REQUEST[ 'post_type' ];
+        }
         # get the list of posts
         $posts = array_map( function( $post ) {
             return $post->ID;
         }, $posts );
         $posts_imploded = implode( ', ', $posts );
         # get the applicable fields from the options for this widget
-        if ( array_key_exists( 'scpbcfw-show-' . $_REQUEST[ 'post_type' ], $option ) ) {
+        if ( array_key_exists( 'scpbcfw-show-' . $post_type, $option ) ) {
             # display fields explicitly specified for post type
-            $fields = $option[ 'scpbcfw-show-' . $_REQUEST[ 'post_type' ] ];
+            $fields = $option[ 'scpbcfw-show-' . $post_type ];
         } else {
             # display fields not explicitly specified so just use the search fields for post type
-            $fields = $option[ $_REQUEST[ 'post_type' ] ];
+            $fields = $option[ $post_type ];
         }
         if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
             # Backbone mode
@@ -905,7 +908,7 @@ EOD
 <?php      
     }   # public static function emit_backbone_bootstrap_search_results_html( ) {
 
-    public static function get_items_for_post( $post ) {
+    public static function get_items_for_post( $post, $post_type ) {
         global $wp_registered_widgets;
         $sidebars_widgets = wp_get_sidebars_widgets( );
         error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$sidebars_widgets=' . print_r( $sidebars_widgets, true ) );
@@ -926,14 +929,20 @@ EOD
         }
         if ( !empty( $widget ) ) {
             error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget=' . print_r( $widget, true ) );
-            # the following adapted from dynamic_sidebar() and WP_Widget::display_callback() 
-            $instances = $widget[ 'callback' ][ 0 ]->get_settings( );
-            $instance = $instances[ $widget[ 'params' ][ 0 ][ 'number' ] ];
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget=' . print_r( $widget, true ) );
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$instances=' . print_r( $instances, true ) );
+            # the following adapted from dynamic_sidebar() and WP_Widget::display_callback()
+            $widget_object = $widget[ 'callback' ][ 0 ];
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget_oject=' . print_r( $widget_object, true ) );
+            $widget_number = $widget[ 'params' ][ 0 ][ 'number' ];
+            $instance = $widget_object->get_settings( )[ $widget_number ];
             error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$instance=' . print_r( $instance, true ) );
+            $option = get_option( $widget_object->option_name )[ $widget_number ];
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$option=' . print_r( $option, true ) );
+            Search_Types_Custom_Fields_Widget::get_auxiliary_data( [ $post ], $option, $fields, $posts_imploded, $wpcf_fields, $post_titles, $post_type  );
+            $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( [ $post ], $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles );
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$collection=' . print_r( $collection, true ) );
+            return $collection;
         }
-        return true;
+        return null;
     }
 
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {

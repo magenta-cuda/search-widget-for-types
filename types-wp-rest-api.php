@@ -1,7 +1,5 @@
 <?php
 
-# This is draft and probably won't even run
-
 if ( !class_exists( 'WP_REST_Posts_Controller' ) ) {
     return;
 }
@@ -84,7 +82,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         error_log( '_get_types_field():$field_name=' . $field_name );
         error_log( '_get_types_field():$object_type=' . $object_type );
         if ( empty( $collections[ $post->ID ] ) ) {
-            $collections[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post );
+            $collections[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post, $this->post_type );
         }
         $collection = $collections[ $post->ID ];
         return 'TODO';
