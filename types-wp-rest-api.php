@@ -76,16 +76,20 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     
     protected function _get_types_field( $object, $field_name, $request, $object_type ) {
         global $post;
-        static $collections = [ ];
+        static $models = [ ];
         error_log( '_get_types_field():$post=' . print_r( $post, true ) );
         error_log( '_get_types_field():$object=' . print_r( $object, true ) );
         error_log( '_get_types_field():$field_name=' . $field_name );
         error_log( '_get_types_field():$object_type=' . $object_type );
-        if ( empty( $collections[ $post->ID ] ) ) {
-            $collections[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post, $this->post_type );
+        if ( !array_key_exists( $post->ID, $models ) ) {
+            $models[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post, $this->post_type );
         }
-        $collection = $collections[ $post->ID ];
-        return 'TODO';
+        $model = $models[ $post->ID ];
+        if ( isset( $model[ $field_name ] ) ) {
+            return $model[ $field_name ];
+        } else {
+            return '';   # TODO: what should this be?
+        }
     }
 }
 

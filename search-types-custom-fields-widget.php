@@ -586,7 +586,7 @@ EOD
     # corresponding <td> HTML element of the table. These are not raw values but values that have been processed for display as HTML. In particular
     # the value of a URL is an HTML <a> element with suitable embedded text.
     
-    public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
+    public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles, $return_json = TRUE ) {
         global $wpdb;
         $models = [ ];
         foreach ( $posts as $post_obj ) {
@@ -877,8 +877,12 @@ EOD
                     }   # if ( array_key_exists( $post, $field_values[$field] ) && ( $field_values = $field_values[$field][$post] ) ) {
                 }
             }   # foreach ( $fields as $field ) {
-        }   # foreach ( $posts as $post ) 
-        return json_encode( $models );
+        }   # foreach ( $posts as $post )
+        if ( $return_json ) {
+            return json_encode( $models );
+        } else {
+            return $models;
+        }
     }   # public static function get_backbone_collection( $posts, $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles ) {
       
     public static function emit_backbone_bootstrap_search_results_html( ) {
@@ -938,9 +942,9 @@ EOD
             $option = get_option( $widget_object->option_name )[ $widget_number ];
             error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$option=' . print_r( $option, true ) );
             Search_Types_Custom_Fields_Widget::get_auxiliary_data( [ $post ], $option, $fields, $posts_imploded, $wpcf_fields, $post_titles, $post_type  );
-            $collection = Search_Types_Custom_Fields_Widget::get_backbone_collection( [ $post ], $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles );
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$collection=' . print_r( $collection, true ) );
-            return $collection;
+            $models = Search_Types_Custom_Fields_Widget::get_backbone_collection( [ $post ], $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles, FALSE );
+            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$models=' . print_r( $models, true ) );
+            return $models[ 0 ];
         }
         return null;
     }
