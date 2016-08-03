@@ -475,8 +475,55 @@ EOD
 ########################################################################################################################
 # Auxiliary Functions - implements common functionality used by the widget methods                                     #
 ########################################################################################################################
+
+    # get_option() returns the option for the widget for this theme
     
-    public static function search_wpcf_field_options( &$options, $option, $value ) {
+    public static function get_option( ) {
+        global $wp_registered_widgets;
+        $sidebars_widgets = wp_get_sidebars_widgets( );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_option():$sidebars_widgets=' . print_r( $sidebars_widgets, true ) );
+        foreach( $sidebars_widgets as $sidebar => $widgets ) {
+            if ( $sidebar === 'wp_inactive_widgets' ) {
+                continue;
+            }
+            error_log( 'Search_Types_Custom_Fields_Widget::get_option():$widgets=' . print_r( $widgets, true ) );
+            foreach( $widgets as $id ) {
+                if ( strpos( $id, 'search_types_custom_fields_widget' ) === 0 ) {
+                    error_log( 'Search_Types_Custom_Fields_Widget::get_option():$sidebar=' . $sidebar );
+                    error_log( 'Search_Types_Custom_Fields_Widget::get_option():$id=' . $id );
+                    error_log( 'Search_Types_Custom_Fields_Widget::get_option():$wp_registered_widgets=' . print_r( $wp_registered_widgets, true ) );
+                    $widget = $wp_registered_widgets[ $id ];
+                    break 2;
+                }
+            }
+        }
+        if ( empty( $widget ) ) {
+            return NULL;
+        }
+        error_log( 'Search_Types_Custom_Fields_Widget::get_option():$widget=' . print_r( $widget, true ) );
+        # the following adapted from dynamic_sidebar() and WP_Widget::display_callback()
+        $widget_object = $widget[ 'callback' ][ 0 ];
+        error_log( 'Search_Types_Custom_Fields_Widget::get_option():$widget_oject=' . print_r( $widget_object, true ) );
+        $widget_number = $widget[ 'params' ][ 0 ][ 'number' ];
+        $instance = $widget_object->get_settings( )[ $widget_number ];
+        error_log( 'Search_Types_Custom_Fields_Widget::get_option():$instance=' . print_r( $instance, true ) );
+        $option = get_option( $widget_object->option_name )[ $widget_number ];
+        error_log( 'Search_Types_Custom_Fields_Widget::get_option():$option=' . print_r( $option, true ) );
+        return $option;
+    }
+
+    # get_fields() returns the applicable fields for $post_type from the option for this widget
+    
+    public static function get_fields( $post_type, $option ) {
+        if ( array_key_exists( 'scpbcfw-show-' . $post_type, $option ) ) {
+            # display fields explicitly specified for post type
+            return $option[ 'scpbcfw-show-' . $post_type ];
+        }
+        # display fields not explicitly specified so just use the search fields for post type
+        return $option[ $post_type ];
+    }
+
+    public static function search_wpcf_field_options( $options, $option, $value ) {
         foreach ( $options as $k => $v ) {
             if ( !empty( $v[$option]) && $v[$option] == $value ) {
                 return $k;
@@ -550,13 +597,7 @@ EOD
         }, $posts );
         $posts_imploded = implode( ', ', $posts );
         # get the applicable fields from the options for this widget
-        if ( array_key_exists( 'scpbcfw-show-' . $post_type, $option ) ) {
-            # display fields explicitly specified for post type
-            $fields = $option[ 'scpbcfw-show-' . $post_type ];
-        } else {
-            # display fields not explicitly specified so just use the search fields for post type
-            $fields = $option[ $post_type ];
-        }
+        $fields = self::get_fields( $post_type, $option );
         if ( !empty( $option[ 'use_backbone_model_view_presenter' ] ) ) {
             # Backbone mode
             // always include post excerpt and thumbnail
@@ -913,40 +954,13 @@ EOD
     }   # public static function emit_backbone_bootstrap_search_results_html( ) {
 
     public static function get_items_for_post( $post, $post_type ) {
-        global $wp_registered_widgets;
-        $sidebars_widgets = wp_get_sidebars_widgets( );
-        error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$sidebars_widgets=' . print_r( $sidebars_widgets, true ) );
-        foreach( $sidebars_widgets as $sidebar => $widgets ) {
-            if ( $sidebar === 'wp_inactive_widgets' ) {
-                continue;
-            }
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widgets=' . print_r( $widgets, true ) );
-            foreach( $widgets as $id ) {
-                if ( strpos( $id, 'search_types_custom_fields_widget' ) === 0 ) {
-                    error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$sidebar=' . $sidebar );
-                    error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$id=' . $id );
-                    error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$wp_registered_widgets=' . print_r( $wp_registered_widgets, true ) );
-                    $widget = $wp_registered_widgets[ $id ];
-                    break 2;
-                }
-            }
-        }
-        if ( !empty( $widget ) ) {
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget=' . print_r( $widget, true ) );
-            # the following adapted from dynamic_sidebar() and WP_Widget::display_callback()
-            $widget_object = $widget[ 'callback' ][ 0 ];
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$widget_oject=' . print_r( $widget_object, true ) );
-            $widget_number = $widget[ 'params' ][ 0 ][ 'number' ];
-            $instance = $widget_object->get_settings( )[ $widget_number ];
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$instance=' . print_r( $instance, true ) );
-            $option = get_option( $widget_object->option_name )[ $widget_number ];
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$option=' . print_r( $option, true ) );
-            Search_Types_Custom_Fields_Widget::get_auxiliary_data( [ $post ], $option, $fields, $posts_imploded, $wpcf_fields, $post_titles, $post_type  );
-            $models = Search_Types_Custom_Fields_Widget::get_backbone_collection( [ $post ], $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles, FALSE );
-            error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$models=' . print_r( $models, true ) );
-            return $models[ 0 ];
-        }
-        return null;
+        if ( !( $option = self::get_option( ) ) ) {
+            return null;
+        }    
+        self::get_auxiliary_data( [ $post ], $option, $fields, $posts_imploded, $wpcf_fields, $post_titles, $post_type  );
+        $models = self::get_backbone_collection( [ $post ], $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles, FALSE );
+        error_log( 'Search_Types_Custom_Fields_Widget::get_items_for_post():$models=' . print_r( $models, true ) );
+        return $models[ 0 ];
     }
 
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
