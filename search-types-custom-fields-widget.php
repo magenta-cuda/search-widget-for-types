@@ -515,6 +515,9 @@ EOD
     # get_fields() returns the applicable fields for $post_type from the option for this widget
     
     public static function get_fields( $post_type, $option ) {
+        if ( !$post_type || !$option ) {
+            return [ ];
+        }
         if ( array_key_exists( 'scpbcfw-show-' . $post_type, $option ) ) {
             # display fields explicitly specified for post type
             return $option[ 'scpbcfw-show-' . $post_type ];

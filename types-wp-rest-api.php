@@ -130,7 +130,19 @@ EOD
         # create a REST controller for this Types custom post type
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
         # add the Types custom fields 
+        $widget_fields = Search_Types_Custom_Fields_Widget::get_fields( $custom_type, Search_Types_Custom_Fields_Widget::get_option( ) );
+        error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
+        $widget_fields = array_map( function( $field ) {
+            return substr( $field, 5 );
+        }, array_filter( $widget_fields, function( $field ) {
+            return substr_compare( $field, 'wpcf-', 0, 5 ) === 0;
+        } ) );
+        error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
+        error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
         $controller->fields = [ ];
+        $fields = array_intersect( $fields, $widget_fields );
+        # TODO: do intersection for now but more is possible
+        error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
         foreach ( $fields as $field ) {
             $wpcf_field = $wpcf_fields[ $field ];
             error_log( 'ACTION:rest_api_init()' . "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
