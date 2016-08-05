@@ -6,12 +6,14 @@ if ( !class_exists( 'WP_REST_Posts_Controller' ) ) {
 
 class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
+    const REST_NAME_SPACE = 'mcst/v1';
+
     static $post_types = [ ];
 
     public function __construct( $post_type ) {
         self::$post_types[ ] = $post_type;
         $this->post_type = $post_type;
-        $this->namespace = 'mcst/v1';
+        $this->namespace = self::REST_NAME_SPACE;
         $obj = get_post_type_object( $post_type );
         $this->rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
     }
@@ -217,8 +219,9 @@ add_filter( 'rest_prepare_post_type', function( $response, $post_type, $request 
     error_log( 'FILTER:rest_prepare_post_type():$post_type=' . print_r ( $post_type, true ) );
     error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $request, true ) );
     if ( in_array( $post_type->name, MCST_WP_REST_Posts_Controller::$post_types ) ) {
+        # fix namespace on links to Types custom post types
         $response->remove_link( 'https://api.w.org/items' );
-        $response->add_links( [	'https://api.w.org/items' => [ 'href' => rest_url( sprintf( 'mcst/v1/%s', $post_type->name ) ) ] ] );
+        $response->add_links( [	'https://api.w.org/items' => [ 'href' => rest_url( MCST_WP_REST_Posts_Controller::REST_NAME_SPACE . '/' . $post_type->name ) ] ] );
     }
     error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $request, true ) );
     return $response;
