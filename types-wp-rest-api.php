@@ -64,6 +64,10 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     public function get_collection_params( ) {
         $params = parent::get_collection_params( );
         foreach ( $this->fields as $field ) {
+          if ( array_key_exists( $field, $params ) ) {
+              # don't override parent's params - TODO: override may be better?
+              continue;
+          }
           $params[ $field ] = array(
             'description'       => sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field ),
             'type'              => 'array',
@@ -74,6 +78,29 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         return $params;
     }
     
+    protected function add_additional_fields_to_object( $object, $request ) {
+
+      error_log( 'MCST_WP_REST_Posts_Controller::add_additional_fields_to_object():$object=' . print_r( $object, true ) );
+
+      $additional_fields = $this->get_additional_fields();
+
+      foreach ( $additional_fields as $field_name => $field_options ) {
+
+        if ( array_key_exists( $field_name, $object ) ) {
+          # don't override parent's fields TODO: override may be better, e.g. my taxonomy values may be better
+          continue;
+        }
+
+        if ( ! $field_options['get_callback'] ) {
+          continue;
+        }
+
+        $object[ $field_name ] = call_user_func( $field_options['get_callback'], $object, $field_name, $request, $this->get_object_type() );
+      }
+      error_log( 'MCST_WP_REST_Posts_Controller::add_additional_fields_to_object():$object=' . print_r( $object, true ) );
+      return $object;
+    }
+ 
     protected function _get_types_field( $object, $field_name, $request, $object_type ) {
         global $post;
         static $models = [ ];
@@ -130,36 +157,38 @@ EOD
         # create a REST controller for this Types custom post type
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
         # add the Types custom fields 
-        $widget_fields = Search_Types_Custom_Fields_Widget::get_fields( $custom_type, Search_Types_Custom_Fields_Widget::get_option( ) );
-        error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
-        $widget_fields = array_map( function( $field ) {
-            return substr( $field, 5 );
-        }, array_filter( $widget_fields, function( $field ) {
-            return substr_compare( $field, 'wpcf-', 0, 5 ) === 0;
-        } ) );
-        error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
-        error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
-        $controller->fields = [ ];
-        $fields = array_intersect( $fields, $widget_fields );
-        # TODO: do intersection for now but more is possible
-        error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
-        foreach ( $fields as $field ) {
-            $wpcf_field = $wpcf_fields[ $field ];
-            error_log( 'ACTION:rest_api_init()' . "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
-            register_rest_field( $custom_type, $field, [
-                'get_callback' => [ $controller, '_get_types_field' ],
-                'update_callback' => null,
-                'schema' => [
-                    # TODO:
-                    'description' => __( 'The description for the resource.' ),
-                    'type'        => 'string',
-                    'context'     => [ 'view', 'edit' ],
-                    'arg_options' => [
-                        'sanitize_callback' => null,
+        if ( $widget_fields = Search_Types_Custom_Fields_Widget::get_fields( $custom_type ) ) {        
+            error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
+            $widget_fields = array_map( function( $field ) {
+                return substr( $field, 5 );
+            }, array_filter( $widget_fields, function( $field ) {
+                # for now only do Types custom fields which have prefix "wpcf-"
+                return substr_compare( $field, 'wpcf-', 0, 5 ) === 0;
+            } ) );
+            error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
+            error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
+            $controller->fields = [ ];
+            $fields = array_intersect( $fields, $widget_fields );
+            # TODO: do intersection for now but more is possible
+            error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
+            foreach ( $fields as $field ) {
+                $wpcf_field = $wpcf_fields[ $field ];
+                error_log( 'ACTION:rest_api_init()' . "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
+                register_rest_field( $custom_type, $field, [
+                    'get_callback' => [ $controller, '_get_types_field' ],
+                    'update_callback' => null,
+                    'schema' => [
+                        # TODO:
+                        'description' => __( 'The description for the resource.' ),
+                        'type'        => 'string',
+                        'context'     => [ 'view', 'edit' ],
+                        'arg_options' => [
+                            'sanitize_callback' => null,
+                        ]
                     ]
-                ]
-            ] );
-            $controller->fields[ ] = $field;
+                ] );
+                $controller->fields[ ] = $field;
+            }
         }
         error_log( 'ACTION:rest_api_init():$controller=' . print_r( $controller, true ) );
         $controller->register_routes( );
