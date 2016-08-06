@@ -1,5 +1,27 @@
 <?php
 
+# This implements the WP REST API for Toolset Types custom post types and custom fields for the HTTP methods OPTIONS and GET 
+# I.e., read only the HTTP methods POST and PUT not currently supported
+#
+# curl examples
+#
+# Schema
+#
+#      curl -X OPTIONS http://me.local.com/wp-json/mcst/v1/car
+#
+# Request by ID
+#
+#      curl http://me.local.com/wp-json/mcst/v1/car/78
+#
+# Request by taxonomy
+#
+#      curl http://me.local.com/wp-json/mcst/v1/car?body-type=3
+#
+# Request by Types custom field
+#
+#      curl http://me.local.com/wp-json/mcst/v1/car?brand=Plymouth
+
+
 if ( !class_exists( 'WP_REST_Posts_Controller' ) ) {
     return;
 }
@@ -18,6 +40,28 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         $this->rest_base = ! empty( $obj->rest_base ) ? $obj->rest_base : $obj->name;
     }
 
+    public function register_routes() {
+        # Only WP_REST_Server::READABLE methods are supported
+        register_rest_route( $this->namespace, '/' . $this->rest_base, [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => array( $this, 'get_items' ),
+                'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                'args'                => $this->get_collection_params(),
+            ],
+            'schema' => [ $this, 'get_public_item_schema' ]
+        ] );
+        register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [ $this, 'get_item' ],
+                'permission_callback' => [ $this, 'get_item_permissions_check' ],
+                'args'                => [ 'context' => $this->get_context_param( [ 'default' => 'view' ] ) ]
+            ],
+            'schema' => [ $this, 'get_public_item_schema' ]
+        ] );
+    }
+  
     protected function prepare_items_query( $prepared_args = array(), $request = null ) {
         $query_args = parent::prepare_items_query( $prepared_args, $request );
         return $query_args;
@@ -184,9 +228,9 @@ EOD
                     'update_callback' => null,
                     'schema' => [
                         # TODO:
-                        'description' => __( 'The description for the resource.' ),
+                        'description' => $wpcf_field[ 'description' ],
                         'type'        => 'string',
-                        'context'     => [ 'view', 'edit' ],
+                        'context'     => [ 'view' ],
                         'arg_options' => [
                             'sanitize_callback' => null,
                         ]
