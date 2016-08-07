@@ -170,23 +170,30 @@ jQuery( document ).ready( function( ) {
         return jQuery( "script#" + name );
     };
     
-    // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg">Gamma</a>'
-    // extractHrefAndLabelFromLink() returns an object with properties href and label 
+    // URL values of post fields are HTML <a> elements, e.g. '<a href="http://alpha.beta.com/delta.jpg" data-post-id="123">Gamma</a>'
+    // extractHrefAndLabelFromLink() returns an object with properties href, id and label 
     // The main application of extractHrefAndLabelFromLink() is in evaluate expressions in templates,
     // e.g. '<# print(extractHrefAndLabelFromLink(data.alpha).label); #>'
 
     stcfw.extractHrefAndLabelFromLink=function(link){
         var ret={};
         if(!link){
-            ret.label=ret.href="";
+            ret.label=ret.id=ret.href="";
             return ret;
         }
-        var matches=link.match(/^<a\s.*?("|')(.*?)\1.*?>(.*?)<\/a>$/i);
+        var matches=link.match(/^<a\s+href=("|')(.*?)\1\s+data-post-id=("|')(.*?)\3.*?>(.*?)<\/a>$/i);
         if(matches){
             ret.href=matches[2];
-            ret.label=matches[3];
+            ret.id=matches[4];
+            ret.label=matches[5];
         }else{
-            ret.label=ret.href="";
+            var matches=link.match(/^<a\s.*?("|')(.*?)\1.*?>(.*?)<\/a>$/i);
+            if(matches){
+                ret.href=matches[2];
+                ret.label=matches[3];
+            }else{
+                ret.label=ret.id=ret.href="";
+            }
         }
         return ret;
     };

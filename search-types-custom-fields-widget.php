@@ -644,7 +644,7 @@ EOD
             $model                 =& $models[ ];
             $model                 = [ ];
             $model[ 'ID' ]         = $post_obj->ID;
-            $model[ 'post_title' ] = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_obj->guid}\">{$post_obj->post_title}</a>",
+            $model[ 'post_title' ] = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_obj->guid}\" data-post-id=\"{$post_obj->ID}\">{$post_obj->post_title}</a>",
                                                                                       'post_title', $post_type );
             $child_of_values       = [ ];
             $parent_of_values      = [ ];
@@ -694,10 +694,10 @@ EOD
                     if ( $value ) {
                         if ( is_array( $value ) ) {
                             $label = implode( ', ', array_map( function( $v ) use ( &$post_titles ) {
-                                return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
+                                return "<a href=\"{$post_titles[$v]->guid}\" data-post-id=\"$v\">{$post_titles[$v]->post_title}</a>";
                             }, $value ) );
                         } else {
-                            $label = "<a href=\"{$post_titles[$value]->guid}\">{$post_titles[$value]->post_title}</a>";
+                            $label = "<a href=\"{$post_titles[$value]->guid}\" data-post-id=\"$value\">{$post_titles[$value]->post_title}</a>";
                         }
                         $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
                         # append a suffix to field name to specify either 'child of' or 'parent of' relationship
@@ -1945,8 +1945,8 @@ EOD;
                 $child_of_values  = [ ];
                 $parent_of_values = [ ];
                 foreach ( $posts as $post ) {
-                    $title    = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_titles[$post]->guid}\">{$post_titles[$post]->post_title}</a>",
-                                    'post_title', $_REQUEST[ 'post_type' ] );
+                    $title = Search_Types_Custom_Fields_Widget::value_filter( "<a href=\"{$post_titles[$post]->guid}\" data-post-id=\"$post\">{$post_titles[$post]->post_title}</a>",
+                                                                              'post_title', $_REQUEST[ 'post_type' ] );
                     $content .= "<tr><td class=\"scpbcfw-result-table-detail-post\">$title</td>";
                     foreach ( $fields as $field ) {
                         $td = '<td></td>';
@@ -1994,10 +1994,10 @@ EOD
                             if ( $value ) {
                                 if ( is_array( $value ) ) {
                                     $label = implode( ', ', array_map( function( $v ) use ( &$post_titles ) {
-                                        return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
+                                        return "<a href=\"{$post_titles[$v]->guid}\" data-post-id=\"$v\">{$post_titles[$v]->post_title}</a>";
                                     }, $value ) );
                                 } else {
-                                    $label = "<a href=\"{$post_titles[$value]->guid}\">{$post_titles[$value]->post_title}</a>";
+                                    $label = "<a href=\"{$post_titles[$value]->guid}\" data-post-id=\"$value\">{$post_titles[$value]->post_title}</a>";
                                 }
                                 $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $_REQUEST[ 'post_type' ] );
                                 $td = "<td class=\"scpbcfw-result-table-detail-$field\">$label</td>";
