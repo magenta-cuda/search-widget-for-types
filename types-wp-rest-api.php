@@ -20,7 +20,12 @@
 # Request by Types custom field
 #
 #      curl http://me.local.com/wp-json/mcst/v1/car?brand=Plymouth
-
+#
+#      curl -g "http://me.local.com/wp-json/mcst/v1/car?brand[]=Plymouth&brand[]=Dodge"
+#
+# Custom Post Types
+#
+#      curl http://me.local.com/wp-json/mcst/v1/types
 
 if ( !class_exists( 'WP_REST_Posts_Controller' ) ) {
     return;
@@ -30,7 +35,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
     const REST_NAME_SPACE = 'mcst/v1';
 
-    static $post_types = [ ];
+    public static $post_types = [ ];
 
     public function __construct( $post_type ) {
         self::$post_types[ ] = $post_type;
@@ -120,7 +125,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
           $params[ $field ] = array(
             'description'       => sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field ),
             'type'              => 'array',
-            'sanitize_callback' => null,   # 'sanitize_text_field',   # TODO: will this work for everything?
+            'sanitize_callback' => [ $this, '_sanitize_field' ],
             'default'           => array(),
           );
         }
@@ -166,6 +171,43 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         } else {
             return '';   # TODO: what should this be?
         }
+    }
+    
+    public function _sanitize_field( $value, $request, $name ) {
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$name=' . $name );
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$value=' . print_r( $value, true ) );
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$request=' . print_r( $request, true ) );
+        # N.B. $value may be an array
+        return $value;
+    }
+}
+
+class MCST_WP_REST_Post_Types_Controller extends WP_REST_Post_Types_Controller {
+
+    const REST_NAME_SPACE = 'mcst/v1';
+    protected static $post_types = [ ];
+
+    public function __construct() {
+        $this->namespace = self::REST_NAME_SPACE;
+        $this->rest_base = 'types';
+    }
+
+    public function get_items( $request ) {
+        global $wp_post_types;
+        $data = [];
+        foreach ( self::$post_types as $post_type ) {
+            $obj = $wp_post_types[ $post_type ];
+            if ( empty( $obj->show_in_rest ) || ( 'edit' === $request['context'] && ! current_user_can( $obj->cap->edit_posts ) ) ) {
+                continue;
+            }
+            $post_type = $this->prepare_item_for_response( $obj, $request );
+            $data[ $obj->name ] = $this->prepare_response_for_collection( $post_type );
+        }
+        return rest_ensure_response( $data );
+    }
+    
+    public static function add_post_type( $post_type ) {
+        self::$post_types[ ] = $post_type;
     }
 }
 
@@ -255,7 +297,10 @@ EOD
         error_log( 'ACTION:rest_api_init():$wp_taxonomies=' . print_r( $wp_taxonomies, true ) );
         error_log( 'ACTION:rest_api_init():$controller->get_collection_params()=' . print_r( $controller->get_collection_params(), true ) );
         error_log( 'ACTION:rest_api_init():$controller->get_item_schema()=' . print_r( $controller->get_item_schema(), true ) );
+        MCST_WP_REST_Post_Types_Controller::add_post_type( $custom_type );
     }
+    $controller = new MCST_WP_REST_Post_Types_Controller( );
+    $controller->register_routes( );
 } );
 
 add_filter( 'rest_prepare_post_type', function( $response, $post_type, $request ) {
