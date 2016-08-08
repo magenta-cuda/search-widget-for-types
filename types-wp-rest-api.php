@@ -169,6 +169,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         if ( isset( $model[ $field_name ] ) ) {
             return $model[ $field_name ];
         } else {
+            # TODO: Handle name mismatch
             return '';   # TODO: what should this be?
         }
     }
@@ -247,15 +248,30 @@ EOD
         }
         # create a REST controller for this Types custom post type
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
-        # add the Types custom fields 
+        # add the Types custom fields, custom taxonomies, child of and parent of fields
         if ( $widget_fields = Search_Types_Custom_Fields_Widget::get_fields( $custom_type ) ) {        
             error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
-            $widget_fields = array_map( function( $field ) {
-                return substr( $field, 5 );
-            }, array_filter( $widget_fields, function( $field ) {
+            $widget_fields = array_filter( array_map( function( $field ) {
                 # for now only do Types custom fields which have prefix "wpcf-"
-                return substr_compare( $field, 'wpcf-', 0, 5 ) === 0;
-            } ) );
+                if ( substr_compare( $field, 'wpcf-', 0, 5 ) === 0 ) {
+                    # Toolset Types custom field
+                    return substr( $field, 5 );
+                } else if ( substr_compare( $field, 'tax-tag-', 0, 8 ) === 0 ) {
+                    # Toolset Types custom taxonomy
+                    error_log( 'ACTION:rest_api_init():tax-tag-:field=' . substr( $field, 8 ) );
+                    return FALSE;
+                } else if ( substr_compare( $field, '_wpcf_belongs_', 0, 14 ) === 0 && substr_compare( $field, '_id', -3, 3 ) === 0 ) {
+                    # child of
+                    error_log( 'ACTION:rest_api_init():_wpcf_belongs_:field=' . substr( $field, 14, -3 ) );
+                    return FALSE;
+                } else if ( preg_match( '/^inverse_(\w+)__wpcf_belongs_(\w+)_id$/', $field, $matches ) === 1 ) {
+                    # parent of
+                    error_log( 'ACTION:rest_api_init():$matches=' . print_r( $matches, true ) );
+                    return FALSE;
+                } else {
+                    return FALSE;
+                }
+            }, $widget_fields ) );
             error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
             error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
             $controller->fields = [ ];

@@ -1,9 +1,9 @@
-=== Search Types Custom Fields Widget ===
+=== Search Widget and WP REST Server for Toolset Types ===
 Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
-Tested up to: 4.5
-Stable tag: 1.3.1
+Tested up to: 4.6
+Stable tag: 2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,9 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 1. The "Search Widget" interactively loads the "Search Results Pane".
 
 == Changelog ==
+
+= 2.0 =
+* implements a WP REST server
 
 = 1.3.1 =
 * fix a security hole
@@ -126,6 +129,8 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 * Initial release.
 
 == Upgrade Notice ==
+= 2.0 =
+* implements a WP REST server
 = 1.3.1 =
 * fix a security hole
 * support for preloading the search results pane
