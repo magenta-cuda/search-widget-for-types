@@ -178,21 +178,22 @@ jQuery( document ).ready( function( ) {
     stcfw.extractHrefAndLabelFromLink=function(link){
         var ret={};
         if(!link){
-            ret.label=ret.id=ret.href="";
+            ret.label=ret.postId=ret.href="";
             return ret;
         }
         var matches=link.match(/^<a\s+href=("|')(.*?)\1\s+data-post-id=("|')(.*?)\3.*?>(.*?)<\/a>$/i);
         if(matches){
             ret.href=matches[2];
-            ret.id=matches[4];
+            ret.postId=matches[4];
             ret.label=matches[5];
         }else{
             var matches=link.match(/^<a\s.*?("|')(.*?)\1.*?>(.*?)<\/a>$/i);
             if(matches){
                 ret.href=matches[2];
+                ret.postId="";
                 ret.label=matches[3];
             }else{
-                ret.label=ret.id=ret.href="";
+                ret.label=ret.postId=ret.href="";
             }
         }
         return ret;

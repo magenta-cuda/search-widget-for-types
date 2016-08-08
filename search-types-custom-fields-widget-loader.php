@@ -1,10 +1,10 @@
 <?php
 
 /*
-Plugin Name: Search Types Custom Fields Widget
+Plugin Name: Search Widget and WP REST Server for Toolset Types
 Plugin URI: http://alttypes.wordpress.com/
 Description: Widget for searching Types custom fields and custom taxonomies.
-Version: 1.3.1
+Version: 2.0
 Author: Magenta Cuda
 Author URI: https://alttypes.wordpress.com/
 License: GPL2

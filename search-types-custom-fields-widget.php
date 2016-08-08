@@ -17,7 +17,7 @@
 */
 
 /*
-    Project IV: Search Types Custom Fields
+    Project IV: Search Widget and WP REST Server for Toolset Types
 
     There are 3 modes that this widget can be run in:
     Classic mode                    - the search results HTML is generated entirely by the PHP backend server, no longer being developed, retained for backward compatibility.
@@ -725,7 +725,7 @@ EOD
                         } else {
                             $href = includes_url( 'images/smilies/frownie.png' );
                         }
-                        $label = "<a href=\"{$href}\">{$post_titles[ $thumbnail ]->post_title}</a>";
+                        $label = "<a href=\"{$href}\" data-post-id=\"$thumbnail\">{$post_titles[ $thumbnail ]->post_title}</a>";
                         $model[ 'thumbnail' ] = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
                     } else {
                         $model[ 'thumbnail' ] = "<a href=\"" . includes_url( 'images/smilies/frownie.png' ) . "\">"
@@ -745,7 +745,7 @@ EOD
                     }
                     if ( array_key_exists( $post, $attachments ) ) {
                         $label = implode( ', ', array_map( function( $v ) use ( &$post_titles ) {
-                            return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
+                            return "<a href=\"{$post_titles[$v]->guid}\" data-post-id=\"$v\">{$post_titles[$v]->post_title}</a>";
                         }, $attachments[ $post ] ) );
                         $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
                         $model[ 'post_attachments' ] = $label;
@@ -2017,7 +2017,7 @@ EOD
                             }
                             if ( array_key_exists( $post, $attachments ) ) {
                                 $label = implode( ', ', array_map( function( $v ) use ( &$post_titles ) {
-                                    return "<a href=\"{$post_titles[$v]->guid}\">{$post_titles[$v]->post_title}</a>";
+                                    return "<a href=\"{$post_titles[$v]->guid}\" data-post-id=\"$v\">{$post_titles[$v]->post_title}</a>";
                                 }, $attachments[ $post ] ) );
                                 $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $_REQUEST[ 'post_type' ] );
                                 $td = "<td class=\"scpbcfw-result-table-detail-$field\">$label</td>";
