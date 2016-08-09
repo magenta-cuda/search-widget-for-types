@@ -333,4 +333,16 @@ add_filter( 'rest_prepare_post_type', function( $response, $post_type, $request 
     return $response;
 }, 10, 3 );
 
+add_action( 'wp_enqueue_scripts', function( ) {
+		wp_enqueue_script( 'mcst-api', plugins_url( 'mcst-api.js', __FILE__ ), [ 'jquery', 'backbone', 'underscore' ], FALSE, TRUE );
+
+		$settings = array(
+			'root'          => esc_url_raw( get_rest_url() ),
+			'nonce'         => wp_create_nonce( 'wp_rest' ),
+			'versionString' => 'mcst/v1/',
+		);
+		wp_localize_script( 'mcst-api', 'mcstApiSettings', $settings );
+    
+}, -100 );
+
 ?>

@@ -6,16 +6,18 @@
 <script type='text/javascript' src='http://me.local.com/wp-includes/js/underscore.min.js'></script>
 <script type='text/javascript' src='http://me.local.com/wp-includes/js/backbone.min.js'></script>
 <script type='text/javascript' src='http://me.local.com/wp-content/plugins/rest-api/wp-api.js'></script>
+<script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/mcst-api.js'></script>
 </head>
 <body>
 <script type="text/javascript">
-    wp.api.loadPromise.done( function() {
+    // TODO: what about wp.api.loadPromise.done
+    mcst.api.loadPromise.done( function() {
         // TODO: this will not work for namespaces other than 'wp/v2/' since 'wp/v2/' is hardcoded into rest-api/wp-api.js
         // Unfortunately, this is a major problem - maybe we need to re-think using our own namespace
-        //var collection = new wp.api.collections.Cars();
-        var collection = new wp.api.collections.Posts();
-        //collection.fetch( { data: { brand: "Plymouth" }, success: function( collection, response, options ) {
-        collection.fetch( { data: { "body-type": "3" }, success: function( collection, response, options ) {
+        var collection = new mcst.api.collections.Cars();
+        //var collection = new wp.api.collections.Posts();
+        collection.fetch( { data: { brand: "Plymouth" }, success: function( collection, response, options ) {
+        //collection.fetch( { data: { "body-type": "3" }, success: function( collection, response, options ) {
             console.log( collection );
         }, error: function( collection, response, options ) {
             alert( "fetch() failed." );
