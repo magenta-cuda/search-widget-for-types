@@ -7,21 +7,21 @@
 #
 # Schema
 #
-#      curl -X OPTIONS http://me.local.com/wp-json/mcst/v1/car
+#      curl -X OPTIONS http://me.local.com/wp-json/mcst/v1/cars
 #
 # Request by ID
 #
-#      curl http://me.local.com/wp-json/mcst/v1/car/78
+#      curl http://me.local.com/wp-json/mcst/v1/cars/78
 #
 # Request by taxonomy
 #
-#      curl http://me.local.com/wp-json/mcst/v1/car?body-type=3
+#      curl http://me.local.com/wp-json/mcst/v1/cars?body-type=3
 #
 # Request by Types custom field
 #
-#      curl http://me.local.com/wp-json/mcst/v1/car?brand=Plymouth
+#      curl http://me.local.com/wp-json/mcst/v1/cars?brand=Plymouth
 #
-#      curl -g "http://me.local.com/wp-json/mcst/v1/car?brand[]=Plymouth&brand[]=Dodge"
+#      curl -g "http://me.local.com/wp-json/mcst/v1/cars?brand[]=Plymouth&brand[]=Dodge"
 #
 # Custom Post Types
 #
@@ -243,7 +243,8 @@ EOD
         # add REST attributes to the global $wp_post_types
         if ( isset( $wp_post_types[ $custom_type ] ) ) {
             $wp_post_types[ $custom_type ]->show_in_rest          = true;
-            $wp_post_types[ $custom_type ]->rest_base             = $custom_type;
+            #$wp_post_types[ $custom_type ]->rest_base             = $custom_type;
+            $wp_post_types[ $custom_type ]->rest_base             = strtolower( $wpcf_custom_types[ $custom_type ][ 'labels' ][ 'name' ] );
             $wp_post_types[ $custom_type ]->rest_controller_class = 'MCST_WP_REST_Posts_Controller';
         }
         # create a REST controller for this Types custom post type
