@@ -26,6 +26,11 @@
 # Custom Post Types
 #
 #      curl http://me.local.com/wp-json/mcst/v1/types
+#
+#
+#
+#      http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/tutorials/backbone-client.html
+#
 
 if ( !class_exists( 'WP_REST_Posts_Controller' ) ) {
     return;
@@ -35,7 +40,8 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
     const REST_NAME_SPACE = 'mcst/v1';
 
-    public static $post_types = [ ];
+    public static $post_types     = [ ];
+    public static $mapping_models = [ ];
 
     public function __construct( $post_type ) {
         self::$post_types[ ] = $post_type;
@@ -181,12 +187,27 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         # N.B. $value may be an array
         return $value;
     }
+
+    public static function add_mapping_model( $collection, $model ) {
+        self::$mapping_models[ $collection ] = $model;
+    }
+
+    public static function get_settings( ) {
+        wp_send_json_success( [
+            'root'          => esc_url_raw( get_rest_url() ),
+            'nonce'         => wp_create_nonce( 'wp_rest' ),
+            'versionString' => 'mcst/v1/',
+            'mapping'       => [
+                                   'models'      => [ 'TODO' => 'TODO' ],
+                                   'collections' => [ ]
+                               ]
+        ] );
+    }
 }
 
 class MCST_WP_REST_Post_Types_Controller extends WP_REST_Post_Types_Controller {
 
     const REST_NAME_SPACE = 'mcst/v1';
-    protected static $post_types = [ ];
 
     public function __construct() {
         $this->namespace = self::REST_NAME_SPACE;
@@ -196,19 +217,16 @@ class MCST_WP_REST_Post_Types_Controller extends WP_REST_Post_Types_Controller {
     public function get_items( $request ) {
         global $wp_post_types;
         $data = [];
-        foreach ( self::$post_types as $post_type ) {
+        foreach ( MCST_WP_REST_Posts_Controller::$post_types as $post_type ) {
             $obj = $wp_post_types[ $post_type ];
             if ( empty( $obj->show_in_rest ) || ( 'edit' === $request['context'] && ! current_user_can( $obj->cap->edit_posts ) ) ) {
                 continue;
             }
+            error_log( 'MCST_WP_REST_Post_Types_Controller::get_items():$obj=' . print_r( $obj, true ) );
             $post_type = $this->prepare_item_for_response( $obj, $request );
             $data[ $obj->name ] = $this->prepare_response_for_collection( $post_type );
         }
         return rest_ensure_response( $data );
-    }
-    
-    public static function add_post_type( $post_type ) {
-        self::$post_types[ ] = $post_type;
     }
 }
 
@@ -242,15 +260,18 @@ EOD
         error_log( 'ACTION:rest_api_init():$custom_type=' . $custom_type );
         # add REST attributes to the global $wp_post_types
         if ( isset( $wp_post_types[ $custom_type ] ) ) {
-            $wp_post_types[ $custom_type ]->show_in_rest          = true;
+            $wp_post_types[ $custom_type ]->show_in_rest           = TRUE;
             #$wp_post_types[ $custom_type ]->rest_base             = $custom_type;
-            $wp_post_types[ $custom_type ]->rest_base             = strtolower( $wpcf_custom_types[ $custom_type ][ 'labels' ][ 'name' ] );
-            $wp_post_types[ $custom_type ]->rest_controller_class = 'MCST_WP_REST_Posts_Controller';
+            $rest_base = $wp_post_types[ $custom_type ]->rest_base = strtolower( $wpcf_custom_types[ $custom_type ][ 'labels' ][ 'name' ] );
+            $wp_post_types[ $custom_type ]->rest_controller_class  = 'MCST_WP_REST_Posts_Controller';
+            $singular_name                                         = $wpcf_custom_types[ $custom_type ][ 'labels' ][ 'singular_name' ];
+            MCST_WP_REST_Posts_Controller::add_mapping_model( strtoupper( substr( $rest_base, 0, 1 ) ) . substr( $rest_base, 1 ),
+                                                              strtoupper( substr( $singular_name, 0, 1 ) ) . substr( $singular_name, 1 ) );
         }
         # create a REST controller for this Types custom post type
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
         # add the Types custom fields, custom taxonomies, child of and parent of fields
-        if ( $widget_fields = Search_Types_Custom_Fields_Widget::get_fields( $custom_type ) ) {        
+        if ( $widget_fields = Search_Types_Custom_Fields_Widget::get_fields( $custom_type ) ) {
             error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
             $widget_fields = array_filter( array_map( function( $field ) {
                 # for now only do Types custom fields which have prefix "wpcf-"
@@ -314,35 +335,42 @@ EOD
         error_log( 'ACTION:rest_api_init():$wp_taxonomies=' . print_r( $wp_taxonomies, true ) );
         error_log( 'ACTION:rest_api_init():$controller->get_collection_params()=' . print_r( $controller->get_collection_params(), true ) );
         error_log( 'ACTION:rest_api_init():$controller->get_item_schema()=' . print_r( $controller->get_item_schema(), true ) );
-        MCST_WP_REST_Post_Types_Controller::add_post_type( $custom_type );
     }
     $controller = new MCST_WP_REST_Post_Types_Controller( );
     $controller->register_routes( );
 } );
 
 add_filter( 'rest_prepare_post_type', function( $response, $post_type, $request ) {
-    error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $response, true ) );
-    error_log( 'FILTER:rest_prepare_post_type():$post_type=' . print_r ( $post_type, true ) );
-    error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $request, true ) );
     if ( in_array( $post_type->name, MCST_WP_REST_Posts_Controller::$post_types ) ) {
+        error_log( 'FILTER:rest_prepare_post_type():$request=' . print_r( $request, true ) );
+        error_log( 'FILTER:rest_prepare_post_type():$post_type=' . print_r ( $post_type, true ) );
+        error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $response, true ) );
         # fix namespace on links to Types custom post types
         $response->remove_link( 'https://api.w.org/items' );
-        $response->add_links( [	'https://api.w.org/items' => [ 'href' => rest_url( MCST_WP_REST_Posts_Controller::REST_NAME_SPACE . '/' . $post_type->name ) ] ] );
+        $response->add_links( [	'https://api.w.org/items' => [ 'href' => rest_url( MCST_WP_REST_Posts_Controller::REST_NAME_SPACE . '/'
+            . ( !empty( $post_type->rest_base ) ? $post_type->rest_base : $post_type->name ) ) ] ] );
+        error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $response, true ) );
     }
-    error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $request, true ) );
     return $response;
 }, 10, 3 );
 
 add_action( 'wp_enqueue_scripts', function( ) {
 		wp_enqueue_script( 'mcst-api', plugins_url( 'mcst-api.js', __FILE__ ), [ 'jquery', 'backbone', 'underscore' ], FALSE, TRUE );
 
-		$settings = array(
-			'root'          => esc_url_raw( get_rest_url() ),
-			'nonce'         => wp_create_nonce( 'wp_rest' ),
-			'versionString' => 'mcst/v1/',
-		);
+		$settings = [
+        'root'          => esc_url_raw( get_rest_url() ),
+        'nonce'         => wp_create_nonce( 'wp_rest' ),
+        'versionString' => 'mcst/v1/',
+        'mapping'       => [
+                               'models'      => [ 'TODO' => 'TODO' ],
+                               'collections' => [ ]
+                           ]
+		];
 		wp_localize_script( 'mcst-api', 'mcstApiSettings', $settings );
     
 }, -100 );
+
+add_action( 'wp_ajax_mcst_get_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
+add_action( 'wp_ajax_nopriv_mcst_get_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
 
 ?>
