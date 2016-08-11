@@ -193,15 +193,28 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
 
     public static function get_settings( ) {
-        wp_send_json_success( [
+        if ( !self::$mapping_models ) {
+            $wpcf_custom_types = get_option( 'wpcf-custom-types', [ ] );
+            foreach ( get_option( 'wpcf-custom-types', [ ] ) as $custom_type ) {
+                $rest_base = strtolower( $custom_type[ 'labels' ][ 'name' ] );
+                $singular_name = $custom_type[ 'labels' ][ 'singular_name' ];
+                self::add_mapping_model( strtoupper( substr( $rest_base, 0, 1 ) ) . substr( $rest_base, 1 ),
+                                         strtoupper( substr( $singular_name, 0, 1 ) ) . substr( $singular_name, 1 ) );
+            }
+        }
+        $settings = [
             'root'          => esc_url_raw( get_rest_url() ),
             'nonce'         => wp_create_nonce( 'wp_rest' ),
-            'versionString' => 'mcst/v1/',
+            'versionString' => self::REST_NAME_SPACE . '/',
             'mapping'       => [
-                                   'models'      => [ 'TODO' => 'TODO' ],
+                                   'models'      => self::$mapping_models,
                                    'collections' => [ ]
                                ]
-        ] );
+        ];
+        if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+            wp_send_json_success( $settings );
+        }
+        return $settings;
     }
 }
 
@@ -356,17 +369,7 @@ add_filter( 'rest_prepare_post_type', function( $response, $post_type, $request 
 
 add_action( 'wp_enqueue_scripts', function( ) {
 		wp_enqueue_script( 'mcst-api', plugins_url( 'mcst-api.js', __FILE__ ), [ 'jquery', 'backbone', 'underscore' ], FALSE, TRUE );
-
-		$settings = [
-        'root'          => esc_url_raw( get_rest_url() ),
-        'nonce'         => wp_create_nonce( 'wp_rest' ),
-        'versionString' => 'mcst/v1/',
-        'mapping'       => [
-                               'models'      => [ 'TODO' => 'TODO' ],
-                               'collections' => [ ]
-                           ]
-		];
-		wp_localize_script( 'mcst-api', 'mcstApiSettings', $settings );
+		wp_localize_script( 'mcst-api', 'mcstApiSettings', MCST_WP_REST_Posts_Controller::get_settings( ) );
     
 }, -100 );
 
