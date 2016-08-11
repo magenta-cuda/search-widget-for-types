@@ -202,6 +202,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                                          strtoupper( substr( $singular_name, 0, 1 ) ) . substr( $singular_name, 1 ) );
             }
         }
+        self::add_mapping_model( 'Types', 'Type' );
         $settings = [
             'root'          => esc_url_raw( get_rest_url() ),
             'nonce'         => wp_create_nonce( 'wp_rest' ),

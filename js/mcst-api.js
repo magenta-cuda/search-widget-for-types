@@ -986,8 +986,7 @@
 			});
 
 			model.schemaModel.once( 'change', function() {
-				model.constructFromSchema();
-				deferred.resolve( model );
+				model.constructFromSchema( deferred );
 			} );
 
 			if ( model.get( 'schema' ) ) {
@@ -1020,8 +1019,8 @@
 			}
 		},
 
-		constructFromSchema: function() {
-			var routeModel = this, modelRoutes, collectionRoutes, schemaRoot, loadingObjects,
+		constructFromSchema: function( deferred ) {
+			var routeModel = this, modelRoutes, collectionRoutes, schemaRoot, loadingObjects;
 
 			/**
 			 * Set up the model and collection name mapping options. As the schema is built, the
@@ -1030,33 +1029,22 @@
 			 * Localizing a variable wpApiSettings.mapping will over-ride the default mapping options.
 			 *
 			 */
-			mapping = wpApiSettings.mapping || {
-				models: {
-					'Categories':      'Category',
-					'Comments':        'Comment',
-					'Pages':           'Page',
-					'PagesMeta':       'PageMeta',
-					'PagesRevisions':  'PageRevision',
-					'Posts':           'Post',
-					'PostsCategories': 'PostCategory',
-					'PostsRevisions':  'PostRevision',
-					'PostsTags':       'PostTag',
-					'Schema':          'Schema',
-					'Statuses':        'Status',
-					'Tags':            'Tag',
-					'Taxonomies':      'Taxonomy',
-					'Types':           'Type',
-					'Users':           'User'
-				},
-				collections: {
-					'PagesMeta':       'PageMeta',
-					'PagesRevisions':  'PageRevisions',
-					'PostsCategories': 'PostCategories',
-					'PostsMeta':       'PostMeta',
-					'PostsRevisions':  'PostRevisions',
-					'PostsTags':       'PostTags'
-				}
-			};
+      if ( !wpApiSettings.mapping ) {
+        jQuery.ajax({
+          // TODO: following won't work on WordPress that wasn't installed at the root
+          url: window.location.origin + '/wp-admin/admin-ajax.php',
+          data: { action: 'mcst_get_settings' },
+          type: 'GET',
+          success: function( response ) {
+              wpApiSettings = response.data;
+              routeModel.constructFromSchema();
+              deferred.resolve( routeModel );
+          }
+        });
+        return;
+      }
+
+      var mapping = wpApiSettings.mapping;
 
 			/**
 			 * Iterate thru the routes, picking up models and collections to build. Builds two arrays,
