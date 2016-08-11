@@ -2339,9 +2339,9 @@ EOD;
             return $output;
         } );
     }   # if ( empty( $search_types_custom_fields_show_using_macro ) ) {
-
-    include dirname( __FILE__ ) . '/types-wp-rest-api.php';
 }   # } else {   # if ( is_admin() ) {
+
+include dirname( __FILE__ ) . '/types-wp-rest-api.php';
 
 # example of a custom field display value filter - the filter is applied to the custom field value before it is displayed
 
