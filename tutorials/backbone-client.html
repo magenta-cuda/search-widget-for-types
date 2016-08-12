@@ -10,8 +10,8 @@
 </head>
 <body>
 <script type="text/javascript">
-    // TODO: what about wp.api.loadPromise.done
-    mcst.api.loadPromise.done( function() {
+( function() {
+    mcst.loadPromise.done( function() {
         // TODO: this will not work for namespaces other than 'wp/v2/' since 'wp/v2/' is hardcoded into rest-api/wp-api.js
         // Unfortunately, this is a major problem - maybe we need to re-think using our own namespace
         var collection = new mcst.api.collections.Cars();
@@ -23,6 +23,7 @@
             alert( "fetch() failed." );
         } } );
     } );
+} )();
 </script>
 </body>
 </html>

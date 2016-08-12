@@ -1,3 +1,7 @@
+(function() {
+
+var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
+
 (function( window, undefined ) {
 
 	'use strict';
@@ -986,7 +990,8 @@
 			});
 
 			model.schemaModel.once( 'change', function() {
-				model.constructFromSchema( deferred );
+				model.constructFromSchema();
+				deferred.resolve( model );
 			} );
 
 			if ( model.get( 'schema' ) ) {
@@ -1029,20 +1034,6 @@
 			 * Localizing a variable wpApiSettings.mapping will over-ride the default mapping options.
 			 *
 			 */
-      if ( !wpApiSettings.mapping ) {
-        jQuery.ajax({
-          // TODO: following won't work on WordPress that wasn't installed at the root
-          url: window.location.origin + '/wp-admin/admin-ajax.php',
-          data: { action: 'mcst_get_settings' },
-          type: 'GET',
-          success: function( response ) {
-              wpApiSettings = response.data;
-              routeModel.constructFromSchema();
-              deferred.resolve( routeModel );
-          }
-        });
-        return;
-      }
 
       var mapping = wpApiSettings.mapping;
 
@@ -1308,4 +1299,47 @@
 
 } )();
 
+var wpLoadDone = false, mcstLoadDone = false;
+
+wp.api.loadPromise.done( function() {
+    wpLoadDone = true;
+    if ( mcstLoadDone ) {
+        deferred.resolve();
+    }
+});
+
+mcst.api.loadPromise.done( function() {
+    mcstLoadDone = true;
+    if ( wpLoadDone ) {
+        deferred.resolve();
+    }
+});
+
+} );
+
+(function() {
+    var deferred = jQuery.Deferred();
+    window.mcst = window.mcst || {};
+    window.mcst.loadPromise = deferred.promise();
+    if ( ! _.isUndefined( sessionStorage ) && sessionStorage.getItem( 'mcst-v1-settings') ) {
+        window.mcstApiSettings = JSON.parse( sessionStorage.getItem( 'mcst-v1-settings') );
+        settingsDeferred.resolve( deferred );
+    } else {
+        jQuery.ajax({
+            // TODO: following won't work on WordPress that wasn't installed at the root
+            url: window.location.origin + '/wp-admin/admin-ajax.php',
+            data: { action: 'mcst_get_settings' },
+            type: 'GET',
+            success: function( response ) {
+                window.mcstApiSettings = response.data;
+                if ( ! _.isUndefined( sessionStorage ) ) {
+                    sessionStorage.setItem( 'mcst-v1-settings', JSON.stringify( window.mcstApiSettings ) );
+                }
+                settingsDeferred.resolve( deferred );
+            }
+        });
+    }
+})();
+
+})();
 // This code is a port of plugin rest-api wp-api.js to support namespace "mcst/v1"
