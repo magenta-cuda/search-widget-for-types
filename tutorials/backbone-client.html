@@ -5,13 +5,30 @@
 <script type='text/javascript' src='http://me.local.com/wp-includes/js/jquery/jquery-migrate.min.js'></script>
 <script type='text/javascript' src='http://me.local.com/wp-includes/js/underscore.min.js'></script>
 <script type='text/javascript' src='http://me.local.com/wp-includes/js/backbone.min.js'></script>
-<script type='text/javascript' src='http://me.local.com/wp-content/plugins/rest-api/wp-api.js'></script>
+<script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/wp-api.js'></script>
 <script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/mcst-api.js'></script>
 </head>
 <body>
 <script type="text/javascript">
 ( function() {
-    mcst.loadPromise.done( function() {
+
+    var wpRestLoadDone = false, mcstRestLoadDone = false;
+
+    mcst.wpRestLoadPromise.done( function() {
+        wpRestLoadDone = true;
+        if ( mcstRestLoadDone ) {
+            loadCollection();
+        }
+    } );
+
+    mcst.mcstRestLoadPromise.done( function() {
+        mcstRestLoadDone = true;
+        if ( wpRestLoadDone ) {
+            loadCollection();
+        }
+    } );
+
+    function loadCollection( ) {
         // TODO: this will not work for namespaces other than 'wp/v2/' since 'wp/v2/' is hardcoded into rest-api/wp-api.js
         // Unfortunately, this is a major problem - maybe we need to re-think using our own namespace
         var collection = new mcst.api.collections.Cars();
@@ -22,7 +39,7 @@
         }, error: function( collection, response, options ) {
             alert( "fetch() failed." );
         } } );
-    } );
+    }
 } )();
 </script>
 </body>

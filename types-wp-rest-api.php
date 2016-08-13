@@ -374,8 +374,8 @@ add_action( 'wp_enqueue_scripts', function( ) {
     
 }, -100 );
 
-add_action( 'wp_ajax_mcst_get_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
-add_action( 'wp_ajax_nopriv_mcst_get_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
+add_action( 'wp_ajax_mcst_get_mcst_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
+add_action( 'wp_ajax_nopriv_mcst_get_mcst_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
 
 add_action( 'wp_ajax_mcst_get_wp_settings', function( ) {
     wp_send_json_success( [
@@ -388,6 +388,5 @@ add_action( 'wp_ajax_mcst_get_wp_settings', function( ) {
 add_action( 'wp_ajax_nopriv_mcst_get_wp_settings', function( ) {
     do_action( 'wp_ajax_mcst_get_wp_settings' );
 } );
-
 
 ?>

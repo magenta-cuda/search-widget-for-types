@@ -1299,41 +1299,29 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 
 } )();
 
-var wpLoadDone = false, mcstLoadDone = false;
-
-wp.api.loadPromise.done( function() {
-    wpLoadDone = true;
-    if ( mcstLoadDone ) {
-        deferred.resolve();
-    }
-});
-
 mcst.api.loadPromise.done( function() {
-    mcstLoadDone = true;
-    if ( wpLoadDone ) {
-        deferred.resolve();
-    }
-});
+    deferred.resolve();
+} );
 
 } );
 
 (function() {
     var deferred = jQuery.Deferred();
     window.mcst = window.mcst || {};
-    window.mcst.loadPromise = deferred.promise();
-    if ( ! _.isUndefined( sessionStorage ) && sessionStorage.getItem( 'mcst-v1-settings') ) {
-        window.mcstApiSettings = JSON.parse( sessionStorage.getItem( 'mcst-v1-settings') );
+    window.mcst.mcstRestLoadPromise = deferred.promise();
+    if ( ! _.isUndefined( sessionStorage ) && sessionStorage.getItem( 'mcst-mcst-v1-settings') ) {
+        window.mcstApiSettings = JSON.parse( sessionStorage.getItem( 'mcst-mcst-v1-settings') );
         settingsDeferred.resolve( deferred );
     } else {
         jQuery.ajax({
             // TODO: following won't work on WordPress that wasn't installed at the root
             url: window.location.origin + '/wp-admin/admin-ajax.php',
-            data: { action: 'mcst_get_settings' },
+            data: { action: 'mcst_get_mcst_settings' },
             type: 'GET',
             success: function( response ) {
                 window.mcstApiSettings = response.data;
                 if ( ! _.isUndefined( sessionStorage ) ) {
-                    sessionStorage.setItem( 'mcst-v1-settings', JSON.stringify( window.mcstApiSettings ) );
+                    sessionStorage.setItem( 'mcst-mcst-v1-settings', JSON.stringify( window.mcstApiSettings ) );
                 }
                 settingsDeferred.resolve( deferred );
             }
