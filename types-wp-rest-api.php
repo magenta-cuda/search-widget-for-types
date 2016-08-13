@@ -39,6 +39,14 @@
 #
 #      curl -g "http://me.local.com/wp-json/mcst/v1/cars?brand[]=Plymouth&brand[]=Dodge"
 #
+# Request by Types child of relationship
+#
+#      curl http://me.local.com/wp-json/mcst/v1/cars?mcst-childof-manufacturer=25
+#
+#Request by Types parent of relationship
+#
+#      curl http://me.local.com/wp-json/mcst/v1/cars?mcst-parentof-engine=79
+#
 # Custom Post Types
 #
 #      curl http://me.local.com/wp-json/mcst/v1/types
@@ -119,8 +127,16 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 $_REQUEST[ 'post_type' ] = $post_type;
                 $_REQUEST[ 'search_types_custom_fields_and_or' ] = 'and';
                 foreach ( $fields as $field => $value ) {
-                    $_REQUEST[ "wpcf-$field" ] = $value;
+                    # the REST parameters must be mapped into the search widget's search parameters
+                    if ( preg_match( '/mcst-parentof-(\w+)/', $field, $matches ) ) {
+                        $_REQUEST[ "inverse_{$matches[1]}__wpcf_belongs_{$post_type}_id" ] = $value;
+                    } else if ( preg_match( '/mcst-childof-(\w+)/', $field, $matches ) ) {
+                        $_REQUEST[ "_wpcf_belongs_{$matches[1]}_id" ] = $value;
+                    } else {
+                        $_REQUEST[ "wpcf-$field" ] = $value;
+                    }
                 }
+                error_log( 'FILTER:posts_clauses_request():$_REQUEST=' . print_r( $_REQUEST, true ) );
                 $query = new WP_Query( [ 's' => 'XQ9Z5', 'fields' => 'ids', 'mcst' => true ] );
                 # TODO: add clauses for Types custom fields here
                 if ( $query->posts ) {
@@ -141,20 +157,20 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     public function get_collection_params( ) {
         $params = parent::get_collection_params( );
         foreach ( $this->fields as $field ) {
-          if ( array_key_exists( $field, $params ) ) {
-              # don't override parent's params - TODO: override may be better?
-              continue;
-          }
-          if ( preg_match( '/mcst-parentof-(\w+)/', $field ) || preg_match( '/mcst-childof-(\w+)/', $field ) ) {
-              # skip child and parent fields
-              continue;
-          }
-          $params[ $field ] = array(
-            'description'       => sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field ),
-            'type'              => 'array',
-            'sanitize_callback' => [ $this, '_sanitize_field' ],
-            'default'           => array(),
-          );
+            if ( array_key_exists( $field, $params ) ) {
+                # don't override parent's params - TODO: override may be better?
+                continue;
+            }
+            #if ( preg_match( '/mcst-parentof-(\w+)/', $field ) || preg_match( '/mcst-childof-(\w+)/', $field ) ) {
+                # skip child and parent fields
+                #continue;
+            #}
+            $params[ $field ] = [
+                'description'       => sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field ),   # TODO
+                'type'              => 'array',
+                'sanitize_callback' => [ $this, '_sanitize_field' ],
+                'default'           => [ ],
+            ];
         }
         return $params;
     }
@@ -224,9 +240,16 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         if ( !is_array( $values ) ) {
             $values = [ $values ];
         }
-        $type = self::$wpcf_fields[ $name ][ 'type' ];
+        if ( preg_match( '/mcst-parentof-(\w+)/', $name ) || preg_match( '/mcst-childof-(\w+)/', $name ) ) {
+            $type = 'id';
+        } else {
+            $type = self::$wpcf_fields[ $name ][ 'type' ];
+        }
         foreach ( $values as &$value ) {
             switch ( $type ) {
+            case 'id':
+                $value = (string) absint( $value );
+                break;
             case 'numeric':
                 if ( !is_numeric( $value ) ) {
                     $value = '0';
