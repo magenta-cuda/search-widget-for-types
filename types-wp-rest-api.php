@@ -145,7 +145,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
               # don't override parent's params - TODO: override may be better?
               continue;
           }
-          if ( preg_match( '/mcst-(\w+)-childof-(\w+)/', $field ) || preg_match( '/mcst-(\w+)-parent/', $field ) ) {
+          if ( preg_match( '/mcst-parentof-(\w+)/', $field ) || preg_match( '/mcst-childof-(\w+)/', $field ) ) {
               # skip child and parent fields
               continue;
           }
@@ -199,9 +199,9 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         } else {
             # handle psuedo fields here
             # map the user friendly name to the real model psuedo field name
-            if ( preg_match( '/mcst-(\w+)-childof-(\w+)/', $field_name, $matches ) ) {
+            if ( preg_match( '/mcst-parentof-(\w+)/', $field_name, $matches ) ) {
                 $mcst_field_name = "$matches[1]_id_for";
-            } else if ( preg_match( '/mcst-(\w+)-parent/', $field_name, $matches ) ) {
+            } else if ( preg_match( '/mcst-childof-(\w+)/', $field_name, $matches ) ) {
                 $mcst_field_name = "$matches[1]_id_of";
             } else {
                 # TODO: Handle name mismatch
@@ -359,12 +359,12 @@ EOD
                     # child of psuedo field
                     error_log( 'ACTION:rest_api_init():_wpcf_belongs_:field=' . substr( $field, 14, -3 ) );
                     # replace the ugly psuedo field name with a more user friendly name
-                    return 'mcst-' . substr( $field, 14, -3 ) . '-parent';
+                    return 'mcst-childof-' . substr( $field, 14, -3 );
                 } else if ( preg_match( '/^inverse_(\w+)__wpcf_belongs_(\w+)_id$/', $field, $matches ) === 1 ) {
                     # parent of psuedo field
                     error_log( 'ACTION:rest_api_init():$matches=' . print_r( $matches, true ) );
                     # replace the ugly psuedo field name with a more user friendly name
-                    return "mcst-$matches[1]-childof-$matches[2]";
+                    return "mcst-parentof-$matches[1]";
                 } else {
                     return FALSE;
                 }
@@ -373,7 +373,7 @@ EOD
             $controller->fields = [ ];
             #$fields = array_intersect( $fields, $widget_fields );
             foreach ( $widget_fields as $field ) {
-                if ( preg_match( '/mcst-(\w+)-childof-(\w+)/', $field ) || preg_match( '/mcst-(\w+)-parent/', $field ) ) {
+                if ( preg_match( '/mcst-parentof-(\w+)/', $field ) || preg_match( '/mcst-childof-(\w+)/', $field ) ) {
                     $description = 'TODO: child/parent description';
                 } else {
                     $wpcf_field = $wpcf_fields[ $field ];
