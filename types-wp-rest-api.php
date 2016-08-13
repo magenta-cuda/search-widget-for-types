@@ -161,12 +161,15 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 # don't override parent's params - TODO: override may be better?
                 continue;
             }
-            #if ( preg_match( '/mcst-parentof-(\w+)/', $field ) || preg_match( '/mcst-childof-(\w+)/', $field ) ) {
-                # skip child and parent fields
-                #continue;
-            #}
+            if ( preg_match( '/mcst-parentof-(\w+)/', $field ) ) {
+                $description = sprintf( __( 'Limit result set to the %s parent of the specified %s.' ), $this->post_type, substr( $field, 14 ) );
+            } else if ( preg_match( '/mcst-childof-(\w+)/', $field ) ) {
+                $description = sprintf( __( 'Limit result set to the %s children of the specified %s.' ), $this->post_type, substr( $field, 13 ) );
+            } else {
+                $description = sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field );
+            }
             $params[ $field ] = [
-                'description'       => sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field ),   # TODO
+                'description'       => $description,
                 'type'              => 'array',
                 'sanitize_callback' => [ $this, '_sanitize_field' ],
                 'default'           => [ ],
@@ -328,12 +331,14 @@ class MCST_WP_REST_Post_Types_Controller extends WP_REST_Post_Types_Controller {
 add_action( 'rest_api_init', function( ) {
     error_log( 'ACTION:rest_api_init():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
     global $wp_post_types, $wp_taxonomies, $wpdb;
-    # get Types custom fields and Types custom post types from the database
+    # get Types custom fields, Types custom post types and Types custom taxonomies from the options database
     error_log( 'ACTION:rest_api_init():$wp_post_types=' . print_r( $wp_post_types, true ) );
     $wpcf_custom_types = get_option( 'wpcf-custom-types', [ ] );
     error_log( 'ACTION:rest_api_init():$wpcf_custom_types=' . print_r( $wpcf_custom_types, true ) );
     $wpcf_fields = get_option( 'wpcf-fields', [ ] );
     error_log( 'ACTION:rest_api_init():$wpcf_fields=' . print_r( $wpcf_fields, true) );
+    $wpcf_custom_taxonomies = get_option( 'wpcf-custom-taxonomies', [ ] );
+    error_log( 'ACTION:rest_api_init():$wpcf_custom_taxonomies=' . print_r( $wpcf_custom_taxonomies, true ) );
     MCST_WP_REST_Posts_Controller::set_wpcf_fields( $wpcf_fields );
     $results=$wpdb->get_results( <<<EOD
 SELECT g.meta_value custom_types, f.meta_value fields FROM wp_postmeta f, wp_postmeta g
@@ -396,8 +401,10 @@ EOD
             $controller->fields = [ ];
             #$fields = array_intersect( $fields, $widget_fields );
             foreach ( $widget_fields as $field ) {
-                if ( preg_match( '/mcst-parentof-(\w+)/', $field ) || preg_match( '/mcst-childof-(\w+)/', $field ) ) {
-                    $description = 'TODO: child/parent description';
+                if ( preg_match( '/mcst-parentof-(\w+)/', $field ) ) {
+                    $description = sprintf( __( 'The %s children of this %s.' ), substr( $field, 14 ), $custom_type );
+                } else if ( preg_match( '/mcst-childof-(\w+)/', $field ) ) {
+                    $description = sprintf( __( 'The %s parent of this %s.' ), substr( $field, 13 ), $custom_type );
                 } else {
                     $wpcf_field = $wpcf_fields[ $field ];
                     error_log( 'ACTION:rest_api_init()' . "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
