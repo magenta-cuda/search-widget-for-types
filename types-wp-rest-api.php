@@ -377,4 +377,17 @@ add_action( 'wp_enqueue_scripts', function( ) {
 add_action( 'wp_ajax_mcst_get_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
 add_action( 'wp_ajax_nopriv_mcst_get_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
 
+add_action( 'wp_ajax_mcst_get_wp_settings', function( ) {
+    wp_send_json_success( [
+        'root'          => esc_url_raw( get_rest_url() ),
+        'nonce'         => wp_create_nonce( 'wp_rest' ),
+        'versionString' => 'wp/v2/',
+		] );
+} );
+
+add_action( 'wp_ajax_nopriv_mcst_get_wp_settings', function( ) {
+    do_action( 'wp_ajax_mcst_get_wp_settings' );
+} );
+
+
 ?>
