@@ -1,4 +1,20 @@
 <?php
+/*
+    Copyright 2016 Magenta Cuda
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License, version 2, as 
+    published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 # This implements the WP REST API for Toolset Types custom post types and custom fields for the HTTP methods OPTIONS and GET 
 # I.e., read only the HTTP methods POST and PUT not currently supported
@@ -129,6 +145,10 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
               # don't override parent's params - TODO: override may be better?
               continue;
           }
+          if ( preg_match( '/mcst-(\w+)-childof-(\w+)/', $field ) || preg_match( '/mcst-(\w+)-parent/', $field ) ) {
+              # skip child and parent fields
+              continue;
+          }
           $params[ $field ] = array(
             'description'       => sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field ),
             'type'              => 'array',
@@ -171,13 +191,28 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         error_log( '_get_types_field():$object_type=' . $object_type );
         if ( !array_key_exists( $post->ID, $models ) ) {
             $models[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post, $this->post_type );
+            error_log( '_get_types_field():$models[ $post->ID ]=' . print_r( $models[ $post->ID ], true ) );
         }
         $model = $models[ $post->ID ];
         if ( isset( $model[ $field_name ] ) ) {
             return $model[ $field_name ];
         } else {
-            # TODO: Handle name mismatch
-            return '';   # TODO: what should this be?
+            # handle psuedo fields here
+            # map the user friendly name to the real model psuedo field name
+            if ( preg_match( '/mcst-(\w+)-childof-(\w+)/', $field_name, $matches ) ) {
+                $mcst_field_name = "$matches[1]_id_for";
+            } else if ( preg_match( '/mcst-(\w+)-parent/', $field_name, $matches ) ) {
+                $mcst_field_name = "$matches[1]_id_of";
+            } else {
+                # TODO: Handle name mismatch
+                return '';   # TODO: what should this be?
+            }
+            if ( isset( $model[ $mcst_field_name ] ) ) {
+                return $model[ $mcst_field_name ];
+            } else {
+                # TODO: Handle name mismatch
+                return '';   # TODO: what should this be?
+            }
         }
     }
     
@@ -321,32 +356,35 @@ EOD
                     error_log( 'ACTION:rest_api_init():tax-tag-:field=' . substr( $field, 8 ) );
                     return FALSE;
                 } else if ( substr_compare( $field, '_wpcf_belongs_', 0, 14 ) === 0 && substr_compare( $field, '_id', -3, 3 ) === 0 ) {
-                    # child of
+                    # child of psuedo field
                     error_log( 'ACTION:rest_api_init():_wpcf_belongs_:field=' . substr( $field, 14, -3 ) );
-                    return FALSE;
+                    # replace the ugly psuedo field name with a more user friendly name
+                    return 'mcst-' . substr( $field, 14, -3 ) . '-parent';
                 } else if ( preg_match( '/^inverse_(\w+)__wpcf_belongs_(\w+)_id$/', $field, $matches ) === 1 ) {
-                    # parent of
+                    # parent of psuedo field
                     error_log( 'ACTION:rest_api_init():$matches=' . print_r( $matches, true ) );
-                    return FALSE;
+                    # replace the ugly psuedo field name with a more user friendly name
+                    return "mcst-$matches[1]-childof-$matches[2]";
                 } else {
                     return FALSE;
                 }
             }, $widget_fields ) );
             error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
-            error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
             $controller->fields = [ ];
-            $fields = array_intersect( $fields, $widget_fields );
-            # TODO: do intersection for now but more is possible
-            error_log( 'ACTION:rest_api_init():$fields=' . print_r( $fields, true ) );
-            foreach ( $fields as $field ) {
-                $wpcf_field = $wpcf_fields[ $field ];
-                error_log( 'ACTION:rest_api_init()' . "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
+            #$fields = array_intersect( $fields, $widget_fields );
+            foreach ( $widget_fields as $field ) {
+                if ( preg_match( '/mcst-(\w+)-childof-(\w+)/', $field ) || preg_match( '/mcst-(\w+)-parent/', $field ) ) {
+                    $description = 'TODO: child/parent description';
+                } else {
+                    $wpcf_field = $wpcf_fields[ $field ];
+                    error_log( 'ACTION:rest_api_init()' . "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
+                    $description = $wpcf_field[ 'description' ];
+                }
                 register_rest_field( $custom_type, $field, [
                     'get_callback' => [ $controller, '_get_types_field' ],
                     'update_callback' => null,
                     'schema' => [
-                        # TODO:
-                        'description' => $wpcf_field[ 'description' ],
+                        'description' => $description,
                         'type'        => 'string',
                         'context'     => [ 'view' ],
                         'arg_options' => [

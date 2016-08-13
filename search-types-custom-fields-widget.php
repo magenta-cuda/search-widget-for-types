@@ -701,7 +701,11 @@ EOD
                         }
                         $label = Search_Types_Custom_Fields_Widget::value_filter( $label, $field, $post_type );
                         # append a suffix to field name to specify either 'child of' or 'parent of' relationship
-                        $key = substr( $field, strpos( $field, '_wpcf_belongs_' ) + 14 ) . ( $child_of ? '_of' : '_for' );
+                        if ( $child_of ) {
+                            $key = substr( $field, strpos( $field, '_wpcf_belongs_' ) + 14 ) . '_of';
+                        } else {
+                            $key = substr( $field, 8, strpos( $field, '__wpcf_belongs_' ) - 8 ) . '_id_for';
+                        }
                         $model[ $key ] = ( isset( $model[ $key ] ) ? $model[ $key ] . ', ' : '' ) . $label;
                     }
                     unset( $value );
