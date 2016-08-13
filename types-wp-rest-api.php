@@ -42,6 +42,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
     public static $post_types     = [ ];
     public static $mapping_models = [ ];
+    protected static $wpcf_fields;
 
     public function __construct( $post_type ) {
         self::$post_types[ ] = $post_type;
@@ -180,16 +181,38 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         }
     }
     
-    public function _sanitize_field( $value, $request, $name ) {
+    public function _sanitize_field( $values, $request, $name ) {
         error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$name=' . $name );
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$value=' . print_r( $value, true ) );
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$values=' . print_r( $values, true ) );
         error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$request=' . print_r( $request, true ) );
         # N.B. $value may be an array
-        return $value;
+        if ( !is_array( $values ) ) {
+            $values = [ $values ];
+        }
+        $type = self::$wpcf_fields[ $name ][ 'type' ];
+        foreach ( $values as &$value ) {
+            switch ( $type ) {
+            case 'numeric':
+                if ( !is_numeric( $value ) ) {
+                    $value = '0';
+                }
+                break;
+            default:
+                $value = sanitize_text_field( $value );
+                break;
+            }
+        }
+        unset( $value );
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$values=' . print_r( $values, true ) );
+        return $values;
     }
 
     public static function add_mapping_model( $collection, $model ) {
         self::$mapping_models[ $collection ] = $model;
+    }
+
+    public static function set_wpcf_fields( $wpcf_fields ) {
+        self::$wpcf_fields = $wpcf_fields;
     }
 
     public static function get_settings( ) {
@@ -253,6 +276,7 @@ add_action( 'rest_api_init', function( ) {
     error_log( 'ACTION:rest_api_init():$wpcf_custom_types=' . print_r( $wpcf_custom_types, true ) );
     $wpcf_fields = get_option( 'wpcf-fields', [ ] );
     error_log( 'ACTION:rest_api_init():$wpcf_fields=' . print_r( $wpcf_fields, true) );
+    MCST_WP_REST_Posts_Controller::set_wpcf_fields( $wpcf_fields );
     $results=$wpdb->get_results( <<<EOD
 SELECT g.meta_value custom_types, f.meta_value fields FROM wp_postmeta f, wp_postmeta g
     WHERE f.post_id = g.post_id AND f.meta_key = '_wp_types_group_fields' AND g.meta_key = '_wp_types_group_post_types'
