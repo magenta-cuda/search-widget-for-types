@@ -15,6 +15,8 @@ This [search widget](http://alttypes.wordpress.com/search-types-custom-fields-wi
 
 Version 1.3 optionally supports a [single-page application mode](https://alttypes.wordpress.com/#spa) where the search results returned by an interactive AJAX request populates a [Backbone.js](http://backbonejs.org/) collection of models which can be rendered using [Underscore.js](http://underscorejs.org/#template) templates and the [Bootstrap](http://getbootstrap.com/) framework.
 
+[Version 2.0](https://alttypes.wordpress.com/#rest-api) implements a [WP REST API](http://v2.wp-api.org/) server for Toolset Types custom post types and custom fields.
+
 Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Toolset Types 2.0.1 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
 
 == Installation ==
@@ -35,7 +37,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 == Changelog ==
 
 = 2.0 =
-* implements a WP REST server
+* implements a [WP REST API server](https://alttypes.wordpress.com/#rest-api).
 
 = 1.3.1 =
 * fix a security hole
@@ -130,7 +132,7 @@ http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
 == Upgrade Notice ==
 = 2.0 =
-* implements a WP REST server
+* implements a [WP REST API server](https://alttypes.wordpress.com/#rest-api).
 = 1.3.1 =
 * fix a security hole
 * support for preloading the search results pane

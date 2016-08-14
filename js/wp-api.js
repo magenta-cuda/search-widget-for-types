@@ -1338,7 +1338,7 @@ wp.api.loadPromise.done( function() {
     } else {
         jQuery.ajax({
             // TODO: following won't work on WordPress that wasn't installed at the root
-            url: window.location.origin + '/wp-admin/admin-ajax.php',
+            url: window.mcst.ajaxUrl ? window.mcst.ajaxUrl : window.location.origin + '/wp-admin/admin-ajax.php',
             data: { action: 'mcst_get_wp_settings' },
             type: 'GET',
             success: function( response ) {
