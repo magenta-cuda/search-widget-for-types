@@ -16,8 +16,10 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-# This implements the WP REST API for Toolset Types custom post types and custom fields for the HTTP methods OPTIONS and GET 
-# I.e., read only the HTTP methods POST and PUT not currently supported
+# This implements the WP REST API for Toolset Types custom post types and custom fields for the HTTP methods OPTIONS and GET.
+# I.e., read only, the HTTP methods POST and PUT not currently supported. The real work is done by the widget's search functionality.
+# This code just translates a REST request to a search widget request and the search widget result to a REST result. This code
+# uses the WP_REST_Posts_Controller class and has the WP REST API plugin as a prerequisite.
 #
 # curl examples
 #
@@ -28,6 +30,10 @@
 # Request by ID
 #
 #      curl http://me.local.com/wp-json/mcst/v1/cars/78
+#
+# Search Request
+#
+#      curl http://me.local.com/wp-json/mcst/v1/cars?search=hurst%20shifter
 #
 # Request by taxonomy
 #
@@ -104,7 +110,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
 
     public function get_items( $request ) {
-        error_log( 'MCST_WP_REST_Posts_Controller::get_items():$request=' . print_r( $request, true ) );
         $fields = [ ];
         $params = $request->get_params( );
         error_log( 'get_items():$params=' . print_r( $params, true ) );
@@ -238,7 +243,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     public function _sanitize_field( $values, $request, $name ) {
         error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$name=' . $name );
         error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$values=' . print_r( $values, true ) );
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$request=' . print_r( $request, true ) );
         # N.B. $value may be an array
         if ( !is_array( $values ) ) {
             $values = [ $values ];
@@ -332,7 +336,6 @@ add_action( 'rest_api_init', function( ) {
     error_log( 'ACTION:rest_api_init():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
     global $wp_post_types, $wp_taxonomies, $wpdb;
     # get Types custom fields, Types custom post types and Types custom taxonomies from the options database
-    error_log( 'ACTION:rest_api_init():$wp_post_types=' . print_r( $wp_post_types, true ) );
     $wpcf_custom_types = get_option( 'wpcf-custom-types', [ ] );
     error_log( 'ACTION:rest_api_init():$wpcf_custom_types=' . print_r( $wpcf_custom_types, true ) );
     $wpcf_fields = get_option( 'wpcf-fields', [ ] );
@@ -428,7 +431,6 @@ EOD
         error_log( 'ACTION:rest_api_init():$controller=' . print_r( $controller, true ) );
         $controller->register_routes( );
         # add REST attributes to the global $wp_taxonomies
-        error_log( 'ACTION:rest_api_init():$wp_taxonomies=' . print_r( $wp_taxonomies, true ) );
         $wpcf_custom_taxonomies = get_option( 'wpcf-custom-taxonomies', [ ] );
         error_log( 'ACTION:rest_api_init():$wpcf_custom_taxonomies=' . print_r( $wpcf_custom_taxonomies, true ) );
         foreach ( $wpcf_custom_taxonomies as $tax_slug => $taxonomy ) {
@@ -438,9 +440,6 @@ EOD
                 $wp_taxonomies[ $tax_slug ]->rest_controller_class = 'WP_REST_Terms_Controller';
             }
         }
-        error_log( 'ACTION:rest_api_init():$wp_taxonomies=' . print_r( $wp_taxonomies, true ) );
-        error_log( 'ACTION:rest_api_init():$controller->get_collection_params()=' . print_r( $controller->get_collection_params(), true ) );
-        error_log( 'ACTION:rest_api_init():$controller->get_item_schema()=' . print_r( $controller->get_item_schema(), true ) );
     }
     $controller = new MCST_WP_REST_Post_Types_Controller( );
     $controller->register_routes( );
@@ -465,6 +464,8 @@ add_action( 'wp_enqueue_scripts', function( ) {
 		wp_localize_script( 'mcst-api', 'mcstApiSettings', MCST_WP_REST_Posts_Controller::get_settings( ) );
     
 }, -100 );
+
+# The following AJAX actions are for standalone mode. See .../wp-content/plugins/search-types-custom-fields-widget/backbone-client.html.
 
 add_action( 'wp_ajax_mcst_get_mcst_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
 add_action( 'wp_ajax_nopriv_mcst_get_mcst_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );

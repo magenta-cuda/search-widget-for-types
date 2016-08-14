@@ -491,8 +491,8 @@ EOD
                 if ( strpos( $id, 'search_types_custom_fields_widget' ) === 0 ) {
                     error_log( 'Search_Types_Custom_Fields_Widget::get_option():$sidebar=' . $sidebar );
                     error_log( 'Search_Types_Custom_Fields_Widget::get_option():$id=' . $id );
-                    error_log( 'Search_Types_Custom_Fields_Widget::get_option():$wp_registered_widgets=' . print_r( $wp_registered_widgets, true ) );
                     $widget = $wp_registered_widgets[ $id ];
+                    error_log( 'Search_Types_Custom_Fields_Widget::get_option():$widget=' . print_r( $widget, true ) );
                     break 2;
                 }
             }
@@ -1000,7 +1000,7 @@ add_filter( 'posts_where', function( $where, $query ) {
     unset( $_REQUEST[ 'action' ] );
     # this is a Types search request so modify the SQL where clause
     $and_or = $_REQUEST['search_types_custom_fields_and_or'] == 'and' ? 'AND' : 'OR';
-    # first get taxonomy name to term_taxonomy_id transalation table in case we need the translations
+    # first get taxonomy name to term_taxonomy_id translation table in case we need the translations
     $results = $wpdb->get_results( <<<EOD
 SELECT x.taxonomy, t.name, x.term_taxonomy_id FROM $wpdb->term_taxonomy x, $wpdb->terms t WHERE x.term_id = t.term_id
 EOD
@@ -2345,7 +2345,12 @@ EOD;
     }   # if ( empty( $search_types_custom_fields_show_using_macro ) ) {
 }   # } else {   # if ( is_admin() ) {
 
-include dirname( __FILE__ ) . '/types-wp-rest-api.php';
+add_action( 'plugins_loaded', function( ) {
+    if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
+        # the WP REST API plugin is a prerequisite for this plugin's REST API
+        include_once dirname( __FILE__ ) . '/types-wp-rest-api.php';
+    }
+} );
 
 # example of a custom field display value filter - the filter is applied to the custom field value before it is displayed
 
