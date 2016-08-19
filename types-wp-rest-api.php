@@ -176,7 +176,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
             $params[ $field ] = [
                 'description'       => $description,
                 'type'              => 'array',
-                'sanitize_callback' => [ $this, '_sanitize_field' ],
+                'sanitize_callback' => [ $this, '_sanitize_collection_param' ],
                 'default'           => [ ],
             ];
         }
@@ -209,10 +209,9 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     protected function _get_types_field( $object, $field_name, $request, $object_type ) {
         global $post;
         static $models = [ ];
-        error_log( '_get_types_field():$post=' . print_r( $post, true ) );
-        error_log( '_get_types_field():$object=' . print_r( $object, true ) );
         error_log( '_get_types_field():$field_name=' . $field_name );
         error_log( '_get_types_field():$object_type=' . $object_type );
+        # cache the model for reuse by later calls on the same post with another field
         if ( !array_key_exists( $post->ID, $models ) ) {
             $models[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post, $this->post_type );
             error_log( '_get_types_field():$models[ $post->ID ]=' . print_r( $models[ $post->ID ], true ) );
@@ -240,9 +239,9 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         }
     }
     
-    public function _sanitize_field( $values, $request, $name ) {
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$name=' . $name );
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$values=' . print_r( $values, true ) );
+    public function _sanitize_collection_param( $values, $request, $name ) {
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_collection_param():$name=' . $name );
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_collection_param():$values=' . print_r( $values, true ) );
         # N.B. $value may be an array
         if ( !is_array( $values ) ) {
             $values = [ $values ];
@@ -268,7 +267,12 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
             }
         }
         unset( $value );
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$values=' . print_r( $values, true ) );
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_collection_param():$values=' . print_r( $values, true ) );
+        return $values;
+    }
+
+    public static function _sanitize_field( $values, $request, $name ) {
+        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$values=' . $values );
         return $values;
     }
 
@@ -333,15 +337,11 @@ class MCST_WP_REST_Post_Types_Controller extends WP_REST_Post_Types_Controller {
 }
 
 add_action( 'rest_api_init', function( ) {
-    error_log( 'ACTION:rest_api_init():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
     global $wp_post_types, $wp_taxonomies, $wpdb;
     # get Types custom fields, Types custom post types and Types custom taxonomies from the options database
     $wpcf_custom_types = get_option( 'wpcf-custom-types', [ ] );
-    error_log( 'ACTION:rest_api_init():$wpcf_custom_types=' . print_r( $wpcf_custom_types, true ) );
     $wpcf_fields = get_option( 'wpcf-fields', [ ] );
-    error_log( 'ACTION:rest_api_init():$wpcf_fields=' . print_r( $wpcf_fields, true) );
     $wpcf_custom_taxonomies = get_option( 'wpcf-custom-taxonomies', [ ] );
-    error_log( 'ACTION:rest_api_init():$wpcf_custom_taxonomies=' . print_r( $wpcf_custom_taxonomies, true ) );
     MCST_WP_REST_Posts_Controller::set_wpcf_fields( $wpcf_fields );
     $results=$wpdb->get_results( <<<EOD
 SELECT g.meta_value custom_types, f.meta_value fields FROM wp_postmeta f, wp_postmeta g
@@ -376,7 +376,6 @@ EOD
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
         # add the Types custom fields, custom taxonomies, child of and parent of fields
         if ( $widget_fields = Search_Types_Custom_Fields_Widget::get_fields( $custom_type ) ) {
-            error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
             $widget_fields = array_filter( array_map( function( $field ) {
                 # for now only do Types custom fields which have prefix "wpcf-"
                 if ( substr_compare( $field, 'wpcf-', 0, 5 ) === 0 ) {
@@ -400,7 +399,6 @@ EOD
                     return FALSE;
                 }
             }, $widget_fields ) );
-            error_log( 'ACTION:rest_api_init():$widget_fields=' . print_r( $widget_fields, true ) );
             $controller->fields = [ ];
             #$fields = array_intersect( $fields, $widget_fields );
             foreach ( $widget_fields as $field ) {
@@ -421,18 +419,16 @@ EOD
                         'type'        => 'string',
                         'context'     => [ 'view' ],
                         'arg_options' => [
-                            'sanitize_callback' => null,
+                            'sanitize_callback' => [ $controller, '_sanitize_field' ],
                         ]
                     ]
                 ] );
                 $controller->fields[ ] = $field;
             }
         }
-        error_log( 'ACTION:rest_api_init():$controller=' . print_r( $controller, true ) );
         $controller->register_routes( );
         # add REST attributes to the global $wp_taxonomies
         $wpcf_custom_taxonomies = get_option( 'wpcf-custom-taxonomies', [ ] );
-        error_log( 'ACTION:rest_api_init():$wpcf_custom_taxonomies=' . print_r( $wpcf_custom_taxonomies, true ) );
         foreach ( $wpcf_custom_taxonomies as $tax_slug => $taxonomy ) {
             if ( empty( $taxonomy[ '_builtin' ] ) ) {
                 $wp_taxonomies[ $tax_slug ]->show_in_rest          = true;
