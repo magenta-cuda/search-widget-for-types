@@ -67,7 +67,6 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
     public function widget( $args, $instance ) {
         global $wpdb;
-        error_log( 'widget():backtrace=' . print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
         error_log( 'widget():$instance=' . print_r( $instance, true ) );
         error_log( 'widget():$this=' . print_r( $this, true ) );
         
@@ -521,8 +520,8 @@ EOD
             # display fields explicitly specified for post type
             return $option[ 'scpbcfw-show-' . $post_type ];
         }
-        # display fields not explicitly specified so just use the search fields for post type
-        return $option[ $post_type ];
+        # display fields not explicitly specified so just use the search fields for post type if it exists otherwise no fields
+        return !empty( $option[ $post_type ] ) ? $option[ $post_type ] : [ ];
     }
 
     public static function search_wpcf_field_options( $options, $option, $value ) {
@@ -717,7 +716,7 @@ EOD
                     }
                     if ( array_key_exists( $post, $thumbnails ) ) {
                         $thumbnail = $thumbnails[ $post ];
-                        $href = wp_get_attachment_image_src( $thumbnail, 'full' );
+                        $href = wp_get_attachment_image_src( $thumbnail, 'medium' );
                         if ( $href ) {
                             $href = $href[0];
                         } else {
