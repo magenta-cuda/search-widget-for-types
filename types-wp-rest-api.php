@@ -161,24 +161,26 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
     public function get_collection_params( ) {
         $params = parent::get_collection_params( );
-        foreach ( $this->fields as $field ) {
-            if ( array_key_exists( $field, $params ) ) {
-                # don't override parent's params - TODO: override may be better?
-                continue;
+        if ( !empty( $this->fields ) ) {
+            foreach ( $this->fields as $field ) {
+                if ( array_key_exists( $field, $params ) ) {
+                    # don't override parent's params - TODO: override may be better?
+                    continue;
+                }
+                if ( preg_match( '/mcst-parentof-(\w+)/', $field ) ) {
+                    $description = sprintf( __( 'Limit result set to the %s parent of the specified %s.' ), $this->post_type, substr( $field, 14 ) );
+                } else if ( preg_match( '/mcst-childof-(\w+)/', $field ) ) {
+                    $description = sprintf( __( 'Limit result set to the %s children of the specified %s.' ), $this->post_type, substr( $field, 13 ) );
+                } else {
+                    $description = sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field );
+                }
+                $params[ $field ] = [
+                    'description'       => $description,
+                    'type'              => 'array',
+                    'sanitize_callback' => [ $this, '_sanitize_collection_param' ],
+                    'default'           => [ ],
+                ];
             }
-            if ( preg_match( '/mcst-parentof-(\w+)/', $field ) ) {
-                $description = sprintf( __( 'Limit result set to the %s parent of the specified %s.' ), $this->post_type, substr( $field, 14 ) );
-            } else if ( preg_match( '/mcst-childof-(\w+)/', $field ) ) {
-                $description = sprintf( __( 'Limit result set to the %s children of the specified %s.' ), $this->post_type, substr( $field, 13 ) );
-            } else {
-                $description = sprintf( __( 'Limit result set to all items that have the specified value assigned in the %s Types custom field.' ), $field );
-            }
-            $params[ $field ] = [
-                'description'       => $description,
-                'type'              => 'array',
-                'sanitize_callback' => [ $this, '_sanitize_collection_param' ],
-                'default'           => [ ],
-            ];
         }
         return $params;
     }
@@ -359,9 +361,7 @@ EOD
             $fields_of[ $custom_type ] = array_merge( $fields_of[ $custom_type ], array_filter( explode( ',', $result->fields ) ) );
         }
     }
-    error_log( 'ACTION:rest_api_init():$fields_of=' . print_r( $fields_of, true ) );
     foreach ( $fields_of as $custom_type => $fields ) {
-        error_log( 'ACTION:rest_api_init():$custom_type=' . $custom_type );
         # add REST attributes to the global $wp_post_types
         if ( isset( $wp_post_types[ $custom_type ] ) ) {
             $wp_post_types[ $custom_type ]->show_in_rest           = TRUE;
@@ -374,6 +374,7 @@ EOD
         }
         # create a REST controller for this Types custom post type
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
+        $controller->fields = [ ];
         # add the Types custom fields, custom taxonomies, child of and parent of fields
         if ( $widget_fields = Search_Types_Custom_Fields_Widget::get_fields( $custom_type ) ) {
             $widget_fields = array_filter( array_map( function( $field ) {
@@ -399,7 +400,6 @@ EOD
                     return FALSE;
                 }
             }, $widget_fields ) );
-            $controller->fields = [ ];
             #$fields = array_intersect( $fields, $widget_fields );
             foreach ( $widget_fields as $field ) {
                 if ( preg_match( '/mcst-parentof-(\w+)/', $field ) ) {
@@ -408,7 +408,6 @@ EOD
                     $description = sprintf( __( 'The %s parent of this %s.' ), substr( $field, 13 ), $custom_type );
                 } else {
                     $wpcf_field = $wpcf_fields[ $field ];
-                    error_log( 'ACTION:rest_api_init()' . "\t" . '$field=' . $wpcf_field[ 'name' ] . '(' . $wpcf_field[ 'type' ] . ')' );
                     $description = $wpcf_field[ 'description' ];
                 }
                 register_rest_field( $custom_type, $field, [
