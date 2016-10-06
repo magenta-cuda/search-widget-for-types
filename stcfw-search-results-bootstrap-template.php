@@ -126,3 +126,11 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
       <td>{{{ data.post_content }}}</td>
     </tr>
 </script>
+
+<?php
+
+# You should put your templates in the file 'user-templates.php' in this plugin's folder
+
+@include dirname( __FILE__ ) . '/user-templates.php';
+
+?>

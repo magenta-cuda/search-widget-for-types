@@ -297,7 +297,9 @@ jQuery( document ).ready( function( ) {
             div.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
             div.find("div.st_iv-inner_envelope").show();
             div.find("div.st_iv-close_inner_envelope").text(stcfwSearchTranslations.close);
-            var query="action=stcfw_get_posts&"+jQuery(this).parents("form.scpbcfw-search-fields-form").serialize();
+            var form=jQuery(this).parents("form.scpbcfw-search-fields-form");
+            stcfw.post_type=form.find("select#post_type").val();
+            var query="action=stcfw_get_posts&"+form.serialize();
             jQuery.get(ajaxurl,query,function(r){
                 if(r.success){
                     stcfw.posts=new stcfw.Posts();

@@ -124,4 +124,10 @@ However, we actually use the WordPress' version of the template settings.
 </div>
 </script> 
 
+<?php
 
+# You should put your templates in the file 'user-templates.php' in this plugin's folder
+
+@include dirname( __FILE__ ) . '/user-templates.php';
+
+?>
