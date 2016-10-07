@@ -110,6 +110,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
 
     public function get_items( $request ) {
+        global $wpdb;
         $fields = [ ];
         $params = $request->get_params( );
         foreach( $params as $field => $value ) {
@@ -120,6 +121,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         if ( $fields ) {
             $post_type = $this->post_type;
             add_filter( 'posts_clauses_request', function( $clauses, $query ) use ( $fields, $post_type ) {
+                global $wpdb;
                 # TODO: Is the following specific enough to intercept only the main query of parent::get_items( )?
                 if ( empty( $query->query_vars[ 'post_type' ] ) || $query->query_vars[ 'post_type' ] !== $post_type ) {
                     return $clauses;
@@ -165,7 +167,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 # TODO: add clauses for Types custom fields here
                 if ( $query->posts ) {
                     error_log( 'FILTER:posts_clauses_request():$query->posts=' . print_r( $query->posts, true ) );
-                    $clauses[ 'where' ] .= ' AND ( wp_posts.ID IN ( ' . implode( ', ', $query->posts ) . ' ) ) ';
+                    $clauses[ 'where' ] .= " AND ( {$wpdb->posts}.ID IN ( " . implode( ', ', $query->posts ) . ' ) ) ';
                 } else {
                 }
                 $_REQUEST = $orig_request;
@@ -451,14 +453,10 @@ EOD
 
 add_filter( 'rest_prepare_post_type', function( $response, $post_type, $request ) {
     if ( in_array( $post_type->name, MCST_WP_REST_Posts_Controller::$post_types ) ) {
-        error_log( 'FILTER:rest_prepare_post_type():$request=' . print_r( $request, true ) );
-        error_log( 'FILTER:rest_prepare_post_type():$post_type=' . print_r ( $post_type, true ) );
-        error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $response, true ) );
         # fix namespace on links to Types custom post types
         $response->remove_link( 'https://api.w.org/items' );
         $response->add_links( [	'https://api.w.org/items' => [ 'href' => rest_url( MCST_WP_REST_Posts_Controller::REST_NAME_SPACE . '/'
             . ( !empty( $post_type->rest_base ) ? $post_type->rest_base : $post_type->name ) ) ] ] );
-        error_log( 'FILTER:rest_prepare_post_type():$response=' . print_r( $response, true ) );
     }
     return $response;
 }, 10, 3 );
