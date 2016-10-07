@@ -1,6 +1,6 @@
 <script type="text/html" id="st_iv-bs-template_table-lake">
-<div class="table" style="overflow-x:auto;">
-<table style="table-layout:auto;width:2000px;">
+<div class="table st_iv-table-lake">
+<table class="st_iv-table-lake">
   <thead>
     <tr>
       <th>Lake</th>
