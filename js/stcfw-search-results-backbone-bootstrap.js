@@ -198,6 +198,17 @@ jQuery( document ).ready( function( ) {
         }
         return ret;
     };
+    
+    // A field may contain a comma separated list of HTML <a> elements, e.g. '<a ... </a>, <a ... </a>, <a ... </a>...'
+    // extractHrefAndLabelFromLinks() returns an array of objects with properties href, id and label
+
+    stcfw.extractHrefAndLabelFromLinks=function(links){
+        var returns=[];
+        links.match(/<a\s.*?<\/a>/ig).forEach(function(string){
+            returns.push(stcfw.extractHrefAndLabelFromLink(string));
+        });
+        return returns;    
+    };
 
     var container = jQuery( "div#st_iv-container" );
 
