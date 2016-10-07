@@ -112,7 +112,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     public function get_items( $request ) {
         $fields = [ ];
         $params = $request->get_params( );
-        error_log( 'get_items():$params=' . print_r( $params, true ) );
         foreach( $params as $field => $value ) {
             if ( $value && in_array( $field, $this->fields ) ) {
                 $fields[ $field ] = $value;
@@ -125,8 +124,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 if ( empty( $query->query_vars[ 'post_type' ] ) || $query->query_vars[ 'post_type' ] !== $post_type ) {
                     return $clauses;
                 }
-                error_log( 'FILTER:posts_clauses_request():$_REQUEST=' . print_r( $_REQUEST, true ) );
-                error_log( 'FILTER:posts_clauses_request():$clauses=' . print_r( $clauses, true ) );
                 $orig_request = $_REQUEST;
                 $_REQUEST = [ ];
                 $_REQUEST[ 'post_type' ] = $post_type;
@@ -138,10 +135,32 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                     } else if ( preg_match( '/mcst-childof-(\w+)/', $field, $matches ) ) {
                         $_REQUEST[ "_wpcf_belongs_{$matches[1]}_id" ] = $value;
                     } else {
+                        $wpcf_field = self::$wpcf_fields[ $field ];
+                        if ( $wpcf_field[ 'type' ] === 'checkboxes' ) {
+                            # the checkboxes value must be re-mapped to its internal value
+                            if ( is_array( $value ) ) {
+                                $values = $value;
+                            } else {
+                                $values = [ $value ];
+                            }
+                            $values =array_map( function( $value ) use ( $wpcf_field ) {
+                                $value_lower = strtolower( $value );
+                                foreach ( $wpcf_field[ 'data' ][ 'options' ] as $key => $option ) {
+                                    if ( strtolower( $option[ 'title' ] ) === $value_lower ) {
+                                        return $key;
+                                    }
+                                }
+                                return '';
+                            }, $values );
+                            if ( is_array( $value ) ) {
+                                $value = $values;
+                            } else {
+                                $value = $values[ 0 ];
+                            }
+                        }
                         $_REQUEST[ "wpcf-$field" ] = $value;
                     }
                 }
-                error_log( 'FILTER:posts_clauses_request():$_REQUEST=' . print_r( $_REQUEST, true ) );
                 $query = new WP_Query( [ 's' => 'XQ9Z5', 'fields' => 'ids', 'mcst' => true ] );
                 # TODO: add clauses for Types custom fields here
                 if ( $query->posts ) {
@@ -150,8 +169,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 } else {
                 }
                 $_REQUEST = $orig_request;
-                error_log( 'FILTER:posts_clauses_request():$_REQUEST=' . print_r( $_REQUEST, true ) );
-                error_log( 'FILTER:posts_clauses_request():$clauses=' . print_r( $clauses, true ) );
                 return $clauses;
             }, 10, 2 );
         }
@@ -238,8 +255,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
     
     public function _sanitize_collection_param( $values, $request, $name ) {
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_collection_param():$name=' . $name );
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_collection_param():$values=' . print_r( $values, true ) );
         # N.B. $value may be an array
         if ( !is_array( $values ) ) {
             $values = [ $values ];
@@ -265,7 +280,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
             }
         }
         unset( $value );
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_collection_param():$values=' . print_r( $values, true ) );
         return $values;
     }
 
