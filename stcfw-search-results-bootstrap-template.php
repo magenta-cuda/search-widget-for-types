@@ -122,7 +122,7 @@ This is done by instantiating these templates in .../js/stcfw-search-results-bac
 <!-- Bootstrap Table Backbone Item Template -->
 <script type="text/html" id="st_iv-bs-template_table_item">
     <tr>
-      <td><a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="_blank"><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></</a></td>
+      <td><a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="_blank"><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></a></td>
       <td>{{{ data.post_content }}}</td>
     </tr>
 </script>

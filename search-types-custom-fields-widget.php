@@ -67,8 +67,6 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     
     public function widget( $args, $instance ) {
         global $wpdb;
-        error_log( 'widget():$instance=' . print_r( $instance, true ) );
-        error_log( 'widget():$this=' . print_r( $this, true ) );
         
         extract( $args );
 ?>
@@ -201,7 +199,7 @@ EOD
         $db_taxonomies = $wpdb->get_results( <<<EOD
 SELECT post_type, taxonomy, count(*) count
     FROM (SELECT p.post_type, tt.taxonomy, r.object_id
-        FROM wp_term_relationships r, wp_term_taxonomy tt, wp_terms t, wp_posts p
+        FROM $wpdb->term_relationships r, $wpdb->term_taxonomy tt, $wpdb->terms t, $wpdb->posts p
         WHERE r.term_taxonomy_id = tt.term_taxonomy_id AND tt.term_id = t.term_id AND r.object_id = p.ID AND post_type IN ( $wpcf_types_keys )
         GROUP BY p.post_type, tt.taxonomy, r.object_id) d 
     GROUP BY post_type, taxonomy
@@ -484,7 +482,6 @@ EOD
             if ( $sidebar === 'wp_inactive_widgets' ) {
                 continue;
             }
-            error_log( 'Search_Types_Custom_Fields_Widget::get_option():$widgets=' . print_r( $widgets, true ) );
             foreach( $widgets as $id ) {
                 if ( strpos( $id, 'search_types_custom_fields_widget' ) === 0 ) {
                     error_log( 'Search_Types_Custom_Fields_Widget::get_option():$sidebar=' . $sidebar );
@@ -1063,7 +1060,6 @@ EOD
         }
         $sql2 = '';   # holds meta_value = sql
         $sql3 = '';   # holds meta_value min/max sql
-        error_log( 'FILTER:posts_where():$values=' . print_r( $values, true ) );
         foreach ( $values as $value ) {
             if ( $sql2 ) {
                 $sql2 .= ' OR ';
@@ -1281,7 +1277,6 @@ EOD
         #$where = " AND post_type = "$_REQUEST[post_type]" AND post_status = 'publish' ";
         $where = ' AND 1 = 2 ';
     }
-    error_log( 'FILTER:posts_where():$where=' . $where );
     return $where;
 }, 10, 2 );   # add_filter( 'posts_where', function( $where, $query ) {
 

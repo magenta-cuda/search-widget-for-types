@@ -187,8 +187,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     
     protected function add_additional_fields_to_object( $object, $request ) {
 
-      error_log( 'MCST_WP_REST_Posts_Controller::add_additional_fields_to_object():$object=' . print_r( $object, true ) );
-
       $additional_fields = $this->get_additional_fields();
 
       foreach ( $additional_fields as $field_name => $field_options ) {
@@ -204,7 +202,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
         $object[ $field_name ] = call_user_func( $field_options['get_callback'], $object, $field_name, $request, $this->get_object_type() );
       }
-      error_log( 'MCST_WP_REST_Posts_Controller::add_additional_fields_to_object():$object=' . print_r( $object, true ) );
       return $object;
     }
  
@@ -216,7 +213,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         # cache the model for reuse by later calls on the same post with another field
         if ( !array_key_exists( $post->ID, $models ) ) {
             $models[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post, $this->post_type );
-            error_log( '_get_types_field():$models[ $post->ID ]=' . print_r( $models[ $post->ID ], true ) );
         }
         $model = $models[ $post->ID ];
         if ( isset( $model[ $field_name ] ) ) {
@@ -350,7 +346,6 @@ SELECT g.meta_value custom_types, f.meta_value fields FROM wp_postmeta f, wp_pos
     WHERE f.post_id = g.post_id AND f.meta_key = '_wp_types_group_fields' AND g.meta_key = '_wp_types_group_post_types'
 EOD
     );
-    error_log( 'ACTION:rest_api_init():$results=' . print_r( $results, true ) );
     # collect the Types custom fields for each Types custom post type
     $fields_of = [ ];
     foreach ( $results as $result ) {
