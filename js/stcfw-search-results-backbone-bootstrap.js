@@ -254,6 +254,7 @@ jQuery( document ).ready( function( ) {
                 searchResults.find( "nav.navbar" ).find( "div#st_iv-nav_images li" ).removeClass( "active" ).first( ).addClass( "active" );
                 searchResults.find("div.st_iv-inner_envelope").show();
                 searchResults.find("div.st_iv-close_inner_envelope").text(stcfwSearchTranslations.close);
+                stcfw.post_type = searchResults.find( "input#st_iv-initial_post_type" ).val( );
                 jQuery.post(
                     ajaxurl,
                     {
@@ -261,9 +262,9 @@ jQuery( document ).ready( function( ) {
                         search_types_custom_fields_widget_option: widget.find( "input#search_types_custom_fields_widget_option" ).val( ),
                         search_types_custom_fields_widget_number: widget.find( "input#search_types_custom_fields_widget_number" ).val( ),
                         "st_iv-get_posts_by_id_nonce":            searchResults.find( "input#st_iv-get_posts_by_id_nonce" ).val( ),
-                        "st_iv-initial_post_type":                searchResults.find( "input#st_iv-initial_post_type" ).val( ),
+                        "st_iv-initial_post_type":                stcfw.post_type,
                         "st_iv-initial_post_ids":                 ids.val( ),
-                        "post_type":                              searchResults.find( "input#st_iv-initial_post_type" ).val( )
+                        "post_type":                              stcfw.post_type
                     },
                     function( r ) {
                         if ( r.success ) {
