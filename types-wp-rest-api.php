@@ -342,7 +342,7 @@ add_action( 'rest_api_init', function( ) {
     $wpcf_custom_taxonomies = get_option( 'wpcf-custom-taxonomies', [ ] );
     MCST_WP_REST_Posts_Controller::set_wpcf_fields( $wpcf_fields );
     $results=$wpdb->get_results( <<<EOD
-SELECT g.meta_value custom_types, f.meta_value fields FROM wp_postmeta f, wp_postmeta g
+SELECT g.meta_value custom_types, f.meta_value fields FROM $wpdb->postmeta f, $wpdb->postmeta g
     WHERE f.post_id = g.post_id AND f.meta_key = '_wp_types_group_fields' AND g.meta_key = '_wp_types_group_post_types'
 EOD
     );
