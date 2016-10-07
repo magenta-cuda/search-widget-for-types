@@ -2223,6 +2223,9 @@ EOD
                     # Backbone with Bootstrap mode
                     wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
                     wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
+                    if ( file_exists( dirname( __FILE__ ) . '/css/user-styles.css' ) ) {
+                        wp_enqueue_style( 'st_iv-user-styles.css', plugins_url( 'css/user-styles.css', __FILE__ ) );
+                    }
                 } else {
                     # Backbone and no Bootstrap mode
                     wp_enqueue_style( 'search_results_backbone', plugins_url( 'css/search-results-backbone.css', __FILE__ ) );
@@ -2288,6 +2291,9 @@ EOD
         add_action( 'wp_enqueue_scripts', function( ) {
             wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
             wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
+            if ( file_exists( dirname( __FILE__ ) . '/css/user-styles.css' ) ) {
+                wp_enqueue_style( 'st_iv-user-styles.css', plugins_url( 'css/user-styles.css', __FILE__ ) );
+            }
             wp_enqueue_script( 'jquery-mobile', plugins_url( '/js/jquery-mobile.js' , __FILE__ ), [ 'jquery' ] );
             wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
             wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
