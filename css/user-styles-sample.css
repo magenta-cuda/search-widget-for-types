@@ -25,3 +25,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base td.st_iv-table-
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base.st_iv-table-lake{
     width:2000px;
 }
+
+div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base.st_iv-table-country{
+    width:1500px;
+}
