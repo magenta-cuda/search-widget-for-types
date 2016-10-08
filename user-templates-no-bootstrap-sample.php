@@ -1,5 +1,6 @@
 <!-- This is a sample user-templates.php file for the old Backbone with no Bootstrap mode.                       -->
 <!-- This sample uses inline style for simplicity. You can also style it by creating a css/user_styles.css file. -->
+<!-- Your template file should be named "user-templates.php" and be in this plugin's main folder.                -->
 
 <script type="text/html" id="stcfw-template-container-engine-table_view">
 <div style="overflow-x:auto;">

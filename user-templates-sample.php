@@ -1,3 +1,8 @@
+<!-- These sample templates are for the Backbone with Bootstrap mode.                                              -->
+<!-- The template format is different for Backbone without Bootstrap mode and Backbone with Bootstrap mode.        -->
+<!-- See the file user-templates-no-bootstrap-sample.php for sample templates for Backbone without Bootstrap mode. -->
+<!-- Your template file should be named "user-templates.php" and be in this plugin's main folder.                  -->
+
 <!-- Bootstrap Table Backbone Container Template -->
 <script type="text/html" id="st_iv-bs-template_table-lake">
 <div class="table st_iv-table-base st_iv-table-lake">
