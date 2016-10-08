@@ -2218,12 +2218,13 @@ EOD
                     # Backbone with Bootstrap mode
                     wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
                     wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
-                    if ( file_exists( dirname( __FILE__ ) . '/css/user-styles.css' ) ) {
-                        wp_enqueue_style( 'st_iv-user-styles.css', plugins_url( 'css/user-styles.css', __FILE__ ) );
-                    }
                 } else {
                     # Backbone and no Bootstrap mode
                     wp_enqueue_style( 'search_results_backbone', plugins_url( 'css/search-results-backbone.css', __FILE__ ) );
+                }
+                # load user .css file if it exists
+                if ( file_exists( dirname( __FILE__ ) . '/css/user-styles.css' ) ) {
+                    wp_enqueue_style( 'st_iv-user-styles.css', plugins_url( 'css/user-styles.css', __FILE__ ) );
                 }
             } else {
                 # Classic mode

@@ -154,8 +154,8 @@
                         template.onRenderFunction=stcfwTemplateFunctions["stcfw-template-function-generic-"+key];
                     }
                 }else{
-                    if(stcfw.templateFunctions.hasOwnProperty("stcfw-template-function-generic-"+key)){
-                        template.onRenderFunction=stcfw.templateFunctions["stcfw-template-function-"+postType+"-"+key];
+                    if(stcfwTemplateFunctions.hasOwnProperty("stcfw-template-function-generic-"+key)){
+                        template.onRenderFunction=stcfwTemplateFunctions["stcfw-template-function-"+postType+"-"+key];
                     }
                 }
             });

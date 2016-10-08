@@ -1,8 +1,8 @@
 <!-- Templates for stcfw-search-results-backbone.js - they will be compiled with _.template().    -->
 
 <!-- Templates for "backbone" mode have two parts a container part and an item part.              -->
-<!-- The id for a "container" is "stcfw-template-container" . $post_type . $view_name.            -->
-<!-- The id for a "item" is "stcfw-template-item" . $post_type . $view_name.                      -->
+<!-- The id for a "container" is "stcfw-template-container-" . $post_type . "-" . $view_name.     -->
+<!-- The id for a "item" is "stcfw-template-item-" . $post_type . "-" . $view_name.               -->
 <!-- The "generic" template is used if no post type specific template is found.                   -->
 <!-- The fields in the Backbone model are the same fields as those displayed in the table format. -->
 <!-- You can use the stcfw-template-...-generic-debug_view template to get a dump of all fields.  -->
