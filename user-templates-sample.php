@@ -1,8 +1,10 @@
-<!-- These sample templates are for the Backbone with Bootstrap mode.                                              -->
-<!-- The template format is different for Backbone without Bootstrap mode and Backbone with Bootstrap mode.        -->
-<!-- See the file user-templates-no-bootstrap-sample.php for sample templates for Backbone without Bootstrap mode. -->
-<!-- Your template file should be named "user-templates.php" and be in this plugin's main folder.                  -->
-<!-- You can style your templates by creating a file "css/user-styles.css"                                         -->
+<!-- These sample templates are for the Backbone with Bootstrap mode.                                                               -->
+<!-- The template format is different for Backbone without Bootstrap mode and Backbone with Bootstrap mode.                         -->
+<!-- See the file user-templates-no-bootstrap-sample.php for sample templates for Backbone without Bootstrap mode.                  -->
+<!-- Your template file should be named "user-templates.php" and be in this plugin's main folder.                                   -->
+<!-- You can style your templates by creating a file "css/user-styles.css"                                                          -->
+<!-- Beware the only fields that are available for use in templates are those enabled for display in the search widget.             -->
+<!-- This is the "user-templates.php" file of "http://magentacuda.com/demo-of-search-widget-and-wp-rest-server-for-toolset-types/". -->
 
 <!-- Bootstrap Table Backbone Container Template -->
 <script type="text/html" id="st_iv-bs-template_table-lake">
@@ -38,7 +40,7 @@
       <td>{{{ data["lake-type"] }}}</td>
       <td>{{{ data.trophic }}}</td>
       <td>{{{ data.zone }}}</td>
-      <td>{{{ data["river-fish"] }}}</td>
+      <td>{{{ data.fish }}}</td>
     </tr>
 </script>
 
@@ -54,6 +56,7 @@
       <th>Type</th>
       <th>Rock Type</th>
       <th>Zone</th>
+      <th>Nearest City</th>
     </tr>
   </thead>
   <tbody>
@@ -72,6 +75,7 @@
       <td>{{{ data["mountain-type"] }}}</td>
       <td>{{{ data["rock-type"] }}}</td>
       <td>{{{ data.zone }}}</td>
+      <td>{{{ data["nearest-city"] }}}</td>
     </tr>
 </script>
 
