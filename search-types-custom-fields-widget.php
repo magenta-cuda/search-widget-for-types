@@ -484,8 +484,6 @@ EOD
             }
             foreach( $widgets as $id ) {
                 if ( strpos( $id, 'search_types_custom_fields_widget' ) === 0 ) {
-                    error_log( 'Search_Types_Custom_Fields_Widget::get_option():$sidebar=' . $sidebar );
-                    error_log( 'Search_Types_Custom_Fields_Widget::get_option():$id=' . $id );
                     $widget = $wp_registered_widgets[ $id ];
                     break 2;
                 }
@@ -981,7 +979,6 @@ add_action( 'widgets_init', function( ) {
 add_filter( 'posts_where', function( $where, $query ) {
     global $wpdb;
     if ( !empty( $query->query_vars[ 'mcst' ] ) ) {
-        error_log( 'FILTER:posts_where():$_REQUEST=' . print_r( $_REQUEST, true ) );
     } else if ( ( !$query->is_main_query( ) && ( empty( $_REQUEST[ 'action' ] ) || $_REQUEST[ 'action' ] !== 'stcfw_get_posts' ) )
         || empty( $_REQUEST[ 'search_types_custom_fields_form' ] ) ) {
         return $where;
