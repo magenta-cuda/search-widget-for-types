@@ -26,6 +26,9 @@
     {{{ data.items }}}
   </tbody>
 </table>
+<div class="st_iv-table-footer">
+You can sort by a column by clicking on the column header.
+</div>
 </div>
 </script>
 
@@ -63,6 +66,9 @@
     {{{ data.items }}}
   </tbody>
 </table>
+<div class="st_iv-table-footer">
+You can sort by a column by clicking on the column header.
+</div>
 </div>
 </script>
 
@@ -82,7 +88,7 @@
 <!-- Bootstrap Table Backbone Container Template -->
 <script type="text/html" id="st_iv-bs-template_table-country">
 <div class="table st_iv-table-base st_iv-table-country">
-<table class="st_iv-table-base tablesorter st_iv-table-country">
+<table class="st_iv-table-base st_iv-table-country">
   <thead>
     <tr>
       <th>Country</th>

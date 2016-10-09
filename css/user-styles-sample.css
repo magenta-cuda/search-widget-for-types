@@ -10,6 +10,7 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base{
     border:2px solid black;
     border-collapse:collapse;
     width:1000px;
+    margin-bottom:5px;
 }
 
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base th, div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base td{
@@ -23,6 +24,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base th{
 
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base td.st_iv-table-cell-right-align{
     text-align:right;
+}
+
+div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-table-base div.st_iv-table-footer{
+    padding-left:10px;
+    font-size:75%;
 }
 
 div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base.st_iv-table-mountain{

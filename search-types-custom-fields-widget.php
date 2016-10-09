@@ -1298,10 +1298,18 @@ if ( is_admin( ) ) {
     } );
     add_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function( ) {
         # build the search form for the post type in the AJAX request
-        global $wpdb;        
-        if ( !isset( $_POST[ 'stcfw_get_form_nonce' ] ) || !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ],
-            Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
-            error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':nonce:die' );
+        global $wpdb;
+        # TODO: This error is occurring intermittently, why?
+        if ( !isset( $_POST[ 'stcfw_get_form_nonce' ] ) ) {
+            error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':missing nonce:die' );
+            error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . '$_POST='
+                . print_r( $_POST, TRUE ) );
+            exit( 'Error: Missing '  . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ' nonce, Please retry.' );
+        }
+        if ( !wp_verify_nonce( $_POST[ 'stcfw_get_form_nonce' ], Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE ) ) {
+            error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ':invalid nonce:die' );
+            error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . '$_POST='
+                . print_r( $_POST, TRUE ) );
             exit( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ' nonce, Please retry.' );
         }
         if ( $_REQUEST[ 'post_type' ] === 'no-selection' ) {
