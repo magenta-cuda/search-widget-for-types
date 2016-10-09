@@ -9,7 +9,7 @@
 <!-- Bootstrap Table Backbone Container Template -->
 <script type="text/html" id="st_iv-bs-template_table-lake">
 <div class="table st_iv-table-base st_iv-table-lake">
-<table class="st_iv-table-base st_iv-table-lake">
+<table class="st_iv-table-base tablesorter st_iv-table-lake">
   <thead>
     <tr>
       <th>Lake</th>
@@ -47,7 +47,7 @@
 <!-- Bootstrap Table Backbone Container Template -->
 <script type="text/html" id="st_iv-bs-template_table-mountain">
 <div class="table st_iv-table-base st_iv-table-mountain">
-<table class="st_iv-table-base st_iv-table-mountain">
+<table class="st_iv-table-base tablesorter st_iv-table-mountain">
   <thead>
     <tr>
       <th>Mountain</th>
@@ -82,7 +82,7 @@
 <!-- Bootstrap Table Backbone Container Template -->
 <script type="text/html" id="st_iv-bs-template_table-country">
 <div class="table st_iv-table-base st_iv-table-country">
-<table class="st_iv-table-base st_iv-table-country">
+<table class="st_iv-table-base tablesorter st_iv-table-country">
   <thead>
     <tr>
       <th>Country</th>

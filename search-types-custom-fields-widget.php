@@ -2247,6 +2247,7 @@ EOD
                                        [ 'backbone' ], FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw',
                                         [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone+bootstrap' ] );
+                    wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
                 } else {
                     # Backbone and no Bootstrap mode
                     wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'js/stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ],
@@ -2290,6 +2291,7 @@ EOD
             wp_enqueue_script( 'jquery-mobile', plugins_url( '/js/jquery-mobile.js' , __FILE__ ), [ 'jquery' ] );
             wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
             wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
+            wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
         } );
         add_shortcode( 'stcfw_inline_search_results', function( $atts ) {
             # shortcode attributes may specify an initial list of posts ids to load

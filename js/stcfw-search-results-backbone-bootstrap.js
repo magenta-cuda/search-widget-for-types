@@ -158,6 +158,8 @@ jQuery( document ).ready( function( ) {
         viewContainer.template = _.template( stcfw.getTemplate( "st_iv-bs-template_table", stcfw.post_type ).html( ), null, stcfw.templateOptions );
         container.empty( );
         container.append( viewContainer.render( ).$el.find( ".table" ) );
+        // add jQuery's tablesorter
+        container.find("table.st_iv-table-base.tablesorter").tablesorter();
     }
 
     stcfw.getTemplate = function( name, postType ) {
