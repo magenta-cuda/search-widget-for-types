@@ -9,8 +9,8 @@
 <tr>
 <th>Post</th>
 <th>Manufacturer</th>
-<th>Carburetor</th>
 <th>Car</th>
+<th>Carburetor</th>
 <th>Engine Type</th>
 <th>Displacement</th>
 <th>Horsepower</th>
@@ -20,6 +20,8 @@
 <tbody class="stcfw-results-item-container stcfw-template-container-engine-table_view">
 </tbody>
 </table>
+<div>
+You can sort by a column by clicking on the column header.</div>
 </div>
 </script> 
 
