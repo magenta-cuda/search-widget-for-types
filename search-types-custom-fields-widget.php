@@ -1887,7 +1887,7 @@ Change View: <select id="stcfw-select-views"></select>
                     if ( $error ) {
                         error_log( '##### ERROR: Search Types Custom Fields Widget: gallery format failed to relink, error code = ' . $error );
                     }
-                    echo "<h1 style=\"text-align:center\">Search Results</h1><div id=\"stcfw-gallery-container\" style=\"position:relative;\">$html</div>";
+                    echo "<h1 style=\"text-align:center;\">Search Results</h1><div id=\"stcfw-gallery-container\" style=\"position:relative;\">$html</div>";
                     require_once dirname( __FILE__ ) . '/stcfw-search-results-template.php';
                     get_footer( );
                     die;
@@ -1917,6 +1917,7 @@ Change View: <select id="stcfw-select-views"></select>
                 $label = Search_Types_Custom_Fields_Widget::value_filter( $label, 'post_type', $_REQUEST[ 'post_type' ] );
                 $content = <<<EOD
 <div style="width:99%;overflow:auto;">
+    <h1 style="text-align:center;padding:20px 10px;">Search Results</h1>
     <div class="scpbcfw-result-container"$container_style>
         <table class="scpbcfw-result-table tablesorter">
             <thead><tr><th class="scpbcfw-result-table-head-post">$label</th>
