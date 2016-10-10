@@ -104,7 +104,7 @@ EOD
         $select_post_types = array_diff( array_filter( array_keys( $instance ), function( $key ) {
             return substr_compare( $key, "scpbcfw-", 0, 8 ) !== 0;
         } ), [ 'maximum_number_of_items', 'set_is_search', 'use_simplified_labels_for_select', 'enable_table_view_option', 'search_table_width',
-            'search_gallery_columns', 'use_backbone_model_view_presenter', 'use_bootstrap' ] );
+            'search_gallery_columns', 'use_backbone_model_view_presenter', 'use_bootstrap', 'do_not_load_bootstrap' ] );
         foreach ( $results as $result ) {
             $name = $result->post_type;
             # skip unselected post types
@@ -449,7 +449,7 @@ EOD
 <input type="checkbox"
     id="<?php echo $this->get_field_id( 'use_backbone_model_view_presenter' ); ?>"
     name="<?php echo $this->get_field_name( 'use_backbone_model_view_presenter' ); ?>"
-    class="scpbcfw-admin-option-checkbox scpbcfw-enable-use-backbone-option scpbcfw-search-table-width"
+    class="scpbcfw-admin-option-checkbox scpbcfw-enable-use-backbone-option"
     value="use backbone" <?php if ( !empty( $instance[ 'use_backbone_model_view_presenter' ] ) ) { echo 'checked'; } ?>
     <?php if ( empty( $instance['enable_table_view_option'] ) ) { echo 'disabled'; } ?>>
 <?php _e( 'Use Backbone.js Model-View-Presenter for search results:', self::LANGUAGE_DOMAIN ); ?>
@@ -459,10 +459,20 @@ EOD
 <input type="checkbox"
     id="<?php echo $this->get_field_id( 'use_bootstrap' ); ?>"
     name="<?php echo $this->get_field_name( 'use_bootstrap' ); ?>"
-    class="scpbcfw-admin-option-checkbox scpbcfw-enable-use-bootstrap-option scpbcfw-search-table-width"
+    class="scpbcfw-admin-option-checkbox scpbcfw-enable-use-bootstrap-option"
     value="use bootstrap" <?php if ( !empty( $instance[ 'use_bootstrap' ] ) ) { echo 'checked'; } ?>
     <?php if ( empty( $instance['enable_table_view_option'] ) || empty( $instance['use_backbone_model_view_presenter'] ) ) { echo 'disabled'; } ?>>
 <?php _e( 'Use Twitter Bootstrap for search results:', self::LANGUAGE_DOMAIN ); ?>
+<div style="clear:both;"></div>
+</div>
+<div class="scpbcfw-admin-option-box">
+<input type="checkbox"
+    id="<?php echo $this->get_field_id( 'do_not_load_bootstrap' ); ?>"
+    name="<?php echo $this->get_field_name( 'do_not_load_bootstrap' ); ?>"
+    class="scpbcfw-admin-option-checkbox scpbcfw-enable-do-not-load-bootstrap-option"
+    value="do not load bootstrap" <?php if ( !empty( $instance[ 'do_not_load_bootstrap' ] ) ) { echo 'checked'; } ?>
+    <?php if ( empty( $instance['enable_table_view_option'] ) || empty( $instance['use_backbone_model_view_presenter'] ) ) { echo 'disabled'; } ?>>
+<?php _e( 'Do not load Bootstrap:', self::LANGUAGE_DOMAIN ); ?>
 <div style="clear:both;"></div>
 </div>
 </div>
@@ -477,13 +487,16 @@ EOD
     
     public static function get_option( ) {
         global $wp_registered_widgets;
+        error_log( '$wp_registered_widgets=' . print_r( $wp_registered_widgets, true ) );
         $sidebars_widgets = wp_get_sidebars_widgets( );
+        error_log( '$sidebars_widgets=' . print_r( $sidebars_widgets, true ) );
         foreach( $sidebars_widgets as $sidebar => $widgets ) {
             if ( $sidebar === 'wp_inactive_widgets' ) {
                 continue;
             }
             foreach( $widgets as $id ) {
                 if ( strpos( $id, 'search_types_custom_fields_widget' ) === 0 ) {
+                    error_log( '$id=' . $id );
                     $widget = $wp_registered_widgets[ $id ];
                     break 2;
                 }
@@ -2221,7 +2234,9 @@ EOD
                 # Backbone mode
                 if ( !empty( $option[ 'use_bootstrap' ] ) ) {
                     # Backbone with Bootstrap mode
-                    wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
+                    if ( empty( $option[ 'do_not_load_bootstrap' ] ) ) {
+                        wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
+                    }
                     wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
                 } else {
                     # Backbone and no Bootstrap mode
@@ -2250,7 +2265,9 @@ EOD
                 if ( !empty( $option[ 'use_bootstrap' ] ) ) {
                     # Backbone with Bootstrap mode
                     wp_enqueue_script( 'jquery-mobile', plugins_url( 'js/jquery-mobile.js' , __FILE__ ), [ 'jquery' ] );
-                    wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
+                    if ( empty( $option[ 'do_not_load_bootstrap' ] ) ) {
+                        wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );
+                    }
                     wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ),
                                        [ 'backbone' ], FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw',
@@ -2292,13 +2309,18 @@ EOD
     if ( empty( $search_types_custom_fields_show_using_macro ) ) {
         # page is not a search result page and may have a 'stcfw_inline_search_results' shortcode
         add_action( 'wp_enqueue_scripts', function( ) {
-            wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
+            $option = Search_Types_Custom_Fields_Widget::get_option( );
+            if ( empty( $option[ 'do_not_load_bootstrap' ] ) ) {
+                wp_enqueue_style( 'st_iv_bootstrap', plugins_url( 'css/bootstrap.css', __FILE__ ) );
+            }
             wp_enqueue_style( 'search_results_backbone_bootstrap', plugins_url( 'css/search-results-backbone-bootstrap.css', __FILE__ ) );
             if ( file_exists( dirname( __FILE__ ) . '/css/user-styles.css' ) ) {
                 wp_enqueue_style( 'st_iv-user-styles.css', plugins_url( 'css/user-styles.css', __FILE__ ) );
             }
             wp_enqueue_script( 'jquery-mobile', plugins_url( '/js/jquery-mobile.js' , __FILE__ ), [ 'jquery' ] );
-            wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );  
+            if ( empty( $option[ 'do_not_load_bootstrap' ] ) ) {
+                wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );
+            }
             wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
             wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
         } );

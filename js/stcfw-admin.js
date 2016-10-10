@@ -1,10 +1,11 @@
 var stcfwInitialized=[];
 function stcfwInitialize(target){
+    var jqTarget=jQuery(target);
     // make sure we don't initialize a widget more than once
     var marker=jQuery(target).find("div.scpbcfw-admin-button");
     if(stcfwInitialized.indexOf(marker[0])!==-1){return;}
     stcfwInitialized.push(marker[0]);
-    jQuery(target).find("div.scpbcfw-admin-display-button").click(function(event){
+    jqTarget.find("div.scpbcfw-admin-display-button").click(function(event){
         if(jQuery(this).text()==stcfwAdminTranslations.open){
             jQuery(this).text(stcfwAdminTranslations.close);
             jQuery("div.scpbcfw-search-field-values",this.parentNode).css("display","block");
@@ -14,18 +15,43 @@ function stcfwInitialize(target){
         }
         return false;
     });
-    jQuery(target).find("input[type='checkbox'].scpbcfw-enable-table-view-option").change(function(event){
-        jQuery("input[type='number'].scpbcfw-search-table-width, input[type='checkbox'].scpbcfw-search-table-width")
-            .prop("disabled",!jQuery(this).prop("checked"));
-        jQuery(target).find("input[type='checkbox'].scpbcfw-enable-use-backbone-option").change();    
-        jQuery("input[type='checkbox'].scpbcfw-select-content-macro-display-field").prop("disabled",!jQuery(this).prop("checked"));
+    jqTarget.find("input[type='checkbox'].scpbcfw-enable-table-view-option").change(function(event){
+        var tableView=jQuery(this);
+        jqTarget.find("input[type='number'].scpbcfw-search-table-width, input[type='checkbox'].scpbcfw-search-table-width")
+            .prop("disabled",!tableView.prop("checked"));
+        jqTarget.find("input[type='checkbox'].scpbcfw-enable-use-backbone-option")
+            .prop("disabled",!tableView.prop("checked"))
+            .each(function(){
+                if(!tableView.prop("checked")){
+                    jQuery(this).prop("checked",false);
+                }
+            })
+            .change();    
+        jqTarget.find("input[type='checkbox'].scpbcfw-select-content-macro-display-field").prop("disabled",!jQuery(this).prop("checked"));
     });
-    jQuery(target).find("input[type='checkbox'].scpbcfw-enable-use-backbone-option").change(function(event){
-        jQuery(target).find("input[type='checkbox'].scpbcfw-enable-use-bootstrap-option")
-            .prop("disabled",jQuery(this).prop("disabled")||!jQuery(this).prop("checked"));
+    jqTarget.find("input[type='checkbox'].scpbcfw-enable-use-backbone-option").change(function(e){
+        var useBackbone=jQuery(this);
+        jqTarget.find("input[type='checkbox'].scpbcfw-enable-use-bootstrap-option")
+            .prop("disabled",!useBackbone.prop("checked"))
+            .each(function(){
+                if(!useBackbone.prop("checked")){
+                    jQuery(this).prop("checked",false);
+                }
+            })
+            .change();
+    });
+    jqTarget.find("input[type='checkbox'].scpbcfw-enable-use-bootstrap-option").change(function(e){
+        var useBootstrap=jQuery(this);
+        jqTarget.find("input[type='checkbox'].scpbcfw-enable-do-not-load-bootstrap-option")
+            .prop("disabled",!useBootstrap.prop("checked"))
+            .each(function(){
+                if(!useBootstrap.prop("checked")){
+                    jQuery(this).prop("checked",false);
+                }
+            });
     });
     // set background of div to indicate whether post type has been selected for searching or not
-    jQuery(target).find("div.scpbcfw-search-field-values").each(function(){
+    jqTarget.find("div.scpbcfw-search-field-values").each(function(){
         var checked=false;
         jQuery(this).find("input.scpbcfw-selectable-field[type='checkbox']").each(function(){
             checked=checked||jQuery(this).prop("checked");
@@ -38,7 +64,7 @@ function stcfwInitialize(target){
         }
     });
     // on checkbox change reset background of div to indicate whether post type has been selected for searching or not
-    jQuery(target).find("input.scpbcfw-selectable-field[type='checkbox']").change(function(event){
+    jqTarget.find("input.scpbcfw-selectable-field[type='checkbox']").change(function(event){
         var checked=false;
         jQuery(this).parents("div.scpbcfw-search-field-values").find("input.scpbcfw-selectable-field[type='checkbox']").each(function(){
             checked=checked||jQuery(this).prop("checked");
@@ -51,8 +77,8 @@ function stcfwInitialize(target){
         }
     });
     // drag and drop handlers
-    jQuery(target).find("div.scpbcfw-selectable-field").draggable({cursor:"crosshair",revert:true});
-    jQuery(target).find("div.scpbcfw-selectable-field-after").droppable({accept:"div.scpbcfw-selectable-field",tolerance:"touch",
+    jqTarget.find("div.scpbcfw-selectable-field").draggable({cursor:"crosshair",revert:true});
+    jqTarget.find("div.scpbcfw-selectable-field-after").droppable({accept:"div.scpbcfw-selectable-field",tolerance:"touch",
         hoverClass:"scpbcfw-hover",drop:function(e,u){
             jQuery(this.parentNode).after(u.draggable);
             var o="";
