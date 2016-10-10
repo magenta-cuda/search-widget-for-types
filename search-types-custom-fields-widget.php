@@ -2262,6 +2262,7 @@ EOD
                                        FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone', 'stcfw',
                                         [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone' ] );
+                    wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );                    
                 }
             } else if ( $search_types_custom_fields_show_using_macro === 'use gallery' ) {
                 # Classic Gallery mode

@@ -4,7 +4,7 @@
 
 <script type="text/html" id="stcfw-template-container-engine-table_view">
 <div style="overflow-x:auto;">
-<table style="width:2000px;table-layout:auto;">
+<table class="tablesorter" style="width:2000px;table-layout:auto;">
 <thead>
 <tr>
 <th>Post</th>

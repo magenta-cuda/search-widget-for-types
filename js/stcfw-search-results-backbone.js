@@ -235,6 +235,8 @@
                 if(typeof view.onRenderFunction==="function"){
                     view.onRenderFunction(view.$el);
                 }
+                // add jQuery's table sorter
+                div.find("table.tablesorter").tablesorter();
             };
             window.setTimeout( function( ) {
                 jQuery( window ).resize( );
