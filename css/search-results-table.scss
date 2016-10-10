@@ -2,6 +2,11 @@
     Styles for search results tables in classic mode
 */
 
+h1.scpbcfw-result-heading {
+    text-align:center;
+    padding:20px 10px;
+}
+
 table.scpbcfw-result-table {
   border-collapse: collapse;
   width: 99%;
@@ -27,7 +32,7 @@ table.scpbcfw-result-table {
   }
 
   td.scpbcfw-result-table-detail-numeric {
-    text-align: center;
+    text-align: right;
   }
 }
 
