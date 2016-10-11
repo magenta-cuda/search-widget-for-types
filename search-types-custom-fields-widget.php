@@ -487,16 +487,13 @@ EOD
     
     public static function get_option( ) {
         global $wp_registered_widgets;
-        error_log( '$wp_registered_widgets=' . print_r( $wp_registered_widgets, true ) );
         $sidebars_widgets = wp_get_sidebars_widgets( );
-        error_log( '$sidebars_widgets=' . print_r( $sidebars_widgets, true ) );
         foreach( $sidebars_widgets as $sidebar => $widgets ) {
             if ( $sidebar === 'wp_inactive_widgets' ) {
                 continue;
             }
             foreach( $widgets as $id ) {
                 if ( strpos( $id, 'search_types_custom_fields_widget' ) === 0 ) {
-                    error_log( '$id=' . $id );
                     $widget = $wp_registered_widgets[ $id ];
                     break 2;
                 }
