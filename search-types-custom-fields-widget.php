@@ -472,7 +472,7 @@ EOD
     class="scpbcfw-admin-option-checkbox scpbcfw-enable-do-not-load-bootstrap-option"
     value="do not load bootstrap" <?php if ( !empty( $instance[ 'do_not_load_bootstrap' ] ) ) { echo 'checked'; } ?>
     <?php if ( empty( $instance['enable_table_view_option'] ) || empty( $instance['use_backbone_model_view_presenter'] ) ) { echo 'disabled'; } ?>>
-<?php _e( 'Do not load Bootstrap:', self::LANGUAGE_DOMAIN ); ?>
+<?php _e( 'Do not load Bootstrap (', self::LANGUAGE_DOMAIN ); ?><a href="https://alttypes.wordpress.com/#option-9" target="_blank"><?php _e( 'Why?', self::LANGUAGE_DOMAIN ); ?></a>):
 <div style="clear:both;"></div>
 </div>
 </div>
