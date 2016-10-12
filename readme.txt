@@ -33,6 +33,12 @@ Yes.
 = Where is the documentation? =
 http://alttypes.wordpress.com/search-types-custom-fields-widget/
 
+= How to use the REST Server? =
+To activate the REST server install and activate the [WordPress REST API v2 plugin](https://wordpress.org/plugins/rest-api/). Beware this requires pretty permalinks.
+The search widget currently uses an older proprietary AJAX API and does not use the REST server and does not need the WordPress REST API plugin to be installed.
+The REST server is experimental and the API is subject to change. 
+Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
+
 == Screenshots ==
 1. The "Search Widget" interactively loads the "Search Results Pane".
 
