@@ -26,8 +26,9 @@
     {{{ data.items }}}
   </tbody>
 </table>
-<div class="st_iv-table-footer">
+<div class="st_iv-table-footer st_iv-table-footer-lake">
 You can sort by a column by clicking on the column header.
+You can do a multi-column sort by pressing the shift key on subsequent columns.
 </div>
 </div>
 </script>
@@ -66,8 +67,9 @@ You can sort by a column by clicking on the column header.
     {{{ data.items }}}
   </tbody>
 </table>
-<div class="st_iv-table-footer">
+<div class="st_iv-table-footer st_iv-table-footer-mountain">
 You can sort by a column by clicking on the column header.
+You can do a multi-column sort by pressing the shift key on subsequent columns.
 </div>
 </div>
 </script>

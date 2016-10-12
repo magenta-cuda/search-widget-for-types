@@ -31,11 +31,11 @@ div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-table-base div.st_iv-table-f
     font-size:75%;
 }
 
-div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base.st_iv-table-mountain{
+div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base.st_iv-table-mountain,div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-table-footer-mountain{
     width:1200px;
 }
 
-div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base.st_iv-table-lake{
+div#st_iv-bootstrap1 div#st_iv-bootstrap2 table.st_iv-table-base.st_iv-table-lake,div#st_iv-bootstrap1 div#st_iv-bootstrap2 div.st_iv-table-footer-lake{
     width:2000px;
 }
 
