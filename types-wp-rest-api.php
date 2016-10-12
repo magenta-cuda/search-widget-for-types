@@ -166,7 +166,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 $query = new WP_Query( [ 's' => 'XQ9Z5', 'fields' => 'ids', 'mcst' => true ] );
                 # TODO: add clauses for Types custom fields here
                 if ( $query->posts ) {
-                    error_log( 'FILTER:posts_clauses_request():$query->posts=' . print_r( $query->posts, true ) );
                     $clauses[ 'where' ] .= " AND ( {$wpdb->posts}.ID IN ( " . implode( ', ', $query->posts ) . ' ) ) ';
                 } else {
                 }
@@ -227,8 +226,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     protected function _get_types_field( $object, $field_name, $request, $object_type ) {
         global $post;
         static $models = [ ];
-        error_log( '_get_types_field():$field_name=' . $field_name );
-        error_log( '_get_types_field():$object_type=' . $object_type );
         # cache the model for reuse by later calls on the same post with another field
         if ( !array_key_exists( $post->ID, $models ) ) {
             $models[ $post->ID ] = Search_Types_Custom_Fields_Widget::get_items_for_post( $post, $this->post_type );
@@ -286,7 +283,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
 
     public static function _sanitize_field( $values, $request, $name ) {
-        error_log( 'MCST_WP_REST_Posts_Controller::_sanitize_field():$values=' . $values );
         return $values;
     }
 
@@ -342,7 +338,6 @@ class MCST_WP_REST_Post_Types_Controller extends WP_REST_Post_Types_Controller {
             if ( empty( $obj->show_in_rest ) || ( 'edit' === $request['context'] && ! current_user_can( $obj->cap->edit_posts ) ) ) {
                 continue;
             }
-            error_log( 'MCST_WP_REST_Post_Types_Controller::get_items():$obj=' . print_r( $obj, true ) );
             $post_type = $this->prepare_item_for_response( $obj, $request );
             $data[ $obj->name ] = $this->prepare_response_for_collection( $post_type );
         }
@@ -395,16 +390,13 @@ EOD
                     return substr( $field, 5 );
                 } else if ( substr_compare( $field, 'tax-tag-', 0, 8 ) === 0 ) {
                     # Toolset Types custom taxonomy
-                    error_log( 'ACTION:rest_api_init():tax-tag-:field=' . substr( $field, 8 ) );
                     return FALSE;
                 } else if ( substr_compare( $field, '_wpcf_belongs_', 0, 14 ) === 0 && substr_compare( $field, '_id', -3, 3 ) === 0 ) {
                     # child of psuedo field
-                    error_log( 'ACTION:rest_api_init():_wpcf_belongs_:field=' . substr( $field, 14, -3 ) );
                     # replace the ugly psuedo field name with a more user friendly name
                     return 'mcst-childof-' . substr( $field, 14, -3 );
                 } else if ( preg_match( '/^inverse_(\w+)__wpcf_belongs_(\w+)_id$/', $field, $matches ) === 1 ) {
                     # parent of psuedo field
-                    error_log( 'ACTION:rest_api_init():$matches=' . print_r( $matches, true ) );
                     # replace the ugly psuedo field name with a more user friendly name
                     return "mcst-parentof-$matches[1]";
                 } else {
