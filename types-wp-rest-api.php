@@ -138,27 +138,39 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                         $_REQUEST[ "_wpcf_belongs_{$matches[1]}_id" ] = $value;
                     } else {
                         $wpcf_field = self::$wpcf_fields[ $field ];
-                        if ( $wpcf_field[ 'type' ] === 'checkboxes' ) {
+                        error_log( '$wpcf_field[ "type" ]=' . $wpcf_field[ 'type' ] );
+                        if ( is_array( $value ) ) {
+                            $values = $value;
+                        } else {
+                            $values = [ $value ];
+                        }
+                        error_log( '$value=' . print_r( $value, true ) );
+                        error_log( '$wpcf_field[ "data" ][ "options" ]=' . print_r( $wpcf_field[ 'data' ][ 'options' ], true ) );
+                        $field_type = $wpcf_field[ 'type' ];
+                        switch ( $field_type ) {
+                        case 'checkboxes':
                             # the checkboxes value must be re-mapped to its internal value
-                            if ( is_array( $value ) ) {
-                                $values = $value;
-                            } else {
-                                $values = [ $value ];
-                            }
-                            $values =array_map( function( $value ) use ( $wpcf_field ) {
+                        case 'radio':
+                            # the radio value must be re-mapped to its internal value
+                            $values =array_map( function( $value ) use ( $wpcf_field, $field_type ) {
                                 $value_lower = strtolower( $value );
                                 foreach ( $wpcf_field[ 'data' ][ 'options' ] as $key => $option ) {
-                                    if ( strtolower( $option[ 'title' ] ) === $value_lower ) {
+                                    if ( ( $field_type === 'checkboxes' && strtolower( $option[ 'title' ] ) === $value_lower )
+                                        || ( $field_type === 'radio' && ( strtolower( $option[ 'title' ] ) === $value_lower
+                                            || strtolower( $option[ 'display_value' ] ) === $value_lower ) ) ) {
                                         return $key;
                                     }
                                 }
                                 return '';
                             }, $values );
-                            if ( is_array( $value ) ) {
-                                $value = $values;
-                            } else {
-                                $value = $values[ 0 ];
-                            }
+                            break;
+                        default:
+                            break;
+                        }
+                        if ( is_array( $value ) ) {
+                            $value = $values;
+                        } else {
+                            $value = $values[ 0 ];
                         }
                         $_REQUEST[ "wpcf-$field" ] = $value;
                     }
