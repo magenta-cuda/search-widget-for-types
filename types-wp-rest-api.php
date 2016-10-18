@@ -138,14 +138,18 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                         $_REQUEST[ "_wpcf_belongs_{$matches[1]}_id" ] = $value;
                     } else {
                         $wpcf_field = self::$wpcf_fields[ $field ];
-                        error_log( '$wpcf_field[ "type" ]=' . $wpcf_field[ 'type' ] );
                         if ( is_array( $value ) ) {
                             $values = $value;
                         } else {
                             $values = [ $value ];
                         }
+                        error_log( '$wpcf_field[ "type" ]=' . $wpcf_field[ 'type' ] );
                         error_log( '$value=' . print_r( $value, true ) );
-                        error_log( '$wpcf_field[ "data" ][ "options" ]=' . print_r( $wpcf_field[ 'data' ][ 'options' ], true ) );
+                        if ( !empty( $wpcf_field[ 'data' ][ 'options' ] ) ) {
+                            error_log( '$wpcf_field[ "data" ][ "options" ]=' . print_r( $wpcf_field[ 'data' ][ 'options' ], true ) );
+                        } else {
+                            error_log( '$wpcf_field[ "data" ]=' . print_r( $wpcf_field[ 'data' ], true ) );
+                        }  
                         $field_type = $wpcf_field[ 'type' ];
                         switch ( $field_type ) {
                         case 'checkboxes':
@@ -180,6 +184,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 if ( $query->posts ) {
                     $clauses[ 'where' ] .= " AND ( {$wpdb->posts}.ID IN ( " . implode( ', ', $query->posts ) . ' ) ) ';
                 } else {
+                    $clauses[ 'where' ] .= ' AND ( 1 = 2 )';
                 }
                 $_REQUEST = $orig_request;
                 return $clauses;
