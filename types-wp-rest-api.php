@@ -73,6 +73,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     public static $post_types     = [ ];
     public static $mapping_models = [ ];
     protected static $wpcf_fields;
+    public $fields;
 
     public function __construct( $post_type ) {
         self::$post_types[ ] = $post_type;
@@ -113,8 +114,15 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         global $wpdb;
         $fields = [ ];
         $params = $request->get_params( );
+        error_log( 'get_items():$params=' . print_r( $params, true ) );
         foreach( $params as $field => $value ) {
-            if ( $value && in_array( $field, $this->fields ) ) {
+            if ( taxonomy_exists( $field ) ) {
+                $tax_ids = array_unique( array_merge(
+                    get_terms( [ 'taxonomy' => $field, 'name' => $value, 'fields' => 'ids' ] ),
+                    get_terms( [ 'taxonomy' => $field, 'slug' => $value, 'fields' => 'ids' ] )
+                ) );
+                $request->set_param( $field, $tax_ids ? $tax_ids : [ 0 ] );
+            } else if ( $value && in_array( $field, $this->fields ) ) {
                 $fields[ $field ] = $value;
             }
         }
@@ -203,6 +211,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 return $clauses;
             }, 10, 2 );
         }
+        error_log( 'get_items():$request=' . print_r( $request, true ) );
         $response = parent::get_items( $request );
         return $response;
     }
