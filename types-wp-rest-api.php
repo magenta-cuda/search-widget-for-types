@@ -76,6 +76,7 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     public $fields;
 
     public function __construct( $post_type ) {
+        error_log( '__construct():$post_type=' . $post_type );
         self::$post_types[ ] = $post_type;
         $this->post_type = $post_type;
         $this->namespace = self::REST_NAME_SPACE;
@@ -114,21 +115,23 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         global $wpdb;
         $fields = [ ];
         $params = $request->get_params( );
-        error_log( 'get_items():$params=' . print_r( $params, true ) );
         foreach( $params as $field => $value ) {
             if ( taxonomy_exists( $field ) ) {
+                # The REST API requires the term id for taxonomy fields so replace the term name/slug with the term id
                 $tax_ids = array_unique( array_merge(
                     get_terms( [ 'taxonomy' => $field, 'name' => $value, 'fields' => 'ids' ] ),
                     get_terms( [ 'taxonomy' => $field, 'slug' => $value, 'fields' => 'ids' ] )
                 ) );
                 $request->set_param( $field, $tax_ids ? $tax_ids : [ 0 ] );
             } else if ( $value && in_array( $field, $this->fields ) ) {
+                # this field is a Toolset Types custom field
                 $fields[ $field ] = $value;
             }
         }
         if ( $fields ) {
             $post_type = $this->post_type;
             add_filter( 'posts_clauses_request', function( $clauses, $query ) use ( $fields, $post_type ) {
+                # setup the environment for the search widget
                 global $wpdb;
                 # TODO: Is the following specific enough to intercept only the main query of parent::get_items( )?
                 if ( empty( $query->query_vars[ 'post_type' ] ) || $query->query_vars[ 'post_type' ] !== $post_type ) {
@@ -210,8 +213,8 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 $_REQUEST = $orig_request;
                 return $clauses;
             }, 10, 2 );
+            # not necessary to remove Toolset Types custom fields as parent::get_items() ignores fields it doesn't know about
         }
-        error_log( 'get_items():$request=' . print_r( $request, true ) );
         $response = parent::get_items( $request );
         return $response;
     }
@@ -418,15 +421,16 @@ EOD
     }
     foreach ( $fields_of as $custom_type => $fields ) {
         # add REST attributes to the global $wp_post_types
-        if ( isset( $wp_post_types[ $custom_type ] ) ) {
-            $wp_post_types[ $custom_type ]->show_in_rest           = TRUE;
-            #$wp_post_types[ $custom_type ]->rest_base             = $custom_type;
-            $rest_base = $wp_post_types[ $custom_type ]->rest_base = strtolower( $wpcf_custom_types[ $custom_type ][ 'labels' ][ 'name' ] );
-            $wp_post_types[ $custom_type ]->rest_controller_class  = 'MCST_WP_REST_Posts_Controller';
-            $singular_name                                         = $wpcf_custom_types[ $custom_type ][ 'labels' ][ 'singular_name' ];
-            MCST_WP_REST_Posts_Controller::add_mapping_model( strtoupper( substr( $rest_base, 0, 1 ) ) . substr( $rest_base, 1 ),
-                                                              strtoupper( substr( $singular_name, 0, 1 ) ) . substr( $singular_name, 1 ) );
+        if ( empty( $wp_post_types[ $custom_type ] ) ) {
+            continue;
         }
+        $wp_post_types[ $custom_type ]->show_in_rest           = TRUE;
+        #$wp_post_types[ $custom_type ]->rest_base             = $custom_type;
+        $rest_base = $wp_post_types[ $custom_type ]->rest_base = strtolower( $wpcf_custom_types[ $custom_type ][ 'labels' ][ 'name' ] );
+        $wp_post_types[ $custom_type ]->rest_controller_class  = 'MCST_WP_REST_Posts_Controller';
+        $singular_name                                         = $wpcf_custom_types[ $custom_type ][ 'labels' ][ 'singular_name' ];
+        MCST_WP_REST_Posts_Controller::add_mapping_model( strtoupper( substr( $rest_base, 0, 1 ) ) . substr( $rest_base, 1 ),
+                                                          strtoupper( substr( $singular_name, 0, 1 ) ) . substr( $singular_name, 1 ) );
         # create a REST controller for this Types custom post type
         $controller = new MCST_WP_REST_Posts_Controller( $custom_type );
         $controller->fields = [ ];

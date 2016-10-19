@@ -281,6 +281,9 @@ EOD
                            , $name ), OBJECT );
             foreach ( $results as $result ) {
                 $post_type = substr( $result->meta_key, 14, strlen( $result->meta_key ) - 17 );
+                if ( empty( $wpcf_types[$post_type] ) ) {
+                    continue;
+                }
                 $fields[$result->meta_key] = (object) [
                     'label' => self::$CHILD_OF . ( $post_type === 'post' || $post_type === 'page' ? $post_type : $wpcf_types[$post_type]['labels']['name'] ), 
                     'count' => $result->count
