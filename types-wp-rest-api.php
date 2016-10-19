@@ -349,6 +349,16 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         }
         return $settings;
     }
+    
+    public function additional_prepare_item_for_response( $response, $post, $request ) {
+        error_log( 'additional_prepare_item_for_response():$response->data=' . print_r( $response->data, true ) );
+        foreach ( $response->data as $name => &$values ) {
+            if ( taxonomy_exists( $name ) ) {
+                $values = get_terms( [ 'taxonomy' => $name, 'include' => $values, 'fields' => 'names' ] );
+            }
+        }
+        return $response;
+    }
 }
 
 class MCST_WP_REST_Post_Types_Controller extends WP_REST_Post_Types_Controller {
@@ -459,16 +469,19 @@ EOD
             }
         }
         $controller->register_routes( );
-        # add REST attributes to the global $wp_taxonomies
-        $wpcf_custom_taxonomies = get_option( 'wpcf-custom-taxonomies', [ ] );
-        foreach ( $wpcf_custom_taxonomies as $tax_slug => $taxonomy ) {
-            if ( empty( $taxonomy[ '_builtin' ] ) ) {
-                $wp_taxonomies[ $tax_slug ]->show_in_rest          = true;
-                $wp_taxonomies[ $tax_slug ]->rest_base             = $tax_slug;
-                $wp_taxonomies[ $tax_slug ]->rest_controller_class = 'WP_REST_Terms_Controller';
-            }
+        add_filter( "rest_prepare_{$custom_type}", [ $controller, 'additional_prepare_item_for_response' ], 10, 3 );
+    }
+
+    # add REST attributes to the global $wp_taxonomies
+    $wpcf_custom_taxonomies = get_option( 'wpcf-custom-taxonomies', [ ] );
+    foreach ( $wpcf_custom_taxonomies as $tax_slug => $taxonomy ) {
+        if ( empty( $taxonomy[ '_builtin' ] ) ) {
+            $wp_taxonomies[ $tax_slug ]->show_in_rest          = true;
+            $wp_taxonomies[ $tax_slug ]->rest_base             = $tax_slug;
+            $wp_taxonomies[ $tax_slug ]->rest_controller_class = 'WP_REST_Terms_Controller';
         }
     }
+
     $controller = new MCST_WP_REST_Post_Types_Controller( );
     $controller->register_routes( );
 } );
