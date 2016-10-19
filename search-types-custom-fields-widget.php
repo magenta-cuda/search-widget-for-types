@@ -1128,6 +1128,14 @@ EOD
                             $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value = %d )", $key, $t0 );
                         }
                     }
+                } else if ( $wpcf_field_type === 'checkbox' ) {
+                    # checkbox is tricky since the value bound to 0 means unchecked so must also check the bound value
+                    error_log( 'FILTER:posts_where:$key=' . $key );
+                    error_log( 'FILTER:posts_where:$value=' . $value );
+                    if ( $value ) {
+                        $value = $wpcf_field[ 'data' ][ 'set_value' ];
+                    }
+                    $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value = %s )", $key, $value );
                 } else {
                     $wpcf_field_data = $wpcf_field[ 'data' ];
                     if ( $wpcf_field_type === 'radio' || $wpcf_field_type === 'select' ) {
@@ -1138,11 +1146,6 @@ EOD
                         $options_value_set_value = $wpcf_field_data[ 'options' ][ $value ][ 'set_value' ];
                         $value = 's:' . strlen( $value ) .':"' .$value . '";a:1:{i:0;s:' . strlen( $options_value_set_value ) . ':"'
                             . $options_value_set_value . '";}';
-                    } else if ( $wpcf_field_type === 'checkbox' ) {
-                        # checkbox is tricky since the value bound to 0 means unchecked so must also check the bound value
-                        if ( $value ) {
-                            $value = $wpcf_field_data[ 'set_value' ];
-                        }
                     }
                     # TODO: LIKE may match more than we want on serialized array of numeric values - false match on numeric indices
                     $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value LIKE %s )", $key, "%%$value%%" );
