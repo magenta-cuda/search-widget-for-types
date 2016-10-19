@@ -151,14 +151,15 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                             error_log( '$wpcf_field[ "data" ]=' . print_r( $wpcf_field[ 'data' ], true ) );
                         }  
                         $field_type = $wpcf_field[ 'type' ];
+                        $field_data = $wpcf_field[ 'data' ];
                         switch ( $field_type ) {
                         case 'checkboxes':
                             # the checkboxes value must be re-mapped to its internal value
                         case 'radio':
                             # the radio value must be re-mapped to its internal value
-                            $values =array_map( function( $value ) use ( $wpcf_field, $field_type ) {
+                            $values =array_map( function( $value ) use ( $field_data, $field_type ) {
                                 $value_lower = strtolower( $value );
-                                foreach ( $wpcf_field[ 'data' ][ 'options' ] as $key => $option ) {
+                                foreach ( $field_data[ 'options' ] as $key => $option ) {
                                     if ( ( $field_type === 'checkboxes' && strtolower( $option[ 'title' ] ) === $value_lower )
                                         || ( $field_type === 'radio' && ( strtolower( $option[ 'title' ] ) === $value_lower
                                             || strtolower( $option[ 'display_value' ] ) === $value_lower ) ) ) {
@@ -166,6 +167,18 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                                     }
                                 }
                                 return '';
+                            }, $values );
+                            break;
+                        case 'checkbox':
+                            # for a checkbox set truthy values to the internal true value
+                            $values = array_map( function( $value ) use ( $field_data ) {
+                                $value_lower = strtolower( $value );
+                                if ( $value_lower === strtolower( $field_data[ 'set_value' ] ) || $value_lower === '1' || $value_lower === 'true' || $value_lower === 'yes'
+                                    || $value_lower === strtolower( __( 'yes', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ) ) ) {
+                                    return $field_data[ 'set_value' ];
+                                } else {
+                                    return '0';
+                                }
                             }, $values );
                             break;
                         default:
