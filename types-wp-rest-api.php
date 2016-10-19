@@ -165,13 +165,13 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                         $field_data = $wpcf_field[ 'data' ];
                         switch ( $field_type ) {
                         case 'checkboxes':
-                            # the checkboxes value must be re-mapped to its internal value
                         case 'radio':
-                            # the radio value must be re-mapped to its internal value
+                        case 'select':
+                            # the checkboxes, radio and select values must be re-mapped to its internal value
                             $values =array_map( function( $value ) use ( $field_data, $field_type ) {
                                 $value_lower = strtolower( $value );
                                 foreach ( $field_data[ 'options' ] as $key => $option ) {
-                                    if ( ( $field_type === 'checkboxes' && strtolower( $option[ 'title' ] ) === $value_lower )
+                                    if ( ( ( $field_type === 'checkboxes' || $field_type === 'select' ) && strtolower( $option[ 'title' ] ) === $value_lower )
                                         || ( $field_type === 'radio' && ( strtolower( $option[ 'title' ] ) === $value_lower
                                             || strtolower( $option[ 'display_value' ] ) === $value_lower ) ) ) {
                                         return $key;
