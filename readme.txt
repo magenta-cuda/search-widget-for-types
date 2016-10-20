@@ -3,7 +3,7 @@ Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
 Tested up to: 4.6
-Stable tag: 2.0
+Stable tag: 2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,11 +13,10 @@ Search Types custom posts for posts that have user specified values for Types cu
 
 This [search widget](http://alttypes.wordpress.com/search-types-custom-fields-widget/) can search [Toolset Types](http://wordpress.org/plugins/types/) custom posts by the value of Toolset Types custom fields, custom taxonomies and parent/child relationships. It is designed to be used with the Toolset Types plugin and makes use of Toolset Types' proprietary database format to generate user friendly field names and field values. The widget uses user friendly substitutions for the actual values in the database, e.g. post title is substituted for post id in parent/child fields. The selected posts can be displayed as a standard WordPress list of posts, a spreadsheet of posts with their custom fields or a gallery of featured images.
 
-Version 1.3 supports a [single-page application mode](https://alttypes.wordpress.com/#spa) where the search results returned by an interactive AJAX request populates a [Backbone.js](http://backbonejs.org/) collection of models which can be rendered using [Underscore.js](http://underscorejs.org/#template) templates and the [Bootstrap](http://getbootstrap.com/) framework.
+Version 1.3 supports a [single-page application mode](https://alttypes.wordpress.com/#spa) where the search results returned by an interactive AJAX request populates a [Backbone.js](http://backbonejs.org/) collection of models which can be rendered in the same page using [Underscore.js](http://underscorejs.org/#template) templates and the [Bootstrap](http://getbootstrap.com/) framework.
+You can view a working sample page using this plugin in single-page application mode at [my portfolio website](http://magentacuda.com/demo-of-search-widget-and-wp-rest-server-for-toolset-types/).
 
 [Version 2.0](https://alttypes.wordpress.com/#rest-api) implements an experimental [WP REST API](http://v2.wp-api.org/) server for Toolset Types custom post types and custom fields.
-
-You can view a working sample page using this plugin at [my portfolio website](http://magentacuda.com/demo-of-search-widget-and-wp-rest-server-for-toolset-types/).
 
 Please visit the [online documentation](http://alttypes.wordpress.com/search-types-custom-fields-widget/) for more details. **This plugin works with Toolset Types 2.2.2 and requires at least PHP 5.4.** [This plugin is not compatible with the WordPress Multilingual Plugin by OnTheGoSystems.](http://wordpress.org/support/topic/incompatibility-between-my-plugin-and-wpml-multilingual)
 
@@ -43,6 +42,11 @@ Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
 1. The "Search Widget" interactively loads the "Search Results Pane".
 
 == Changelog ==
+
+= 2.1 =
+* added support for select, radio and checkbox Toolset Types custom fields to REST API
+* replaced term id with term name or slug for taxonomy fields in REST API
+* fix bug where search widget tries to use previously deleted custom post type
 
 = 2.0 =
 * implements a [WP REST API server](https://alttypes.wordpress.com/#rest-api).
@@ -141,6 +145,10 @@ Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
 * Initial release.
 
 == Upgrade Notice ==
+= 2.1 =
+* added support for select, radio and checkbox Toolset Types custom fields to REST API
+* replaced term id with term name or slug for taxonomy fields in REST API
+* fix bug where search widget tries to use previously deleted custom post type
 = 2.0 =
 * implements a [WP REST API server](https://alttypes.wordpress.com/#rest-api).
 * much better support for user templates.
