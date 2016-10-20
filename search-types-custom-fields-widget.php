@@ -1133,10 +1133,10 @@ EOD
                     }
                 } else if ( $wpcf_field_type === 'checkbox' ) {
                     # checkbox is tricky since the value bound to 0 means unchecked so must also check the bound value
-                    error_log( 'FILTER:posts_where:$key=' . $key );
-                    error_log( 'FILTER:posts_where:$value=' . $value );
                     if ( $value ) {
                         $value = $wpcf_field[ 'data' ][ 'set_value' ];
+                    } else {
+                        $value = '0';
                     }
                     $sql2 .= $wpdb->prepare( "( w.meta_key = %s AND w.meta_value = %s )", $key, $value );
                 } else {
