@@ -18,6 +18,7 @@
       <th>Depth</th>
       <th>Type</th>
       <th>Trophic</th>
+      <th>Endorheic</th>
       <th>Zone</th>
       <th>Fishes</th>
     </tr>
@@ -43,6 +44,7 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
       <td class="st_iv-table-cell-right-align">{{{ data.depth }}}</td>
       <td>{{{ data["lake-type"] }}}</td>
       <td>{{{ data.trophic }}}</td>
+      <td>{{{ data.endorheic }}}</td>
       <td>{{{ data.zone }}}</td>
       <td>{{{ data.fish }}}</td>
     </tr>
@@ -56,6 +58,7 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
     <tr>
       <th>Mountain</th>
       <th>Country</th>
+      <th>Continent</th>
       <th>Height</th>
       <th>Type</th>
       <th>Rock Type</th>
@@ -79,6 +82,7 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
     <tr>
       <td><a href="<# print(stcfw.extractHrefAndLabelFromLink(data.post_title).href); #>" target="_blank"><# print(stcfw.extractHrefAndLabelFromLink(data.post_title).label); #></a></td>
       <td>{{{ data.country_id_of }}}</td>
+      <td>{{{ data.continent }}}</td>
       <td class="st_iv-table-cell-right-align">{{{ data.height }}}</td>
       <td>{{{ data["mountain-type"] }}}</td>
       <td>{{{ data["rock-type"] }}}</td>
