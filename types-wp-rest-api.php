@@ -76,7 +76,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     public $fields;
 
     public function __construct( $post_type ) {
-        error_log( '__construct():$post_type=' . $post_type );
         self::$post_types[ ] = $post_type;
         $this->post_type = $post_type;
         $this->namespace = self::REST_NAME_SPACE;
@@ -154,13 +153,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                         } else {
                             $values = [ $value ];
                         }
-                        error_log( '$wpcf_field[ "type" ]=' . $wpcf_field[ 'type' ] );
-                        error_log( '$value=' . print_r( $value, true ) );
-                        if ( !empty( $wpcf_field[ 'data' ][ 'options' ] ) ) {
-                            error_log( '$wpcf_field[ "data" ][ "options" ]=' . print_r( $wpcf_field[ 'data' ][ 'options' ], true ) );
-                        } else {
-                            error_log( '$wpcf_field[ "data" ]=' . print_r( $wpcf_field[ 'data' ], true ) );
-                        }  
                         $field_type = $wpcf_field[ 'type' ];
                         $field_data = $wpcf_field[ 'data' ];
                         switch ( $field_type ) {
@@ -363,7 +355,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
     }
     
     public function additional_prepare_item_for_response( $response, $post, $request ) {
-        error_log( 'additional_prepare_item_for_response():$response->data=' . print_r( $response->data, true ) );
         foreach ( $response->data as $name => &$values ) {
             if ( taxonomy_exists( $name ) ) {
                 $values = get_terms( [ 'taxonomy' => $name, 'include' => $values, 'fields' => 'names' ] );
