@@ -6,6 +6,9 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 
 	'use strict';
 
+	/**
+	 * Initialise the WP_API.
+	 */
 	function WP_API() {
 		this.models = {};
 		this.collections = {};
@@ -16,7 +19,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 	wp.api               = wp.api || new WP_API();
 	wp.api.versionString = wp.api.versionString || 'mcst/v1/';
 
-	// Alias _includes to _.contains, ensuring it is available.
+	// Alias _includes to _.contains, ensuring it is available if lodash is used.
 	if ( ! _.isFunction( _.includes ) && _.isFunction( _.contains ) ) {
 	  _.includes = _.contains;
 	}
@@ -121,7 +124,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 	};
 
 	/**
-	 * Extract a route part based on negitive index.
+	 * Extract a route part based on negative index.
 	 *
 	 * @param {string} route The endpoint route.
 	 * @param {int}    part  The number of parts from the end of the route to retrieve. Default 1.
@@ -254,8 +257,8 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 					_.each( parseableDates, function( key ) {
 						if ( key in attributes ) {
 
-							// Don't convert null values
-							if ( ! _.isNull( attributes[ key ] ) ) {
+							// Only convert dates.
+							if ( _.isDate( attributes[ key ] )  ) {
 								attributes[ key ] = attributes[ key ].toISOString();
 							}
 						}
@@ -279,7 +282,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 							return;
 						}
 
-						// Don't convert null values
+						// Don't convert null values.
 						if ( ! _.isNull( response[ key ] ) ) {
 							timestamp = wp.api.utils.parseISO8601( response[ key ] );
 							response[ key ] = new Date( timestamp );
@@ -307,8 +310,8 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 				deferred  = jQuery.Deferred();
 				embeddeds = parentModel.get( '_embedded' ) || {};
 
-				// Verify that we have a valied author id.
-				if ( ! _.isNumber( modelId ) ) {
+				// Verify that we have a valied object id.
+				if ( ! _.isNumber( modelId ) || 0 === modelId ) {
 					deferred.reject();
 					return deferred;
 				}
@@ -623,11 +626,11 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 			},
 
 			/**
-			 * Add a helper function to retrieve the featured image.
+			 * Add a helper function to retrieve the featured media.
 			 */
-			FeaturedImageMixin = {
-				getFeaturedImage: function() {
-					return buildModelGetter( this, this.get( 'featured_image' ), 'Media', 'https://api.w.org/featuredmedia', 'source_url' );
+			FeaturedMediaMixin = {
+				getFeaturedMedia: function() {
+					return buildModelGetter( this, this.get( 'featured_media' ), 'Media', 'wp:featuredmedia', 'source_url' );
 				}
 			};
 
@@ -653,9 +656,9 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 			model = model.extend( AuthorMixin );
 		}
 
-		// Add the FeaturedImageMixin for models that contain a featured_image.
-		if ( ! _.isUndefined( model.prototype.args.featured_image ) ) {
-			model = model.extend( FeaturedImageMixin );
+		// Add the FeaturedMediaMixin for models that contain a featured_media.
+		if ( ! _.isUndefined( model.prototype.args.featured_media ) ) {
+			model = model.extend( FeaturedMediaMixin );
 		}
 
 		// Add the CategoriesMixin for models that support categories collections.
@@ -843,7 +846,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 			},
 
 			/**
-			 * Overwrite Backbone.Collection.sync to pagination state based on response headers.
+			 * Extend Backbone.Collection.sync to add nince and pagination support.
 			 *
 			 * Set nonce header before every Backbone sync.
 			 *
@@ -859,6 +862,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 				options    = options || {};
 				beforeSend = options.beforeSend;
 
+				// If we have a localized nonce, pass that along with each sync.
 				if ( 'undefined' !== typeof wpApiSettings.nonce ) {
 					options.beforeSend = function( xhr ) {
 						xhr.setRequestHeader( 'X-WP-Nonce', wpApiSettings.nonce );
@@ -869,6 +873,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 					};
 				}
 
+				// When reading, add pagination data.
 				if ( 'read' === method ) {
 					if ( options.data ) {
 						self.state.data = _.clone( options.data );
@@ -905,6 +910,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 					};
 				}
 
+				// Continue by calling Bacckbone's sync.
 				return Backbone.sync( method, model, options );
 			},
 
@@ -963,6 +969,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 	var wp = window.mcst = window.mcst || {};
 	wp.api    = wp.api || {};
 
+	// If wpApiSettings is unavailable, try the default.
 	if ( _.isEmpty( wpApiSettings ) ) {
 		wpApiSettings.root = window.location.origin + '/wp-json/';
 	}
@@ -976,6 +983,9 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 			collections: {}
 		},
 
+		/**
+		 * Initialize the Endpoint model.
+		 */
 		initialize: function() {
 			var model = this, deferred;
 
@@ -989,6 +999,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 				versionString: model.get( 'versionString' )
 			});
 
+			// When the model loads, resolve the promise.
 			model.schemaModel.once( 'change', function() {
 				model.constructFromSchema();
 				deferred.resolve( model );
@@ -998,27 +1009,37 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 
 				// Use schema supplied as model attribute.
 				model.schemaModel.set( model.schemaModel.parse( model.get( 'schema' ) ) );
-			} else if ( ! _.isUndefined( sessionStorage ) && sessionStorage.getItem( 'wp-api-schema-model' + model.get( 'apiRoot' ) + model.get( 'versionString' ) ) ) {
+			} else if (
+				! _.isUndefined( sessionStorage ) &&
+				( _.isUndefined( wpApiSettings.cacheSchema ) || wpApiSettings.cacheSchema ) &&
+				sessionStorage.getItem( 'wp-api-schema-model' + model.get( 'apiRoot' ) + model.get( 'versionString' ) )
+      ) {
 
 				// Used a cached copy of the schema model if available.
 				model.schemaModel.set( model.schemaModel.parse( JSON.parse( sessionStorage.getItem( 'wp-api-schema-model' + model.get( 'apiRoot' ) + model.get( 'versionString' ) ) ) ) );
 			} else {
 				model.schemaModel.fetch({
 					/**
-					 * When the server return the schema model data, store the data in a sessionCache so we don't
+					 * When the server returns the schema model data, store the data in a sessionCache so we don't
 					 * have to retrieve it again for this session. Then, construct the models and collections based
 					 * on the schema model data.
 					 */
 					success: function( newSchemaModel ) {
 
 						// Store a copy of the schema model in the session cache if available.
-						if ( ! _.isUndefined( sessionStorage ) ) {
-							sessionStorage.setItem( 'wp-api-schema-model' + model.get( 'apiRoot' ) + model.get( 'versionString' ), JSON.stringify( newSchemaModel ) );
+						if ( ! _.isUndefined( sessionStorage ) && wpApiSettings.cacheSchema ) {
+							try {
+								sessionStorage.setItem( 'wp-api-schema-model' + model.get( 'apiRoot' ) + model.get( 'versionString' ), JSON.stringify( newSchemaModel ) );
+							} catch ( error ) {
+
+								// Fail silently, fixes errors in safari private mode.
+							}
 						}
 					},
 
-					// @todo Handle the error condition.
-					error: function() {
+					// Log the error condition.
+					error: function( err ) {
+						window.console.log( err );
 					}
 				});
 			}
@@ -1061,7 +1082,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 				) {
 
 					// Single items end with a regex (or the special case 'me').
-					if ( /.*[+)|me]$/.test( index ) ) {
+					if ( /(?:.*[+)]|\/me)$/.test( index ) ) {
 						modelRoutes.push( { index: index, route: route } );
 					} else {
 
@@ -1095,7 +1116,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 					modelClassName = mapping.models[ modelClassName ] || modelClassName;
 					loadingObjects.models[ modelClassName ] = wp.api.WPApiBaseModel.extend( {
 
-						// Function that returns a constructed url based on the parent and id.
+						// Return a constructed url based on the parent and id.
 						url: function() {
 							var url = routeModel.get( 'apiRoot' ) + routeModel.get( 'versionString' ) +
 									parentName +  '/' +
@@ -1164,7 +1185,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 					} );
 				}
 
-				// Add defaults to the new model, pulled form the endpoint
+				// Add defaults to the new model, pulled form the endpoint.
 				wp.api.utils.decorateFromRoute( modelRoute.route.endpoints, loadingObjects.models[ modelClassName ] );
 
 			} );
@@ -1181,7 +1202,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 						routeName  = collectionRoute.index.slice( collectionRoute.index.lastIndexOf( '/' ) + 1 ),
 						parentName = wp.api.utils.extractRoutePart( collectionRoute.index, 3 );
 
-				// If the collection has a parent in its route, add that to its class name/
+				// If the collection has a parent in its route, add that to its class name.
 				if ( '' !== parentName && parentName !== routeName ) {
 
 					collectionClassName = wp.api.utils.capitalize( parentName ) + wp.api.utils.capitalize( routeName );
@@ -1233,7 +1254,7 @@ var	settingsDeferred = jQuery.Deferred().done( function( deferred ) {
 					} );
 				}
 
-				// Add defaults to the new model, pulled form the endpoint
+				// Add defaults to the new model, pulled form the endpoint.
 				wp.api.utils.decorateFromRoute( collectionRoute.route.endpoints, loadingObjects.collections[ collectionClassName ] );
 			} );
 
