@@ -11,7 +11,7 @@
     //window.mcst.ajaxUrl = "http://me.local.com/wp-admin/admin-ajax.php"
 </script>
 <script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/wp-api.js'></script>
-<script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/mcst-api.js'></script>
+<script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/wp-mcst-api.js'></script>
 </head>
 <body>
 <script type="text/javascript">
@@ -36,9 +36,9 @@
     function loadCollection( ) {
         // TODO: this will not work for namespaces other than 'wp/v2/' since 'wp/v2/' is hardcoded into rest-api/wp-api.js
         // Unfortunately, this is a major problem - maybe we need to re-think using our own namespace
-        var collection = new mcst.api.collections.Cars();
+        var collection = new mcst.api.collections.Lakes();
         //var collection = new wp.api.collections.Posts();
-        collection.fetch( { data: { brand: "Plymouth" }, success: function( collection, response, options ) {
+        collection.fetch( { data: { "lake-type": "salt" }, success: function( collection, response, options ) {
         //collection.fetch( { data: { "body-type": "3" }, success: function( collection, response, options ) {
             console.log( collection );
         }, error: function( collection, response, options ) {

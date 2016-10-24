@@ -48,7 +48,7 @@ var mcstSpaceIndex = 0;
 
 restSpaces.forEach( function( space ) {
  
-var	space.deferred = jQuery.Deferred().done( function( deferred ) {
+space.deferred = jQuery.Deferred().done( function( deferred ) {
 
 (function( window, undefined ) {
 
@@ -1382,7 +1382,7 @@ window[space.name].api.loadPromise.done( function() {
     window.mcst.mcstRestLoadPromise = deferred.promise();
     var settingsDeferred = restSpaces[mcstSpaceIndex].deferred;
     if ( ! _.isUndefined( sessionStorage ) && sessionStorage.getItem( 'mcst-mcst-v1-settings') ) {
-        window[space.name+"ApiSettings"] = JSON.parse( sessionStorage.getItem( 'mcst-mcst-v1-settings') );
+        window.mcstApiSettings = JSON.parse( sessionStorage.getItem( 'mcst-mcst-v1-settings') );
         settingsDeferred.resolve( deferred );
     } else {
         jQuery.ajax({
@@ -1391,9 +1391,9 @@ window[space.name].api.loadPromise.done( function() {
             data: { action: 'mcst_get_mcst_settings' },
             type: 'GET',
             success: function( response ) {
-                window[space.name+"ApiSettings"] = response.data;
+                window.mcstApiSettings = response.data;
                 if ( ! _.isUndefined( sessionStorage ) ) {
-                    sessionStorage.setItem( 'mcst-mcst-v1-settings', JSON.stringify( window[space.name+"ApiSettings"] ) );
+                    sessionStorage.setItem( 'mcst-mcst-v1-settings', JSON.stringify( window.mcstApiSettings ) );
                 }
                 settingsDeferred.resolve( deferred );
             }
