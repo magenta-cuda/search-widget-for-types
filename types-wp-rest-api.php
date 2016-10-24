@@ -141,18 +141,46 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                 $_REQUEST[ 'post_type' ] = $post_type;
                 $_REQUEST[ 'search_types_custom_fields_and_or' ] = 'and';
                 foreach ( $fields as $field => $value ) {
+                    if ( is_array( $value ) ) {
+                        $values = $value;
+                    } else {
+                        $values = [ $value ];
+                    }
                     # the REST parameters must be mapped into the search widget's search parameters
-                    if ( preg_match( '/mcst-parentof-(\w+)/', $field, $matches ) ) {
-                        $_REQUEST[ "inverse_{$matches[1]}__wpcf_belongs_{$post_type}_id" ] = $value;
-                    } else if ( preg_match( '/mcst-childof-(\w+)/', $field, $matches ) ) {
-                        $_REQUEST[ "_wpcf_belongs_{$matches[1]}_id" ] = $value;
+                    if ( ( $parentof = preg_match( '/mcst-parentof-(\w+)/', $field, $matches ) ) || preg_match( '/mcst-childof-(\w+)/', $field, $matches ) ) {
+                        # this is search by parent-of or child-of relationship
+                        error_log( '$matches=' . print_r( $matches, true ) );
+                        $titles = array_filter( $values, function( $value ) {
+                            return !is_numeric( $value );
+                        } );
+                        if ( $titles ) {
+                            # some values are not post ids so try and match on post titles
+                            $ids = array_diff( $values, $titles );
+                            $titles = array_map( function( $title ) {
+                                global $wpdb;
+                                return 'post_title LIKE \'%' . trim( $wpdb->prepare( '%s', $title ), '\'"' ) . '%\'';
+                            }, $titles );
+                            error_log( '$titles=' . print_r( $titles, true ) );
+                            $ids_from_titles = $wpdb->get_col( "SELECT ID FROM $wpdb->posts WHERE post_type = '{$matches[1]}' AND post_status = 'publish' AND ( "
+                                . implode( ' OR ', $titles ) . ' )' );
+                            error_log( '$ids_from_titles=' . print_r( $ids_from_titles, true ) );
+                            $values = array_unique( array_merge( $ids, $ids_from_titles ) );
+                            if ( !count( $values ) ) {
+                                $values[ ] = '0';
+                            }
+                        }
+                        if ( is_array( $value ) || ( $titles &&  count( $values ) > 1 ) ) {
+                            $value = $values;
+                        } else {
+                            $value = $values[ 0 ];
+                        }                        
+                        if ( $parentof ) {
+                            $_REQUEST[ "inverse_{$matches[1]}__wpcf_belongs_{$post_type}_id" ] = $value;
+                        } else {
+                            $_REQUEST[ "_wpcf_belongs_{$matches[1]}_id" ] = $value;
+                        }
                     } else {
                         $wpcf_field = self::$wpcf_fields[ $field ];
-                        if ( is_array( $value ) ) {
-                            $values = $value;
-                        } else {
-                            $values = [ $value ];
-                        }
                         $field_type = $wpcf_field[ 'type' ];
                         $field_data = $wpcf_field[ 'data' ];
                         switch ( $field_type ) {
@@ -293,7 +321,8 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
             $values = [ $values ];
         }
         if ( preg_match( '/mcst-parentof-(\w+)/', $name ) || preg_match( '/mcst-childof-(\w+)/', $name ) ) {
-            $type = 'id';
+            #$type = 'id';
+            $type = 'string';
         } else {
             $type = self::$wpcf_fields[ $name ][ 'type' ];
         }
