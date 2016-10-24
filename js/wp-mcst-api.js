@@ -1,3 +1,5 @@
+// derived from wp-api.js of the WordPress REST API v2 plugin to also support the namespace "mcst/v1"
+
 (function() {
 
 var restSpaces = [ 
@@ -1376,6 +1378,33 @@ window[space.name].api.loadPromise.done( function() {
 
 } );   // [ ... ].forEach( function( space ) {
 
+/*
+(function() {
+    var deferred = jQuery.Deferred();
+    window.mcst = window.mcst || {};
+    window.mcst.wpRestLoadPromise = deferred.promise();
+    var settingsDeferred = restSpaces[wpSpaceIndex].deferred;
+    if ( ! _.isUndefined( sessionStorage ) && sessionStorage.getItem( 'mcst-wp-v2-settings') ) {
+        window.wpApiSettings = JSON.parse( sessionStorage.getItem( 'mcst-wp-v2-settings') );
+        settingsDeferred.resolve( deferred );
+    } else {
+        jQuery.ajax({
+            // TODO: following won't work on WordPress that wasn't installed at the root
+            url: window.mcst.ajaxUrl ? window.mcst.ajaxUrl : window.location.origin + '/wp-admin/admin-ajax.php',
+            data: { action: 'mcst_get_wp_settings' },
+            type: 'GET',
+            success: function( response ) {
+                window.wpApiSettings = response.data;
+                if ( ! _.isUndefined( sessionStorage ) ) {
+                    sessionStorage.setItem( 'mcst-wp-v2-settings', JSON.stringify( window.wpApiSettings ) );
+                }
+                settingsDeferred.resolve( deferred );
+            }
+        });
+    }
+})();
+ */
+
 (function() {
     var deferred = jQuery.Deferred();
     window.mcst = window.mcst || {};
@@ -1401,5 +1430,5 @@ window[space.name].api.loadPromise.done( function() {
     }
 })();
 
-})();
-// This code is a port of plugin rest-api wp-api.js to support namespace "mcst/v1"
+})();   // (function() {
+
