@@ -13,10 +13,23 @@
 <script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/wp-mcst-api.js'></script>
 </head>
 <body>
+<pre></pre>
 <script type="text/javascript">
 ( function() {
     // restLoadPromise is used register callbacks to be called when the REST API becomes available
     window.mcst.restLoadPromise.done( function() {
+        var collections = mcst.api.collections;
+        content = "";
+        for ( var collection in collections ) {
+            console.log( "name: " + collection );
+            content += "name: " + collection + "\n";
+            var options = collections[collection].prototype.options;
+            for ( var option in options ) {
+                console.log( "    " + option + ": " + options[ option ].description );
+                content += "    " + option + ": " + options[ option ].description + "\n";
+            }
+        }
+        document.querySelector("pre").textContent = content;
         //var collection = new mcst.api.collections.Lakes();
         //collection.fetch( { data: { "lake-type": "salt" }, success: function( collection, response, options ) {
         var collection = new wp.api.collections.Posts();
