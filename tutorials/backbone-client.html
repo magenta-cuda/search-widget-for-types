@@ -15,26 +15,8 @@
 <body>
 <script type="text/javascript">
 ( function() {
-
-    var wpRestLoadDone = false, mcstRestLoadDone = false;
-
-    mcst.wpRestLoadPromise.done( function() {
-        wpRestLoadDone = true;
-        if ( mcstRestLoadDone ) {
-            loadCollection();
-        }
-    } );
-
-    mcst.mcstRestLoadPromise.done( function() {
-        mcstRestLoadDone = true;
-        if ( wpRestLoadDone ) {
-            loadCollection();
-        }
-    } );
-
-    function loadCollection( ) {
-        // TODO: this will not work for namespaces other than 'wp/v2/' since 'wp/v2/' is hardcoded into rest-api/wp-api.js
-        // Unfortunately, this is a major problem - maybe we need to re-think using our own namespace
+    // restLoadPromise is used register callbacks to be called when the REST API becomes available
+    window.mcst.restLoadPromise.done( function() {
         //var collection = new mcst.api.collections.Lakes();
         //collection.fetch( { data: { "lake-type": "salt" }, success: function( collection, response, options ) {
         var collection = new wp.api.collections.Posts();
@@ -43,7 +25,7 @@
         }, error: function( collection, response, options ) {
             alert( "fetch() failed." );
         } } );
-    }
+    } );
 } )();
 </script>
 </body>

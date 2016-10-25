@@ -1372,8 +1372,8 @@ window[space.name].api.loadPromise.done( function() {
     deferred.resolve();
 } );
 
-} );   // jQuery.Deferred().done( function( deferred ) {
-
+} );   // space.deferred = jQuery.Deferred().done( function( deferred ) {
+  
 } );   // [ ... ].forEach( function( space ) {
 
 (function() {
@@ -1425,6 +1425,28 @@ window[space.name].api.loadPromise.done( function() {
         });
     }
 })();
+
+(function() {
+    window.mcst = window.mcst || {};
+    // deferred is resolved when both the wp and mcst API are ready
+    var deferred = jQuery.Deferred();
+    window.mcst.restLoadPromise = deferred.promise();
+    var wpRestLoadDone = false, mcstRestLoadDone = false;
+    mcst.wpRestLoadPromise.done( function() {
+        // wp API ready
+        wpRestLoadDone = true;
+        if ( mcstRestLoadDone ) {
+            deferred.resolve();
+        }
+    } );
+    mcst.mcstRestLoadPromise.done( function() {
+        // mcst API ready
+        mcstRestLoadDone = true;
+        if ( wpRestLoadDone ) {
+            deferred.resolve();
+        }
+    } );
+} )();
 
 })();   // (function() {
 
