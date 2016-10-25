@@ -15,6 +15,9 @@
 <body>
 <h1>Toolset Types Custom Post Types:</h1>
 <pre class="parameters" style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;"></pre>
+<form id="set-request-parameters">
+<button type="submit">Get It</button>
+</form>
 <h1>Request:</h1>
 <pre class="request" style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;"></pre>
 <h1>Results:</h1>
@@ -22,23 +25,51 @@
 <script type="text/javascript">
 ( function() {
     // restLoadPromise is used register callbacks to be called when the REST API becomes available
-    window.mcst.restLoadPromise.done( function() {
-        var collections = mcst.api.collections;
-        content = "";
-        for ( var collection in collections ) {
-            console.log( "name: " + collection );
-            content += "name: " + collection + "\n";
-            var options = collections[collection].prototype.options;
-            for ( var option in options ) {
-                console.log( "    " + option + ": " + options[ option ].description );
-                content += "    " + option + ": " + options[ option ].description + "\n";
-            }
+    var parametersForCollection = { };
+    function createCollectionSelect( ) {
+        var select = document.createElement( "select" );
+        for ( var collection in parametersForCollection ) {
+            var option = document.createElement( "option" );
+            option.textContent = collection;
+            select.appendChild( option );
         }
-        document.querySelector("pre.parameters").textContent = content;
-        var collection = new mcst.api.collections.Lakes();
-        var request = { "lake-type": "salt" };
-        //var collection = new wp.api.collections.Posts();
-        //var request = { include: [ 1 ] };
+        var form = document.querySelector( "form#set-request-parameters" );
+        var button = form.querySelector( "button" );
+        form.insertBefore( select, button );
+        select.addEventListener( "change", function( ) {
+            form.insertBefore( createParameterInput( this.value ), button );
+        } );
+        form.addEventListener( 'submit', function( event ) {
+            event.preventDefault();
+            var collection = new mcst.api.collections[select.value]();
+            console.log( 'collection=', collection );
+            request = { };
+            form.querySelectorAll( "div.parameter" ).forEach( function( div ) {
+                request[div.querySelector( "select" ).value] = div.querySelector( "input" ).value;
+            } );
+            doRestRequest( collection, request );
+        } );
+    }
+    function createParameterInput( collection ) {
+        var parameters = parametersForCollection[collection];
+        var div = document.createElement( "div" );
+        div.className = "parameter";
+        var select = document.createElement( "select" );
+        for ( var parameter in parameters ) {
+            var option = document.createElement( "option" );
+            option.textContent = parameter;
+            select.appendChild( option );
+        }
+        div.appendChild( select );
+        var input = document.createElement( "input" );
+        input.type = "text";
+        div.appendChild( input );
+        select.addEventListener( "change", function( ) {
+            input.placeholder = parameters[this.value];
+        } );
+        return div;
+    }
+    function doRestRequest( collection, request ) {
         document.querySelector("pre.request").textContent = JSON.stringify( { "Collection": collection.name, "Parameters": request }, null, 4 );
         collection.fetch( {
             data: request,
@@ -50,6 +81,33 @@
                 alert( "fetch() failed." );
             }
         } );
+    }
+    var restInitDone = false;
+    window.mcst.restLoadPromise.done( function() {
+        if ( restInitDone ) {
+            return;
+        }
+        var collections = mcst.api.collections;
+        content = "";
+        for ( var collection in collections ) {
+            console.log( "name: " + collection );
+            content += "name: " + collection + "\n";
+            var options = collections[collection].prototype.options;
+            parametersForCollection[collection] = { };
+            for ( var option in options ) {
+                console.log( "    " + option + ": " + options[ option ].description );
+                content += "    " + option + ": " + options[ option ].description + "\n";
+                parametersForCollection[collection][option] = options[option].description;
+            }
+        }
+        document.querySelector("pre.parameters").textContent = content;
+        createCollectionSelect( );
+        var collection = new mcst.api.collections.Lakes();
+        var request = { "lake-type": "salt" };
+        //var collection = new wp.api.collections.Posts();
+        //var request = { include: [ 1 ] };
+        doRestRequest( collection, request );
+        restInitDone = true;
     } );
 } )();
 </script>
