@@ -3,10 +3,9 @@
 (function() {
 
 var restSpaces = [ 
-/*
     {
         name:           "wp",
-        versionstring:  "wp/v2/",
+        versionString:  "wp/v2/",
         mapping:        {
                             models: {
                               'Categories':      'Category',
@@ -36,7 +35,6 @@ var restSpaces = [
                         },
         deferred:       null
     },
- */
     {
         name:           "mcst",
         versionString:  "mcst/v1/",
@@ -45,8 +43,8 @@ var restSpaces = [
     }
 ];
 
-//var wpSpaceIndex = 0;
-var mcstSpaceIndex = 0;
+var wpSpaceIndex = 0;
+var mcstSpaceIndex = 1;
 
 restSpaces.forEach( function( space ) {
  
@@ -1378,7 +1376,6 @@ window[space.name].api.loadPromise.done( function() {
 
 } );   // [ ... ].forEach( function( space ) {
 
-/*
 (function() {
     var deferred = jQuery.Deferred();
     window.mcst = window.mcst || {};
@@ -1403,7 +1400,6 @@ window[space.name].api.loadPromise.done( function() {
         });
     }
 })();
- */
 
 (function() {
     var deferred = jQuery.Deferred();
