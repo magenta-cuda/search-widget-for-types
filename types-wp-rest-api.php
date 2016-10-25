@@ -117,11 +117,24 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
         foreach( $params as $field => $value ) {
             if ( taxonomy_exists( $field ) ) {
                 # The REST API requires the term id for taxonomy fields so replace the term name/slug with the term id
-                $tax_ids = array_unique( array_merge(
-                    get_terms( [ 'taxonomy' => $field, 'name' => $value, 'fields' => 'ids' ] ),
-                    get_terms( [ 'taxonomy' => $field, 'slug' => $value, 'fields' => 'ids' ] )
-                ) );
-                $request->set_param( $field, $tax_ids ? $tax_ids : [ 0 ] );
+                if ( is_array( $value ) ) {
+                    $values = $value;
+                } else {
+                    $values = [ $value ];
+                }
+                $names = array_filter( $values, function( $value ) {
+                    return !is_numeric( $value );
+                } );
+                if ( $names ) {
+                    # some values are not term ids so try and match on term names and slugs
+                    $ids = array_diff( $values, $names );
+                    $ids_by_names = array_unique( array_merge(
+                        get_terms( [ 'taxonomy' => $field, 'name' => $names, 'fields' => 'ids' ] ),
+                        get_terms( [ 'taxonomy' => $field, 'slug' => $names, 'fields' => 'ids' ] )
+                    ) );
+                    $values = array_unique( array_merge( $ids, $ids_by_names ) );
+                }
+                $request->set_param( $field, $values ? $values : [ 0 ] );
             } else if ( $value && in_array( $field, $this->fields ) ) {
                 # this field is a Toolset Types custom field
                 $fields[ $field ] = $value;
