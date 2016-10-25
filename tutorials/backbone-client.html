@@ -28,6 +28,7 @@
     var parametersForCollection = { };
     function createCollectionSelect( ) {
         var select = document.createElement( "select" );
+        select.style.display = "block";
         for ( var collection in parametersForCollection ) {
             var option = document.createElement( "option" );
             option.textContent = collection;
@@ -37,6 +38,9 @@
         var button = form.querySelector( "button" );
         form.insertBefore( select, button );
         select.addEventListener( "change", function( ) {
+            for ( var div = form.querySelector( "div.parameter" ); div; div = form.querySelector( "div.parameter" ) ) {
+                form.removeChild( div );
+            }
             form.insertBefore( createParameterInput( this.value ), button );
         } );
         form.addEventListener( 'submit', function( event ) {
@@ -58,11 +62,16 @@
         for ( var parameter in parameters ) {
             var option = document.createElement( "option" );
             option.textContent = parameter;
+            if ( parameter === "search" ) {
+                option.selected = true;
+            }
             select.appendChild( option );
         }
         div.appendChild( select );
         var input = document.createElement( "input" );
         input.type = "text";
+        input.size = "80";
+        input.placeholder = parameters["search"];
         div.appendChild( input );
         select.addEventListener( "change", function( ) {
             input.placeholder = parameters[this.value];
