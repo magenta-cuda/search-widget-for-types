@@ -13,7 +13,12 @@
 <script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/wp-mcst-api.js'></script>
 </head>
 <body>
-<pre></pre>
+<h1>Toolset Types Custom Post Types:</h1>
+<pre class="parameters" style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;"></pre>
+<h1>Request:</h1>
+<pre class="request" style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;"></pre>
+<h1>Results:</h1>
+<pre class="result" style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;"></pre>
 <script type="text/javascript">
 ( function() {
     // restLoadPromise is used register callbacks to be called when the REST API becomes available
@@ -29,15 +34,22 @@
                 content += "    " + option + ": " + options[ option ].description + "\n";
             }
         }
-        document.querySelector("pre").textContent = content;
-        //var collection = new mcst.api.collections.Lakes();
-        //collection.fetch( { data: { "lake-type": "salt" }, success: function( collection, response, options ) {
-        var collection = new wp.api.collections.Posts();
-        collection.fetch( { data: { include: [ 1 ] }, success: function( collection, response, options ) {
-            console.log( collection );
-        }, error: function( collection, response, options ) {
-            alert( "fetch() failed." );
-        } } );
+        document.querySelector("pre.parameters").textContent = content;
+        var collection = new mcst.api.collections.Lakes();
+        var request = { "lake-type": "salt" };
+        //var collection = new wp.api.collections.Posts();
+        //var request = { include: [ 1 ] };
+        document.querySelector("pre.request").textContent = JSON.stringify( { "Collection": collection.name, "Parameters": request }, null, 4 );
+        collection.fetch( {
+            data: request,
+            success: function( collection, response, options ) {
+                console.log( collection );
+                document.querySelector("pre.result").textContent = JSON.stringify( collection, null, 4 );
+            },
+            error: function( collection, response, options ) {
+                alert( "fetch() failed." );
+            }
+        } );
     } );
 } )();
 </script>
