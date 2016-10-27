@@ -3,7 +3,7 @@ Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
 Tested up to: 4.6
-Stable tag: 2.1
+Stable tag: 2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,10 @@ Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
 1. The "Search Widget" interactively loads the "Search Results Pane".
 
 == Changelog ==
+
+= 2.2 =
+* added support for a JavaScript/Backbone client
+* enhanced the REST search by taxonomy, child-of and parent-of to accept both ids and titles
 
 = 2.1 =
 * added support for select, radio and checkbox Toolset Types custom fields to REST API
@@ -145,6 +149,9 @@ Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
 * Initial release.
 
 == Upgrade Notice ==
+= 2.2 =
+* added support for a JavaScript/Backbone client
+* enhanced the REST search by taxonomy, child-of and parent-of to accept both ids and titles
 = 2.1 =
 * added support for select, radio and checkbox Toolset Types custom fields to REST API
 * replaced term id with term name or slug for taxonomy fields in REST API
