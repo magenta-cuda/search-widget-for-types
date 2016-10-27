@@ -63,7 +63,19 @@ This is a simple application that shows how to use the JavaScript/Backbone clien
             var collection = new mcst.api.collections[select.value]();
             request = { };
             form.querySelectorAll( "div.parameter" ).forEach( function( div ) {
-                request[div.querySelector( "select" ).value] = div.querySelector( "input" ).value;
+                var field = div.querySelector( "select" ).value;
+                var value = div.querySelector( "input" ).value;
+                switch ( typeof request[field] ) {
+                case "undefined":
+                    request[field] = value;
+                    break;
+                case "string":
+                    request[field] = [ request[field], value ];
+                    break;
+                case "object":
+                    request[field].push( value );
+                    break;
+                }
             } );
             // fill collection by sending a REST request
             doRestRequest( collection, request );
