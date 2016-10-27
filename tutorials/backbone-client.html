@@ -13,10 +13,12 @@
 <script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/wp-mcst-api.js'></script>
 </head>
 <body>
+This is a simple application that shows how to use the JavaScript/Backbone client library.
 <h1>Toolset Types Custom Post Types:</h1>
 <pre class="parameters" style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;"></pre>
 <form id="set-request-parameters">
-<button type="submit">Get It</button>
+<button id="add-parameter" type="button">Add Another Parameter</button>
+<button id="do-request" type="submit">Get It</button>
 </form>
 <h1>Request:</h1>
 <pre class="request" style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;"></pre>
@@ -39,25 +41,31 @@
             select.appendChild( option );
         }
         var form = document.querySelector( "form#set-request-parameters" );
-        var button = form.querySelector( "button" );
-        form.insertBefore( select, button );
+        var addParmButton = form.querySelector( "button#add-parameter" );
+        var requestButton = form.querySelector( "button#do-request" );
+        form.insertBefore( select, addParmButton );
         function createFirstParameterSelect( collection ) {
             for ( var div = form.querySelector( "div.parameter" ); div; div = form.querySelector( "div.parameter" ) ) {
                 form.removeChild( div );
             }
-            form.insertBefore( createParameterInput( collection ), button );
+            form.insertBefore( createParameterInput( collection ), addParmButton );
         }
         createFirstParameterSelect( selected );
         select.addEventListener( "change", function( ) {
             createFirstParameterSelect( this.value );
         } );
+        addParmButton.addEventListener( "click", function( ) {
+            form.insertBefore( createParameterInput( select.value ), addParmButton );
+        } );
         form.addEventListener( 'submit', function( event ) {
             event.preventDefault();
+            // create empty collection for selected post type
             var collection = new mcst.api.collections[select.value]();
             request = { };
             form.querySelectorAll( "div.parameter" ).forEach( function( div ) {
                 request[div.querySelector( "select" ).value] = div.querySelector( "input" ).value;
             } );
+            // fill collection by sending a REST request
             doRestRequest( collection, request );
         } );
     }
@@ -87,9 +95,11 @@
     }
     function doRestRequest( collection, request ) {
         document.querySelector("pre.request").textContent = JSON.stringify( { "Collection": collection.name, "Parameters": request }, null, 4 );
+        // use the Backbone.js collection.fetch() method to send the REST request
         collection.fetch( {
             data: request,
             success: function( collection, response, options ) {
+                // use JSON.stringify() to dump the collection to the browser
                 document.querySelector("pre.result").textContent = JSON.stringify( collection, null, 4 );
             },
             error: function( collection, response, options ) {
