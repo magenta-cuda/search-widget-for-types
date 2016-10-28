@@ -162,7 +162,6 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                     # the REST parameters must be mapped into the search widget's search parameters
                     if ( ( $parentof = preg_match( '/mcst-parentof-(\w+)/', $field, $matches ) ) || preg_match( '/mcst-childof-(\w+)/', $field, $matches ) ) {
                         # this is search by parent-of or child-of relationship
-                        error_log( '$matches=' . print_r( $matches, true ) );
                         $titles = array_filter( $values, function( $value ) {
                             return !is_numeric( $value );
                         } );
@@ -173,10 +172,8 @@ class MCST_WP_REST_Posts_Controller extends WP_REST_Posts_Controller {
                                 global $wpdb;
                                 return 'post_title LIKE \'%' . trim( $wpdb->prepare( '%s', $title ), '\'"' ) . '%\'';
                             }, $titles );
-                            error_log( '$titles=' . print_r( $titles, true ) );
                             $ids_from_titles = $wpdb->get_col( "SELECT ID FROM $wpdb->posts WHERE post_type = '{$matches[1]}' AND post_status = 'publish' AND ( "
                                 . implode( ' OR ', $titles ) . ' )' );
-                            error_log( '$ids_from_titles=' . print_r( $ids_from_titles, true ) );
                             $values = array_unique( array_merge( $ids, $ids_from_titles ) );
                             if ( !count( $values ) ) {
                                 $values[ ] = '0';
