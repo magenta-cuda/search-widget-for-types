@@ -13,7 +13,7 @@
 <script type='text/javascript' src='http://me.local.com/wp-content/plugins/search-types-custom-fields-widget/js/wp-mcst-api.js'></script>
 </head>
 <body>
-<h1>A Very Simple REST Backbone Client Application</h1>
+<h1>A Minimal REST Backbone Client Application</h1>
 <div style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;">
 <p>This is a simple application that shows how to use the JavaScript/Backbone client library.
 Except for the JavaScript libraries the source for this application is contained entirely within this HTML document.
@@ -29,7 +29,8 @@ A more typical application would use WordPress to generate the header, sidebar a
 <h1>Please Specify the REST Request:</h1>
 <form id="set-request-parameters"style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;">
 <button id="add-parameter" type="button">Add Another Parameter</button>
-<button id="do-request" type="submit">Get It</button>
+<button id="remove-parameter" type="button">Remove Last Parameter</button>
+<button id="do-request" type="submit">Send the Request</button>
 </form>
 <h1>The REST Request:</h1>
 <pre class="request" style="border:2px solid black;padding:10px;margin:20px;overflow-x:auto;"></pre>
@@ -77,6 +78,7 @@ A more typical application would use WordPress to generate the header, sidebar a
         }
         var form = document.querySelector( "form#set-request-parameters" );
         var addParmButton = form.querySelector( "button#add-parameter" );
+        var removeParmButton = form.querySelector( "button#remove-parameter" );
         var requestButton = form.querySelector( "button#do-request" );
         form.insertBefore( select, addParmButton );
         function createFirstParameterSelect( collection ) {
@@ -91,6 +93,9 @@ A more typical application would use WordPress to generate the header, sidebar a
         } );
         addParmButton.addEventListener( "click", function( ) {
             form.insertBefore( createParameterInput( select.value ), addParmButton );
+        } );
+        removeParmButton.addEventListener( "click", function( ) {
+            form.removeChild( form.querySelector( "div:last-of-type" ) );
         } );
         // The form's submit callback creates the REST request and calls doRestRequest()
         form.addEventListener( 'submit', function( event ) {
