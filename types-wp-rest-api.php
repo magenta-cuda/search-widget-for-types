@@ -539,16 +539,6 @@ add_filter( 'rest_prepare_post_type', function( $response, $post_type, $request 
     return $response;
 }, 10, 3 );
 
-# mcst-api.js will be used to support a backbone.js client
-
-/*
-add_action( 'wp_enqueue_scripts', function( ) {
-		wp_enqueue_script( 'mcst-api', plugins_url( 'js/mcst-api.js', __FILE__ ), [ 'jquery', 'backbone', 'underscore' ], FALSE, TRUE );
-		wp_localize_script( 'mcst-api', 'mcstApiSettings', MCST_WP_REST_Posts_Controller::get_settings( ) );
-    
-}, -100 );
-*/
-
 # The following AJAX actions are for standalone mode. See .../wp-content/plugins/search-types-custom-fields-widget/backbone-client.html.
 
 add_action( 'wp_ajax_mcst_get_mcst_settings', [ 'MCST_WP_REST_Posts_Controller', 'get_settings' ] );
