@@ -103,7 +103,7 @@ A more typical application would use WordPress to generate the header, sidebar a
             // create empty collection for selected post type
             var collection = new mcst.api.collections[select.value]();
             request = { };
-            form.querySelectorAll( "div.parameter" ).forEach( function( div ) {
+            for ( var div of form.querySelectorAll( "div.parameter" ) ) {
                 var field = div.querySelector( "select" ).value;
                 var value = div.querySelector( "input" ).value;
                 switch ( typeof request[field] ) {
@@ -117,7 +117,7 @@ A more typical application would use WordPress to generate the header, sidebar a
                     request[field].push( value );
                     break;
                 }
-            } );
+            }
             // fill collection by sending a REST request
             doRestRequest( collection, request );
         } );
