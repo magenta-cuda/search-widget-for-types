@@ -103,7 +103,9 @@ A more typical application would use WordPress to generate the header, sidebar a
             // create empty collection for selected post type
             var collection = new mcst.api.collections[select.value]();
             request = { };
-            for ( var div of form.querySelectorAll( "div.parameter" ) ) {
+            var divs = form.querySelectorAll( "div.parameter" );
+            for ( var i = 0; i < divs.length; ++i ) {
+                var div = divs.item( i );
                 var field = div.querySelector( "select" ).value;
                 var value = div.querySelector( "input" ).value;
                 switch ( typeof request[field] ) {
@@ -137,7 +139,7 @@ A more typical application would use WordPress to generate the header, sidebar a
             }
         } );
     }
-    // restLoadPromise is used register callbacks to be called when the REST API becomes available
+    // restLoadPromise is used to register callbacks to be called when the REST API becomes available
     window.mcst.restLoadPromise.done( function() {
         var collections = mcst.api.collections;
         content = "";
