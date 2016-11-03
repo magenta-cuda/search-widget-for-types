@@ -1,10 +1,15 @@
 jQuery(document).ready(function(){
     var select=jQuery("form[id|='search-types-custom-fields-widget'] select.post_type");
-    select.find("option[value='no-selection']").prop("selected",true);
+    select.find("option[value='']").prop("selected",true);
     select.change(function(){
         var id=jQuery(this).parents("form.scpbcfw-search-fields-form")[0].id.match(/-(\d+)$/)[1];
         var form=jQuery("form#search-types-custom-fields-widget-"+id);
-        form.find("div#search-types-custom-fields-parameters").html('<div class="st_iv-search_form_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>');
+        var parameters=form.find("div#search-types-custom-fields-parameters");
+        if(!this.value){
+            parameters.html('<div class="st_iv-search_form_loading">Please select post type.</div>');
+            return;
+        }
+        parameters.html('<div class="st_iv-search_form_loading">Loading...<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please wait.</div>');
         jQuery.post(
             ajaxurl,{
                 action:"get_form_for_post_type",

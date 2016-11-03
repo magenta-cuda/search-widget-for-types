@@ -304,6 +304,10 @@ jQuery( document ).ready( function( ) {
     }
 
     jQuery("input#scpbcfw-search-fields-submit").click(function(e){
+        if(!jQuery("form.scpbcfw-search-fields-form div.scpbcfw-search-post-type select.scpbcfw-search-select-post-type").val()){
+            window.alert("Please select a post type.");
+            return;
+        }
         var div=jQuery("div#stcfw-inline_search_results");
         if( div.length && jQuery( "input#search_types_custom_fields_widget_mode" ).val( ) === 'backbone+bootstrap' ) {
             // this is in single-page application mode

@@ -95,7 +95,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
 <div class="scpbcfw-search-post-type">
 <h3><?php _e( 'post type:', self::LANGUAGE_DOMAIN ); ?></h3>
 <select id="post_type" name="post_type" class="post_type scpbcfw-search-select-post-type" required>
-    <option value="no-selection"><?php _e( '--select post type--', self::LANGUAGE_DOMAIN ); ?></option>
+    <option value=""><?php _e( '--select post type--', self::LANGUAGE_DOMAIN ); ?></option>
 <?php
         $results = $wpdb->get_results( <<<EOD
 SELECT post_type, COUNT(*) count FROM $wpdb->posts WHERE post_status = "publish" GROUP BY post_type ORDER BY count DESC
@@ -129,7 +129,7 @@ EOD
 <input type="radio" name="search_types_custom_fields_and_or" class="scpbcfw-search-fields-checkbox" value="and" checked><strong>
     <?php _e( 'All', self::LANGUAGE_DOMAIN ); ?></strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="radio" name="search_types_custom_fields_and_or" class="scpbcfw-search-fields-checkbox" value="or"><strong>
-    <?php _e( 'Any', self::LANGUAGE_DOMAIN ); ?></strong></br>
+    <?php _e( 'Any', self::LANGUAGE_DOMAIN ); ?></strong><br>
 <?php _e( 'of the search conditions.', self::LANGUAGE_DOMAIN ); ?>
 </div>
 <?php
@@ -1327,10 +1327,6 @@ if ( is_admin( ) ) {
             error_log( '##### ERROR: Search Types Custom Fields Widget: action:wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . '$_COOKIE='
                 . print_r( $_COOKIE, TRUE ) );
             exit( 'Error: Invalid '  . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE . ' nonce, Please retry.' );
-        }
-        if ( $_REQUEST[ 'post_type' ] === 'no-selection' ) {
-            # this is the no selection place holder so do nothing
-            die;
         }
         $wpcf_types  = get_option( 'wpcf-custom-types', [ ] );
 ?>
