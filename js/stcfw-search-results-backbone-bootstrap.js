@@ -355,4 +355,6 @@ jQuery( document ).ready( function( ) {
             }
         }
     } );
+    // wireup tablesorter
+    jQuery("table.tablesorter").tablesorter();
 } );

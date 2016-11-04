@@ -311,5 +311,7 @@ jQuery( window ).resize( function( ) {
 } );
 
 jQuery( document ).ready( function( ) {
+    // wireup tablesorter
+    jQuery("table.tablesorter").tablesorter();
     jQuery( window ).resize( );
 } );

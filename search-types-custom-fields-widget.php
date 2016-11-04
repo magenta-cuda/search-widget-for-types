@@ -1762,21 +1762,14 @@ EOD
 # Frontend Actions and Filters                                                                                         #
 ########################################################################################################################
     
-    add_action( 'wp_head', function( ) {
-?>
-<script type="text/javascript">
-var ajaxurl="<?php echo admin_url( 'admin-ajax.php' ); ?>";
-</script>
-<?php
-    } );
-    
     add_action( 'wp_enqueue_scripts', function( ) {
-        wp_enqueue_style(  'stcfw-search', plugins_url( 'css/stcfw-search.css', __FILE__ ) );
-        wp_enqueue_script( 'stcfw-search', plugins_url( 'js/stcfw-search.js',  __FILE__ ), [ 'jquery' ] );
+        wp_enqueue_style(   'stcfw-search', plugins_url( 'css/stcfw-search.css', __FILE__ ) );
+        wp_enqueue_script(  'stcfw-search', plugins_url( 'js/stcfw-search.js',   __FILE__ ), [ 'jquery' ] );
+        wp_localize_script( 'stcfw-search', 'ajaxurl',                 admin_url( 'admin-ajax.php' ) );
         wp_localize_script( 'stcfw-search', 'stcfwSearchTranslations', [
-            'open'  => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
-            'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
-        ] );
+                                                                           'open'  => __( 'Open', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN ),
+                                                                           'close' => __( 'Close', Search_Types_Custom_Fields_Widget::LANGUAGE_DOMAIN )
+                                                                       ] );
     } );
     
     add_action( 'parse_query', function( &$query ) {
@@ -1902,13 +1895,6 @@ Change View: <select id="stcfw-select-views"></select>
                 # and post_type - the post type
                 # finally output all the HTML
                 # first do the header
-                add_action( 'wp_head', function( ) {
-?>
-<script type="text/javascript">
-    jQuery(document).ready(function(){jQuery("table.tablesorter").tablesorter();}); 
-</script>
-<?php
-                } );
                 get_header( );
                 # then do the body content
                 $labels = get_post_type_object( $_REQUEST[ 'post_type' ] )->labels;
@@ -2272,14 +2258,14 @@ EOD
                                        [ 'backbone' ], FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone-bootstrap', 'stcfw',
                                         [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone+bootstrap' ] );
-                    wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
+                    wp_enqueue_script( 'jquery.tablesorter', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
                 } else {
                     # Backbone and no Bootstrap mode
                     wp_enqueue_script( 'stcfw-search-results-backbone', plugins_url( 'js/stcfw-search-results-backbone.js', __FILE__ ), [ 'backbone' ],
                                        FALSE, TRUE );
                     wp_localize_script( 'stcfw-search-results-backbone', 'stcfw',
                                         [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'backbone' ] );
-                    wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );                    
+                    wp_enqueue_script( 'jquery.tablesorter', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );                    
                 }
             } else if ( $search_types_custom_fields_show_using_macro === 'use gallery' ) {
                 # Classic Gallery mode
@@ -2293,7 +2279,8 @@ EOD
                                     [ 'post_type' => $_REQUEST[ 'post_type' ], 'collection' => $collection, 'mode' => 'classic' ] );
             } else {
                 # Classic Table mode
-                wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
+                wp_enqueue_script( 'jquery.tablesorter', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
+                wp_add_inline_script( 'jquery.tablesorter', 'jQuery(document).ready(function(){jQuery("table.tablesorter").tablesorter();});' );
             }
         } );   # add_action( 'wp_enqueue_scripts', function( )
     }   # if ( !empty( $search_types_custom_fields_show_using_macro ) && $search_types_custom_fields_show_using_macro !== 'use wordpress' ) {
@@ -2322,7 +2309,7 @@ EOD
                 wp_enqueue_script( 'st_iv_bootstrap', plugins_url( 'js/bootstrap.js', __FILE__ ), [ 'jquery' ], FALSE, TRUE );
             }
             wp_enqueue_script( 'stcfw-search-results-backbone-bootstrap', plugins_url( 'js/stcfw-search-results-backbone-bootstrap.js', __FILE__ ), [ 'backbone' ], FALSE, TRUE );
-            wp_enqueue_script( 'jquery.tablesorter.min', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
+            wp_enqueue_script( 'jquery.tablesorter', plugins_url( 'js/jquery.tablesorter.min.js', __FILE__ ), [ 'jquery' ] );
         } );
         add_shortcode( 'stcfw_inline_search_results', function( $atts ) {
             # shortcode attributes may specify an initial list of posts ids to load
