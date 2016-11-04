@@ -43,6 +43,7 @@ class Search_Types_Custom_Fields_Widget extends WP_Widget {
     const GET_FORM_FOR_POST_TYPE = 'get_form_for_post_type';           # AJAX action for getting the search form for a post type
     const GET_POSTS = 'stcfw_get_posts';                               # AJAX action for getting the posts satisfying a search criteria
     const GET_POSTS_BY_ID = 'stcfw_get_posts_by_id';                   # AJAX action for getting the posts by id
+    const BUILD_USER_TEMPLATES = 'stcfw_build_user_templates';         # AJAX action for building user templates
     const LANGUAGE_DOMAIN = 'search-types-custom-fields-widget';       # for .pot file
     const VALUE_FILTER_NAME = 'stcfw_display_value';                   # filter to apply to field values before they are displayed
     
@@ -179,13 +180,17 @@ EOD
     
     public function form( $instance ) {
         global $wpdb;
+        error_log( '$this=' . print_r( $this, true ) );
+        error_log( '$instance=' . print_r( $instance, true ) );
         $wpcf_types  = get_option( 'wpcf-custom-types', [ ] );
         $wpcf_fields = get_option( 'wpcf-fields',       [ ] );
 ?>
 <div class="scpbcfw-admin-button">
 <a href="http://alttypes.wordpress.com/#administrator" target="_blank"><?php _e( 'Help', self::LANGUAGE_DOMAIN ); ?></a>
 </div>
-<h4 class="scpbcfw-admin-heading"><?php _e( 'Select Fields for:', self::LANGUAGE_DOMAIN ); ?></h4>
+<h4 class="scpbcfw-admin-heading" data-option-name="<?php echo $this->option_name; ?>" data-number="<?php echo $this->number; ?>">
+    <?php _e( 'Select Fields for:', self::LANGUAGE_DOMAIN ); ?>
+</h4>
 <p style="clear:both;margin:0px;">
 <?php
         # use all Types custom post types and the WordPress built in "post" and "page"
@@ -478,6 +483,11 @@ EOD
 <?php _e( 'Do not load Bootstrap (', self::LANGUAGE_DOMAIN ); ?><a href="https://alttypes.wordpress.com/#option-9" target="_blank"><?php _e( 'Why?', self::LANGUAGE_DOMAIN ); ?></a>):
 <div style="clear:both;"></div>
 </div>
+<div class="scpbcfw-admin-option-box">
+<button id="scpbcfw-build-user-templates" class="scpbcfw-admin-option-button"><?php _e( 'Build User Templates', self::LANGUAGE_DOMAIN ); ?></button>
+<a href="https://alttypes.wordpress.com/#user-templates" target="_blank"><?php _e( 'What are user templates?', self::LANGUAGE_DOMAIN ); ?></a>
+<div style="clear:both;"></div>
+</div>
 </div>
 <?php
     }   # public function form( $instance ) {
@@ -511,7 +521,7 @@ EOD
         $instance = $widget_object->get_settings( )[ $widget_number ];
         $option = get_option( $widget_object->option_name )[ $widget_number ];
         return $option;
-    }
+    }   # public static function get_option( ) {
 
     # get_fields() returns the applicable fields for $post_type from the option for this widget
     
@@ -530,7 +540,7 @@ EOD
         }
         # display fields not explicitly specified so just use the search fields for post type if it exists otherwise no fields
         return !empty( $option[ $post_type ] ) ? $option[ $post_type ] : [ ];
-    }
+    }   # public static function get_fields( $post_type, $option = NULL ) {
 
     public static function search_wpcf_field_options( $options, $option, $value ) {
         foreach ( $options as $k => $v ) {
@@ -539,7 +549,7 @@ EOD
             }
         }
         return NULL;
-    }
+    }   # public static function search_wpcf_field_options( $options, $option, $value ) {
     
     public static function get_timestamp_from_string( $value ) {
         $t0 = strtotime( $value );
@@ -551,7 +561,7 @@ EOD
             return [ $t0, $t0 + 86399 ];
         }
         return [ $t0, $t0 + 59 ];
-    }
+    }   # public static function get_timestamp_from_string( $value ) {
     
     public static function &join_arrays( $op, &$arr0, &$arr1 ) {
         $is_arr0 = is_array( $arr0 );
@@ -578,7 +588,7 @@ EOD
         }
         $arr = FALSE;
         return $arr;
-    }
+    }   # public static function &join_arrays( $op, &$arr0, &$arr1 ) {
 
     # The value_filter() is applied to field values, field names, taxonomy values, taxonomy names and post types before they are displayed.
     # You should use "add_filter( Search_Types_Custom_Fields_Widget::VALUE_FILTER_NAME, 'your_value_filter' );" See example at the end.
@@ -591,8 +601,8 @@ EOD
             return $value;
         }
         return apply_filters( self::VALUE_FILTER_NAME, $value, $field, $post_type );
-    }
-    
+    }   # public static function value_filter( $value, $field = NULL, $post_type = NULL ) {
+
     #  get_auxiliary_data() initializes some data structures - $fields, $posts_imploded, $wpcf_fields, $post_titles - that the widget will need to do the search
     
     public static function get_auxiliary_data( $posts, $option, &$fields, &$posts_imploded, &$wpcf_fields, &$post_titles, $post_type = NULL  ) {
@@ -629,7 +639,7 @@ EOD
             $value->guid = get_permalink( $key );
         } );
         return $posts;
-    }
+    }   # public static function get_auxiliary_data( $posts, $option, &$fields, &$posts_imploded, &$wpcf_fields, &$post_titles, $post_type = NULL  ) {
 
     # get_backbone_collection() is used to generate a collection of models that may be used to populate the Backbone.js collection of posts.
     # Since, this code was derived from code used to generate an HTML table of the selected posts the value of the fields are the contents of the
@@ -973,7 +983,7 @@ EOD
         self::get_auxiliary_data( [ $post ], $option, $fields, $posts_imploded, $wpcf_fields, $post_titles, $post_type  );
         $models = self::get_backbone_collection( [ $post ], $fields, $post_type, $posts_imploded, $option, $wpcf_fields, $post_titles, FALSE );
         return $models[ 0 ];
-    }
+    }   # public static function get_items_for_post( $post, $post_type ) {
 
 }   # class Search_Types_Custom_Fields_Widget extends WP_Widget {
 
@@ -1309,6 +1319,29 @@ if ( is_admin( ) ) {
         wp_enqueue_script( 'jquery-ui-draggable' );
         wp_enqueue_script( 'jquery-ui-droppable' );
     } );
+
+    add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::BUILD_USER_TEMPLATES, function( ) {
+        error_log( '$_REQUEST=' . print_r( $_REQUEST, true ) );
+        $option = get_option( $_REQUEST[ 'option_name' ] )[ $_REQUEST[ 'number' ] ];
+        error_log( '$option=' . print_r( $option, true ) );
+        ob_start( );
+        $post_types = get_post_types( );
+        error_log( '$post_types=' . print_r( $post_types, true ) );
+        foreach ( $post_types as $post_type ) {
+            if ( !( $fields = Search_Types_Custom_Fields_Widget::get_fields( $post_type, $option ) ) ) {
+                continue;
+            }
+            error_log( '$fields=' . print_r( $fields, true ) );
+            foreach ( $fields as $field ) {
+            }
+?>
+<?php
+        }
+        $templates = ob_get_contents( );
+        ob_end_clean( );
+        die;
+    } );
+
     add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE, function( ) {
         do_action( 'wp_ajax_nopriv_' . Search_Types_Custom_Fields_Widget::GET_FORM_FOR_POST_TYPE );
     } );

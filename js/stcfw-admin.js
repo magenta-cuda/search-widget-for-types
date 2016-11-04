@@ -90,6 +90,22 @@ function stcfwInitialize(target){
             jQuery("input.scpbcfw-selectable-field-order[type='hidden']",this.parentNode.parentNode).val(o);
     }});
     jqTarget.find("input[type='checkbox'].scpbcfw-enable-table-view-option").change();
+    jqTarget.find("button#scpbcfw-build-user-templates").click(function(e){
+        var form=jQuery(this).parents("form[action='widgets.php']");
+        var heading=form.find("h4.scpbcfw-admin-heading");
+        var nonce=form.find("div.widget-control-actions input#_wpnonce");
+        jQuery.post(
+            ajaxurl,{
+                action:"stcfw_build_user_templates",
+                option_name:heading.data("option-name"),
+                number:heading.data("number"),
+                nonce:nonce.val()
+            },
+            function(response){
+            }
+        );
+        e.preventDefault();
+    });
 }
 jQuery(document).ready(function(){
     // run only on widgets admin page
