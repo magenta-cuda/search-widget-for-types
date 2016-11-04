@@ -1331,14 +1331,49 @@ if ( is_admin( ) ) {
             if ( !( $fields = Search_Types_Custom_Fields_Widget::get_fields( $post_type, $option ) ) ) {
                 continue;
             }
-            error_log( '$fields=' . print_r( $fields, true ) );
-            foreach ( $fields as $field ) {
-            }
 ?>
+<script type="text/html" id="">
+<table>
+    <thead>
+        <tr>
 <?php
-        }
-        $templates = ob_get_contents( );
+            error_log( '$fields=' . print_r( $fields, true ) );
+            # output table head cells
+            foreach ( $fields as $field ) {
+                $name = $field;
+?>
+            <th><?php echo $name; ?></th>
+<?php
+            }   # foreach ( $fields as $field ) {
+?>
+        </tr>
+    </thead>
+    <tbody>
+    {{{ data.items }}}
+    </tbody>
+</table>
+</script>
+<?php
+            # output table detail cells
+?>
+<script type="text/html" id="">
+        <tr>
+<?php
+            foreach ( $fields as $field ) {
+                $slug = $field;
+?>
+            <td>{{{ data.["<?php echo $slug; ?>"] }}}</td>
+<?php
+            }   # foreach ( $fields as $field ) {
+?>
+        </tr>
+</script>
+<?php
+        }   # foreach ( $post_types as $post_type ) {
+        $template_file = __DIR__ . '/user_templates_starter.php';
+        $result = file_put_contents( $template_file, ob_get_contents( ) );
         ob_end_clean( );
+        echo "$result bytes written to $template_file.";
         die;
     } );
 
