@@ -1322,6 +1322,7 @@ if ( is_admin( ) ) {
 
     add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::BUILD_USER_TEMPLATES, function( ) {
         error_log( '$_REQUEST=' . print_r( $_REQUEST, true ) );
+        check_ajax_referer("save-delete-widget-{$_REQUEST['widget_id']}", 'nonce' );
         $option = get_option( $_REQUEST[ 'option_name' ] )[ $_REQUEST[ 'number' ] ];
         error_log( '$option=' . print_r( $option, true ) );
         ob_start( );

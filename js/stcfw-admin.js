@@ -93,12 +93,14 @@ function stcfwInitialize(target){
     jqTarget.find("button#scpbcfw-build-user-templates").click(function(e){
         var form=jQuery(this).parents("form[action='widgets.php']");
         var heading=form.find("h4.scpbcfw-admin-heading");
+        var widgetId=form.find("div.widget-control-actions input.widget-id");
         var nonce=form.find("div.widget-control-actions input#_wpnonce");
         jQuery.post(
             ajaxurl,{
                 action:"stcfw_build_user_templates",
                 option_name:heading.data("option-name"),
                 number:heading.data("number"),
+                widget_id:widgetId.val(),
                 nonce:nonce.val()
             },
             function(response){
