@@ -1343,9 +1343,20 @@ if ( is_admin( ) ) {
         <tr>
 <?php
             error_log( '$fields=' . print_r( $fields, true ) );
+            $fields = array_map( function( $field ) {
+                if ( preg_match( '#^(wpcf|tax-tag)-([\w-]+)$#', $field, $matches ) ) {
+                    return [ ucwords( str_replace( '-', ' ', $matches[ 2 ] ) ), $matches[ 2 ] ];
+                } else if ( preg_match( '#^_wpcf_belongs_([\w-]+)_id$#', $field, $matches ) ) {
+                    return [ ucwords( str_replace( '-', ' ', $matches[ 1 ] ) ), "{$matches[1]}_id_of" ];
+                } else if ( preg_match( '#^inverse_([\w-]+)__wpcf_belongs_([\w-]+)_id$#', $field, $matches ) ) {
+                    return [ ucwords( str_replace( '-', ' ', $matches[ 1 ] ) ), "{$matches[1]}_id_for" ];
+                }
+                return [ NULL, NULL ];
+            }, $fields );
+            error_log( '$fields=' . print_r( $fields, true ) );
             # output table head cells
             foreach ( $fields as $field ) {
-                $name = $field;
+                $name = $field[ 0 ];
 ?>
             <th><?php echo $name; ?></th>
 <?php
@@ -1373,7 +1384,7 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
         <tr>
 <?php
             foreach ( $fields as $field ) {
-                $slug = $field;
+                $slug = $field[ 1 ];
 ?>
             <td>{{{ data.["<?php echo $slug; ?>"] }}}</td>
 <?php
