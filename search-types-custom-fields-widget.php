@@ -482,8 +482,8 @@ EOD
 <div style="clear:both;"></div>
 </div>
 <div class="scpbcfw-admin-option-box">
-<button id="scpbcfw-build-user-templates" class="scpbcfw-admin-option-button"><?php _e( 'Build User Templates', self::LANGUAGE_DOMAIN ); ?></button>
-<a href="https://alttypes.wordpress.com/#user-templates" target="_blank"><?php _e( 'What are user templates?', self::LANGUAGE_DOMAIN ); ?></a>
+<?php _e( 'Generate ', self::LANGUAGE_DOMAIN ); ?><a href="https://alttypes.wordpress.com/#user-templates" target="_blank"><?php _e( 'user templates', self::LANGUAGE_DOMAIN ); ?></a>
+<button id="scpbcfw-build-user-templates" class="scpbcfw-admin-option-button"><?php _e( 'Do It', self::LANGUAGE_DOMAIN ); ?></button>
 <div style="clear:both;"></div>
 </div>
 </div>
@@ -1394,7 +1394,7 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
 </script>
 <?php
         }   # foreach ( $post_types as $post_type ) {
-        $template_file = __DIR__ . '/user_templates_starter.php';
+        $template_file = __DIR__ . '/user-templates-starter.php';
         $result = file_put_contents( $template_file, ob_get_contents( ) );
         ob_end_clean( );
         echo "$result bytes written to $template_file.";

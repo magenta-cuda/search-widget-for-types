@@ -58,7 +58,7 @@ div.scpbcfw-admin-display-button{
     margin:5px;
     font-size:12px;
     font-weight:bold;
-	cursor:pointer;
+    cursor:pointer;
 }
 
 div.scpbcfw-admin-display-button:hover{
@@ -92,3 +92,19 @@ input.scpbcfw-admin-option-checkbox{
     margin-left:5px;
 }
 
+button.scpbcfw-admin-option-button{
+    background-color:#c0c0c0;
+    width:5em;
+    float:right;
+    border:2px solid black;
+    border-radius:7px;
+    text-align:center;
+    margin:5px;
+    font-size:12px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button.scpbcfw-admin-option-button:hover{
+	background-color:#ffffff;
+}
