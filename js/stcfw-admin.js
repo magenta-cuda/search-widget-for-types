@@ -95,17 +95,20 @@ function stcfwInitialize(target){
         var heading=form.find("h4.scpbcfw-admin-heading");
         var widgetId=form.find("div.widget-control-actions input.widget-id");
         var nonce=form.find("div.widget-control-actions input#_wpnonce");
-        jQuery.post(
-            ajaxurl,{
-                action:"stcfw_build_user_templates",
-                option_name:heading.data("option-name"),
-                number:heading.data("number"),
-                widget_id:widgetId.val(),
-                nonce:nonce.val()
-            },
-            function(response){
-            }
-        );
+        if(window.confirm("Warning: This will overwrite your user_templates.php file if it exists.")){
+            jQuery.post(
+                ajaxurl,{
+                    action:"stcfw_build_user_templates",
+                    option_name:heading.data("option-name"),
+                    number:heading.data("number"),
+                    widget_id:widgetId.val(),
+                    nonce:nonce.val()
+                },
+                function(response){
+                    window.alert(response);
+                }
+            );
+        }
         e.preventDefault();
     });
 }
