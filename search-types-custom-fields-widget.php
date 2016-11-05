@@ -1324,8 +1324,11 @@ if ( is_admin( ) ) {
         ob_start( );
 ?>
 <!--
-This file should be named "user-templates.php" and be in the plugin's main directory.
-These templates should work as is but you may want to tweak the width of table and footer and change the column headings.
+    This file should be named "user-templates.php" and be in this plugin's main directory.
+    These templates should work as is but you may want to tweak the width of tables and footers and change the column headings.
+    The css for these templates are in the file "css/user-styles.css".
+    Beware the only fields that are available for use in templates are those enabled for display in the search widget.
+    Please see "user-templates-sample.php" for examples of some advanced features of user templates.
 -->
 <?php
         $post_types = get_post_types( );
@@ -1344,7 +1347,7 @@ These templates should work as is but you may want to tweak the width of table a
         <tr>
 <?php
             $fields = array_filter( array_map( function( $field ) {
-                if ( preg_match( '#^(wpcf|tax-tag)-([\w-]+)$#', $field, $matches ) ) {
+                if ( preg_match( '#^(wpcf|tax-cat|tax-tag|pst-std)-([\w-]+)$#', $field, $matches ) ) {
                     return [ ucwords( str_replace( '-', ' ', $matches[ 2 ] ) ), $matches[ 2 ] ];
                 } else if ( preg_match( '#^_wpcf_belongs_([\w-]+)_id$#', $field, $matches ) ) {
                     return [ ucwords( str_replace( '-', ' ', $matches[ 1 ] ) ), "{$matches[1]}_id_of" ];
@@ -1386,7 +1389,7 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
             foreach ( $fields as $field ) {
                 $slug = $field[ 1 ];
 ?>
-            <td>{{{ data.["<?php echo $slug; ?>"] }}}</td>
+            <td>{{{ data["<?php echo $slug; ?>"] }}}</td>
 <?php
             }   # foreach ( $fields as $field ) {
 ?>
@@ -1394,7 +1397,7 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
 </script>
 <?php
         }   # foreach ( $post_types as $post_type ) {
-        $template_file = __DIR__ . '/user-templates-starter.php';
+        $template_file = __DIR__ . '/user-templates.php';
         $result = file_put_contents( $template_file, ob_get_contents( ) );
         ob_end_clean( );
         echo "$result bytes written to $template_file.";
