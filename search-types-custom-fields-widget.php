@@ -180,8 +180,6 @@ EOD
     
     public function form( $instance ) {
         global $wpdb;
-        error_log( '$this=' . print_r( $this, true ) );
-        error_log( '$instance=' . print_r( $instance, true ) );
         $wpcf_types  = get_option( 'wpcf-custom-types', [ ] );
         $wpcf_fields = get_option( 'wpcf-fields',       [ ] );
 ?>
@@ -1321,13 +1319,16 @@ if ( is_admin( ) ) {
     } );
 
     add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::BUILD_USER_TEMPLATES, function( ) {
-        error_log( '$_REQUEST=' . print_r( $_REQUEST, true ) );
         check_ajax_referer("save-delete-widget-{$_REQUEST['widget_id']}", 'nonce' );
         $option = get_option( $_REQUEST[ 'option_name' ] )[ $_REQUEST[ 'number' ] ];
-        error_log( '$option=' . print_r( $option, true ) );
         ob_start( );
+?>
+<!--
+This file should be named "user-templates.php" and be in the plugin's main directory.
+These templates should work as is but you may want to tweak the width of table and footer and change the column headings.
+-->
+<?php
         $post_types = get_post_types( );
-        error_log( '$post_types=' . print_r( $post_types, true ) );
         foreach ( $post_types as $post_type ) {
             if ( !( $fields = Search_Types_Custom_Fields_Widget::get_fields( $post_type, $option ) ) ) {
                 continue;
@@ -1337,12 +1338,11 @@ if ( is_admin( ) ) {
 <!-- Bootstrap Backbone Container Template for Tables of Post Type: <?php echo $post_type; ?> -->
 
 <script type="text/html" id="st_iv-bs-template_table-<?php echo $post_type; ?>">
-<div class="table st_iv-table-base st_iv-table-<?php echo $post_type; ?>">
+<div class="table st_iv-table-base st_iv-table-<?php echo $post_type; ?>" style="width:2000px;">
 <table class="st_iv-table-base tablesorter st_iv-table-<?php echo $post_type; ?>">
     <thead>
         <tr>
 <?php
-            error_log( '$fields=' . print_r( $fields, true ) );
             $fields = array_filter( array_map( function( $field ) {
                 if ( preg_match( '#^(wpcf|tax-tag)-([\w-]+)$#', $field, $matches ) ) {
                     return [ ucwords( str_replace( '-', ' ', $matches[ 2 ] ) ), $matches[ 2 ] ];
@@ -1354,7 +1354,6 @@ if ( is_admin( ) ) {
                 return FALSE;
             }, $fields ) );
             array_unshift( $fields, [ ucwords( str_replace( '-', ' ', $post_type ) ), 'post_title' ] );
-            error_log( '$fields=' . print_r( $fields, true ) );
             # output table head cells
             foreach ( $fields as $field ) {
                 $name = $field[ 0 ];
@@ -1369,7 +1368,7 @@ if ( is_admin( ) ) {
     {{{ data.items }}}
     </tbody>
 </table>
-<div class="st_iv-table-footer st_iv-table-footer-<?php echo $post_type; ?>">
+<div class="st_iv-table-footer st_iv-table-footer-<?php echo $post_type; ?>" style="width:2000px;">
 You can sort by a column by clicking on the column header.
 You can do a multi-column sort by pressing the shift key on subsequent columns.
 </div>
