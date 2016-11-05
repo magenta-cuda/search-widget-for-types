@@ -1332,8 +1332,12 @@ if ( is_admin( ) ) {
                 continue;
             }
 ?>
-<script type="text/html" id="">
-<table>
+
+<!-- Bootstrap Backbone Container Template for Tables of Post Type: <?php echo $post_type; ?> -->
+
+<script type="text/html" id="st_iv-bs-template_table-<?php echo $post_type; ?>">
+<div class="table st_iv-table-base st_iv-table-<?php echo $post_type; ?>">
+<table class="st_iv-table-base tablesorter st_iv-table-<?php echo $post_type; ?>">
     <thead>
         <tr>
 <?php
@@ -1352,11 +1356,19 @@ if ( is_admin( ) ) {
     {{{ data.items }}}
     </tbody>
 </table>
+<div class="st_iv-table-footer st_iv-table-footer-<?php echo $post_type; ?>">
+You can sort by a column by clicking on the column header.
+You can do a multi-column sort by pressing the shift key on subsequent columns.
+</div>
+</div>
 </script>
 <?php
             # output table detail cells
 ?>
-<script type="text/html" id="">
+
+<!-- Bootstrap Backbone Container Template for Table Details of Post Type: <?php echo $post_type; ?> -->
+
+<script type="text/html" id="st_iv-bs-template_table_item-<?php echo $post_type; ?>">
         <tr>
 <?php
             foreach ( $fields as $field ) {
