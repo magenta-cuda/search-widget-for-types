@@ -1343,7 +1343,7 @@ if ( is_admin( ) ) {
         <tr>
 <?php
             error_log( '$fields=' . print_r( $fields, true ) );
-            $fields = array_map( function( $field ) {
+            $fields = array_filter( array_map( function( $field ) {
                 if ( preg_match( '#^(wpcf|tax-tag)-([\w-]+)$#', $field, $matches ) ) {
                     return [ ucwords( str_replace( '-', ' ', $matches[ 2 ] ) ), $matches[ 2 ] ];
                 } else if ( preg_match( '#^_wpcf_belongs_([\w-]+)_id$#', $field, $matches ) ) {
@@ -1351,8 +1351,9 @@ if ( is_admin( ) ) {
                 } else if ( preg_match( '#^inverse_([\w-]+)__wpcf_belongs_([\w-]+)_id$#', $field, $matches ) ) {
                     return [ ucwords( str_replace( '-', ' ', $matches[ 1 ] ) ), "{$matches[1]}_id_for" ];
                 }
-                return [ NULL, NULL ];
-            }, $fields );
+                return FALSE;
+            }, $fields ) );
+            array_unshift( $fields, [ ucwords( str_replace( '-', ' ', $post_type ) ), 'post_title' ] );
             error_log( '$fields=' . print_r( $fields, true ) );
             # output table head cells
             foreach ( $fields as $field ) {
