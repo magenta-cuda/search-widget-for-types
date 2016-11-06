@@ -1349,15 +1349,15 @@ if ( is_admin( ) ) {
 <?php
             $fields = array_filter( array_map( function( $field ) {
                 if ( preg_match( '#^(wpcf|tax-cat|tax-tag|pst-std)-([\w-]+)$#', $field, $matches ) ) {
-                    return [ ucwords( str_replace( '-', ' ', $matches[ 2 ] ) ), $matches[ 2 ] ];
+                    return [ ucwords( str_replace( [ '-', '_' ], ' ', $matches[ 2 ] ) ), $matches[ 2 ] ];
                 } else if ( preg_match( '#^_wpcf_belongs_([\w-]+)_id$#', $field, $matches ) ) {
-                    return [ ucwords( str_replace( '-', ' ', $matches[ 1 ] ) ), "{$matches[1]}_id_of" ];
+                    return [ ucwords( str_replace( [ '-', '_' ], ' ', $matches[ 1 ] ) ), "{$matches[1]}_id_of" ];
                 } else if ( preg_match( '#^inverse_([\w-]+)__wpcf_belongs_([\w-]+)_id$#', $field, $matches ) ) {
-                    return [ ucwords( str_replace( '-', ' ', $matches[ 1 ] ) ), "{$matches[1]}_id_for" ];
+                    return [ ucwords( str_replace( [ '-', '_' ], ' ', $matches[ 1 ] ) ), "{$matches[1]}_id_for" ];
                 }
                 return FALSE;
             }, $fields ) );
-            array_unshift( $fields, [ ucwords( str_replace( '-', ' ', $post_type ) ), 'post_title' ] );
+            array_unshift( $fields, [ ucwords( str_replace( [ '-', '_' ], ' ', $post_type ) ), 'post_title' ] );
             # output table head cells
             foreach ( $fields as $field ) {
                 $name = $field[ 0 ];
