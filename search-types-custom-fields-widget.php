@@ -1342,8 +1342,8 @@ if ( is_admin( ) ) {
 <!-- Bootstrap Backbone Container Template for Tables of Post Type: <?php echo $post_type; ?> -->
 
 <script type="text/html" id="st_iv-bs-template_table-<?php echo $post_type; ?>">
-<div class="table st_iv-table-base st_iv-table-<?php echo $post_type; ?>" style="width:2000px;">
-<table class="st_iv-table-base tablesorter st_iv-table-<?php echo $post_type; ?>">
+<div class="table st_iv-table-base st_iv-table-<?php echo $post_type; ?>">
+<table class="st_iv-table-base tablesorter st_iv-table-<?php echo $post_type; ?>" style="width:2000px;">
     <thead>
         <tr>
 <?php
@@ -1401,7 +1401,9 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
         $template_file = __DIR__ . '/user-templates.php';
         $result = file_put_contents( $template_file, ob_get_contents( ) );
         ob_end_clean( );
-        echo "$result bytes written to $template_file.";
+  ?>
+  <?php echo $result; ?> bytes written to <?php echo $template_file; ?>. Although this file should work as is for best results you should customize it. You may want to change the order of the columns, delete columns, change the column headings or change the width of the tables.
+  <?php
         die;
     } );
 
