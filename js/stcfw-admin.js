@@ -96,29 +96,32 @@ function stcfwInitialize(target){
         var widgetId=form.find("div.widget-control-actions input.widget-id");
         var nonce=form.find("div.widget-control-actions input#_wpnonce");
         if(window.confirm("Warning: This will overwrite your user_templates.php file if it exists.")){
-            jQuery.post(
-                ajaxurl,{
-                    action:"stcfw_build_user_templates",
-                    option_name:heading.data("option-name"),
-                    number:heading.data("number"),
-                    widget_id:widgetId.val(),
-                    nonce:nonce.val()
-                },
-                function(response){
-                    var alert=jQuery("<div />").css({
-                        position:"fixed",width:"90vw",height:"80vh",left:"5vw",top:"10vh",zIndex:10000,
-                        border:"2px solid #666",borderRadius:"7px",backgroundColor:"#fff",
-                        overflow:"auto"
-                    });
-                    jQuery("<button>X</button>").css({float:"right",margin:"20px"}).appendTo(alert).click(function(e){
-                        alert.remove();
-                        e.preventDefault();
-                    });
-                    jQuery("<div />").css({clear:"both",margin:"20px 50px",padding:"20px"}).text(response.message).appendTo(alert);
-                    jQuery("<pre />").css({clear:"both",margin:"20px 50px",padding:"20px",border:"1px solid black"}).text(response.templates).appendTo(alert);
-                    form.append(alert);
-                }
-            );
+            var params={
+                action:"stcfw_build_user_templates",
+                option_name:heading.data("option-name"),
+                number:heading.data("number"),
+                widget_id:widgetId.val(),
+                nonce:nonce.val(),
+                mode:"file"
+            };
+            jQuery.post(ajaxurl,params,function(response){
+                var alert=jQuery("<div />").css({
+                    position:"fixed",width:"90vw",height:"80vh",left:"5vw",top:"10vh",zIndex:10000,
+                    border:"2px solid #666",borderRadius:"7px",backgroundColor:"#fff",
+                    overflow:"auto"
+                });
+                jQuery("<button>X</button>").css({float:"right",margin:"20px"}).appendTo(alert).click(function(e){
+                    alert.remove();
+                    e.preventDefault();
+                });
+                jQuery("<div />").css({clear:"both",margin:"20px 50px",padding:"20px"}).text(response.message).appendTo(alert);
+                params.mode="download";
+                jQuery("<div />").css({clear:"both",margin:"20px 50px",padding:"20px",textAlign:"right"}).append(
+                    jQuery('<a href="'+ajaxurl+'?'+jQuery.param(params)+'" download="user_templates.php">Download</a>')
+                ).appendTo(alert);
+                jQuery("<pre />").css({clear:"both",margin:"20px 50px",padding:"20px",border:"1px solid black"}).text(response.templates).appendTo(alert);
+                form.append(alert);
+            });
         }
         e.preventDefault();
     });

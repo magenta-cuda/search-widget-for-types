@@ -1408,7 +1408,11 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
   <?php
         $message = ob_get_contents( );
         ob_end_clean( );
-        wp_send_json( [ 'message' => $message, 'templates' => $templates ] );
+        if ( $_REQUEST[ 'mode' ] !== 'download' ) {
+            wp_send_json( [ 'message' => $message, 'templates' => $templates ] );
+        } else {
+            echo $templates;
+        }
         die;
     } );
 
