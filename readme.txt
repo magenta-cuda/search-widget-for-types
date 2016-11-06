@@ -44,6 +44,7 @@ Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
 == Changelog ==
 
 = 2.2.1 =
+* added automatic generation of user templates
 * fix HTML validation errors
 
 = 2.2 =
@@ -153,6 +154,7 @@ Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
 
 == Upgrade Notice ==
 = 2.2.1 =
+* added automatic generation of user templates
 * fix HTML validation errors
 = 2.2 =
 * added support for a JavaScript/Backbone client

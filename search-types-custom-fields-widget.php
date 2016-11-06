@@ -1326,6 +1326,7 @@ if ( is_admin( ) ) {
 <!--
     This file should be named "user-templates.php" and be in this plugin's main directory.
     These templates should work as is but you may want to tweak the width of tables and footers and change the column headings.
+    You may also want to change the order or delete some columns in the tables.
     The css for these templates are in the file "css/user-styles.css".
     Beware the only fields that are available for use in templates are those enabled for display in the search widget.
     Please see "user-templates-sample.php" for examples of some advanced features of user templates.
