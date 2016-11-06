@@ -114,12 +114,12 @@ function stcfwInitialize(target){
                     alert.remove();
                     e.preventDefault();
                 });
-                jQuery("<div />").css({clear:"both",margin:"20px 50px",padding:"20px"}).text(response.message).appendTo(alert);
+                jQuery("<div />").css({clear:"both",margin:"20px 50px 10px",padding:"20px"}).text(response.message).appendTo(alert);
                 params.mode="download";
-                jQuery("<div />").css({clear:"both",margin:"20px 50px",padding:"20px",textAlign:"right"}).append(
-                    jQuery('<a href="'+ajaxurl+'?'+jQuery.param(params)+'" download="user_templates.php">Download</a>')
+                jQuery("<div />").css({clear:"both",margin:"10px 50px",padding:"20px",textAlign:"right"}).append(
+                    jQuery('<a href="'+ajaxurl+'?'+jQuery.param(params)+'" download="user-templates.php">Download</a>')
                 ).appendTo(alert);
-                jQuery("<pre />").css({clear:"both",margin:"20px 50px",padding:"20px",border:"1px solid black"}).text(response.templates).appendTo(alert);
+                jQuery("<pre />").css({clear:"both",margin:"10px 50px 30px",padding:"20px",border:"1px solid black"}).text(response.templates).appendTo(alert);
                 form.append(alert);
             });
         }

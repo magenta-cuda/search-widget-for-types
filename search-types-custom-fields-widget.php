@@ -1402,9 +1402,14 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
         ob_end_clean( );
         $template_file = __DIR__ . '/user-templates.php';
         $result = file_put_contents( $template_file, $templates );
+        if ( $result > 0 ) {
+            $status = "$result bytes written to $template_file. ";
+        } else {
+            $status = "$template_file cannot be written. You must install this file manually. ";
+        }
         ob_start( );
   ?>
-  <?php echo $result; ?> bytes written to <?php echo $template_file; ?>. Although this file should work as is for best results you should customize it. You may want to change the order of the columns, delete columns, change the column headings or change the width of the tables.
+  <?php echo $status; ?> Although this file should work as is for best results you should customize it. You may want to change the order of the columns, delete columns, change the column headings or change the width of the tables.
   <?php
         $message = ob_get_contents( );
         ob_end_clean( );
