@@ -1398,12 +1398,17 @@ You can do a multi-column sort by pressing the shift key on subsequent columns.
 </script>
 <?php
         }   # foreach ( $post_types as $post_type ) {
-        $template_file = __DIR__ . '/user-templates.php';
-        $result = file_put_contents( $template_file, ob_get_contents( ) );
+        $templates = ob_get_contents( );
         ob_end_clean( );
+        $template_file = __DIR__ . '/user-templates.php';
+        $result = file_put_contents( $template_file, $templates );
+        ob_start( );
   ?>
   <?php echo $result; ?> bytes written to <?php echo $template_file; ?>. Although this file should work as is for best results you should customize it. You may want to change the order of the columns, delete columns, change the column headings or change the width of the tables.
   <?php
+        $message = ob_get_contents( );
+        ob_end_clean( );
+        wp_send_json( [ 'message' => $message, 'templates' => $templates ] );
         die;
     } );
 

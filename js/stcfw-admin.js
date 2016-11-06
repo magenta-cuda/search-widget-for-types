@@ -106,13 +106,16 @@ function stcfwInitialize(target){
                 },
                 function(response){
                     var alert=jQuery("<div />").css({
-                        position:"fixed",width:"90vw",height:"80vh",left:"5vw",top:"10vh",zIndex:10000,border:"2px solid #666",borderRadius:"7px",backgroundColor:"#fff"
+                        position:"fixed",width:"90vw",height:"80vh",left:"5vw",top:"10vh",zIndex:10000,
+                        border:"2px solid #666",borderRadius:"7px",backgroundColor:"#fff",
+                        overflow:"auto"
                     });
                     jQuery("<button>X</button>").css({float:"right",margin:"20px"}).appendTo(alert).click(function(e){
                         alert.remove();
                         e.preventDefault();
                     });
-                    jQuery("<div />").css({clear:"both",margin:"20px",padding:"20px",border:"1px solid black"}).text(response).appendTo(alert);
+                    jQuery("<div />").css({clear:"both",margin:"20px 50px",padding:"20px"}).text(response.message).appendTo(alert);
+                    jQuery("<pre />").css({clear:"both",margin:"20px 50px",padding:"20px",border:"1px solid black"}).text(response.templates).appendTo(alert);
                     form.append(alert);
                 }
             );
