@@ -105,7 +105,15 @@ function stcfwInitialize(target){
                     nonce:nonce.val()
                 },
                 function(response){
-                    window.alert(response);
+                    var alert=jQuery("<div />").css({
+                        position:"fixed",width:"90vw",height:"80vh",left:"5vw",top:"10vh",zIndex:10000,border:"2px solid #666",borderRadius:"7px",backgroundColor:"#fff"
+                    });
+                    jQuery("<button>X</button>").css({float:"right",margin:"20px"}).appendTo(alert).click(function(e){
+                        alert.remove();
+                        e.preventDefault();
+                    });
+                    jQuery("<div />").css({clear:"both",margin:"20px",padding:"20px",border:"1px solid black"}).text(response).appendTo(alert);
+                    form.append(alert);
                 }
             );
         }
