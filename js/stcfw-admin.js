@@ -91,17 +91,20 @@ function stcfwInitialize(target){
     }});
     jqTarget.find("input[type='checkbox'].scpbcfw-enable-table-view-option").change();
     jqTarget.find("button#scpbcfw-build-user-templates").click(function(e){
-        var form=jQuery(this).parents("form[action='widgets.php']");
+        var form=jQuery(this).parents("form").first();
         var heading=form.find("h4.scpbcfw-admin-heading");
-        var widgetId=form.find("div.widget-control-actions input.widget-id");
-        var nonce=form.find("div.widget-control-actions input#_wpnonce");
+        var widgetId=form.find("input[name='widget-id']");
+        if(!heading.length||!widgetId.length){
+            window.alert("Error 161106: Search Widget is not compatible with this version of WordPress.");
+            return;
+        }
         if(window.confirm("Warning: This will overwrite your user_templates.php file if it exists.")){
             var params={
                 action:"stcfw_build_user_templates",
                 option_name:heading.data("option-name"),
                 number:heading.data("number"),
                 widget_id:widgetId.val(),
-                nonce:nonce.val(),
+                nonce:heading.data("nonce"),
                 mode:"file"
             };
             jQuery.post(ajaxurl,params,function(response){

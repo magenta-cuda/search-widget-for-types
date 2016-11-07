@@ -186,7 +186,8 @@ EOD
 <div class="scpbcfw-admin-button">
 <a href="http://alttypes.wordpress.com/#administrator" target="_blank"><?php _e( 'Help', self::LANGUAGE_DOMAIN ); ?></a>
 </div>
-<h4 class="scpbcfw-admin-heading" data-option-name="<?php echo $this->option_name; ?>" data-number="<?php echo $this->number; ?>">
+<h4 class="scpbcfw-admin-heading" data-option-name="<?php echo $this->option_name; ?>" data-number="<?php echo $this->number; ?>"
+    data-nonce="<?php echo wp_create_nonce( self::BUILD_USER_TEMPLATES ); ?>">
     <?php _e( 'Select Fields for:', self::LANGUAGE_DOMAIN ); ?>
 </h4>
 <p style="clear:both;margin:0px;">
@@ -1319,7 +1320,10 @@ if ( is_admin( ) ) {
     } );
 
     add_action( 'wp_ajax_' . Search_Types_Custom_Fields_Widget::BUILD_USER_TEMPLATES, function( ) {
-        check_ajax_referer("save-delete-widget-{$_REQUEST['widget_id']}", 'nonce' );
+        if ( !check_ajax_referer( Search_Types_Custom_Fields_Widget::BUILD_USER_TEMPLATES, 'nonce', FALSE ) ) {
+            echo 'Error: invalid nonce';
+            die;
+        }
         $option = get_option( $_REQUEST[ 'option_name' ] )[ $_REQUEST[ 'number' ] ];
         ob_start( );
 ?>
