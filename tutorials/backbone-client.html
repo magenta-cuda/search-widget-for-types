@@ -145,15 +145,12 @@ A more typical application would use WordPress to generate the header, sidebar a
         content = "";
         for ( var collection in collections ) {
             content += "name: " + collection + "\n";
-            var endpoints=collections[collection].prototype.route.route.endpoints;
             parametersForCollection[collection] = { };
-            endpoints.forEach( function( endpoint ) {
-                var options = endpoint.args;
-                for ( var option in options ) {
-                    content += "    " + option + ": " + options[ option ].description + "\n";
-                    parametersForCollection[collection][option] = options[option].description;
-                }    
-            } );
+            var options = collections[collection].prototype.options;
+            for ( var option in options ) {
+                content += "    " + option + ": " + options[ option ].description + "\n";
+                parametersForCollection[collection][option] = options[option].description;
+            }    
         }
         document.querySelector("pre.parameters").textContent = content;
         createCollectionSelect( );

@@ -254,7 +254,7 @@ space.deferred = jQuery.Deferred().done( function( deferred ) {
 						} else {
 
 							// We already have options, merge these new args in.
-							modelInstance.prototype.options = _.union( routeEndpoint.args, modelInstance.prototype.options );
+							modelInstance.prototype.options = _.extendOwn( { }, routeEndpoint.args, modelInstance.prototype.options );
 						}
 					}
 
