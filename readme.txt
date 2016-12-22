@@ -2,8 +2,8 @@
 Contributors: Magenta Cuda
 Tags: search, custom fields
 Requires at least: 3.6
-Tested up to: 4.6
-Stable tag: 2.2.1
+Tested up to: 4.7
+Stable tag: 2.2.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,9 @@ Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
 1. The "Search Widget" interactively loads the "Search Results Pane".
 
 == Changelog ==
+
+= 2.2.1.1 =
+* make compatible with the REST API of WordPress 4.7
 
 = 2.2.1 =
 * added automatic generation of user templates
@@ -153,6 +156,8 @@ Please read the [documentation](https://alttypes.wordpress.com/#rest-api).
 * Initial release.
 
 == Upgrade Notice ==
+= 2.2.1.1 =
+* make compatible with the REST API of WordPress 4.7
 = 2.2.1 =
 * added automatic generation of user templates
 * fix HTML validation errors
